@@ -12,9 +12,10 @@ import zipfile
 
 from xml.dom import minidom
 
-from epub.ncx import parse_toc
+from epub import ncx
 
 MIMETYPE_OPF = u'application/oebps-package+xml'
+MIMETYPE_NCX = u'application/x-dtbncx+xml'
 
 def open(filename):
     """Ouvre un fichier epub et retourne un objet EpubFile.
@@ -80,7 +81,7 @@ def open(filename):
                                    e.getAttribute('title'))
 
     # Inspect NCX toc file
-    book.toc = parse_toc(book.read(item_toc))
+    book.toc = ncx.parse_toc(book.read(item_toc))
 
     return book
 

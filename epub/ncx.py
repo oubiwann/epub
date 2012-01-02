@@ -9,8 +9,6 @@ NCX Epub spec: http://idpf.org/epub/20/spec/OPF_2.0.1_draft.htm#Section2.4.1
 
 from xml.dom import minidom
 
-MIMETYPE = u'application/x-dtbncx+xml'
-
 def parse_toc(xmlstring):
     """Parse un document xml NCX à partir d'une chaîne de caractères."""
     toc = NcxFile()
@@ -33,20 +31,24 @@ def parse_toc(xmlstring):
     toc.max_page_number = metas['dtb:maxPageNumber']
     toc.generator = metas['dtb:generator']
 
-    # Get title (<docTitle> tag is required)
+    # Get title (one and only one <docTitle> tag is required)
     toc.title = _parse_for_text_tag(toc_xml.getElementsByTagName('docTitle')[0])
 
     # Get authors (<docAuthor> tags are optionnal)
     for author in toc_xml.getElementsByTagName('docAuthor'):
         toc.authors.append(_parse_for_text_tag(author))
 
-    # Inspect <navMap>
+    # Inspect <navMap> (one is required)
     toc.nav_map = _parse_xml_nav_map(toc_xml.getElementsByTagName('navMap')[0])
 
-    # Inspect <pageList> (if exist)
-    for page_list in toc_xml.getElementsByTagName('pageList'):
-        for page_target in page_list.getElementsByTagName('pageTarget'):
-            toc.page_list.append(_parse_xml_page_target(page_target))
+    # Inspect <pageList> (optionnal, only one)
+    page_lists = toc_xml.getElementsByTagName('pageList')
+    if len(page_lists) > 0:
+        toc.page_list = _parse_xml_page_list(page_lists[0])
+
+    # Inspect <navList> (optionnal, many are possible)
+    for nav_list in toc_xml.getElementsByTagName('navList'):
+        toc.add_nav_list(_parse_xml_nav_list(nav_list))
 
     return toc
 
@@ -106,8 +108,10 @@ def _parse_xml_page_list(element):
             page_list.add_info(_parse_for_text_tag(node),
                                node.getAttribute('xml:lang'),
                                node.getAttribute('dir'))
-        elif node.tagName == 'navPoint':
+        elif node.tagName == 'pageTarget':
             page_list.add_target(_parse_xml_page_target(node))
+
+    return page_list
 
 def _parse_xml_page_target(element):
     """Parse un ELEMENT_NODE <pageTarget> et retourne un objet NcxPageTarget"""
@@ -128,6 +132,46 @@ def _parse_xml_page_target(element):
             page_target.src = node.getAttribute('src')
 
     return page_target
+
+def _parse_xml_nav_list(element):
+    """Parse un ELEMENT_NODE <navList> et retourne un objet NcxNavList"""
+    nav_list = NcxNavList()
+    nav_list.id = element.getAttribute('id')
+    nav_list.class_name = element.getAttribute('class')
+
+    children = [e for e in element.childNodes if e.nodeType == e.ELEMENT_NODE]
+    for node in children:
+        if node.tagName == 'navLabel':
+            nav_list.add_label(_parse_for_text_tag(node),
+                                node.getAttribute('xml:lang'),
+                                node.getAttribute('dir'))
+        elif node.tagName == 'navInfo':
+            nav_list.add_info(_parse_for_text_tag(node),
+                               node.getAttribute('xml:lang'),
+                               node.getAttribute('dir'))
+        elif node.tagName == 'navTarget':
+            nav_list.add_target(_parse_xml_nav_target(node))
+
+    return nav_list
+
+def _parse_xml_nav_target(element):
+    """Parse un ELEMENT_NODE <navTarget> et retourne un objet NcxNavTarget"""
+    nav_target = NcxNavTarget()
+    nav_target.id = element.getAttribute('id')
+    nav_target.value = element.getAttribute('value')
+    nav_target.class_name = element.getAttribute('class')
+    nav_target.play_order = element.getAttribute('playOrder')
+
+    children = [e for e in element.childNodes if e.nodeType == e.ELEMENT_NODE]
+    for node in children:
+        if node.tagName == 'navLabel':
+            nav_target.add_label(_parse_for_text_tag(node),
+                                  node.getAttribute('xml:lang'),
+                                  node.getAttribute('dir'))
+        elif node.tagName == 'content':
+            nav_target.src = node.getAttribute('src')
+
+    return nav_target
 
 def _parse_for_text_tag(xml_element, name=u'text'):
     """Parse un ELEMENT_NODE pour obtenir le texte de son enfant
@@ -172,10 +216,12 @@ class NcxFile(object):
         self.generator = None 
         self.title = None
         self.authors = []
-        self.nav_map = NcxNavMap()
-        self.page_list = []
+        self.nav_map = None
+        self.page_list = None
         self.nav_lists = []
 
+    def add_nav_list(self, nav_list):
+        self.nav_lists.append(nav_list)
 
 class NcxNavMap(object):
     """Représente la navMap d'un fichier NCX"""
@@ -266,3 +312,44 @@ class NcxPageTarget(object):
 
     def add_label(self, label, lang=u'', dir=u''):
         self.labels.append((label, lang, dir))
+
+class NcxNavList(object):
+    id = None
+    class_name = None
+    labels = None
+    infos = None
+    nav_target = None
+
+    def __init__(self):
+        self.id = None
+        self.class_nampe = None
+        self.nav_target = []
+        self.labels = []
+        self.infos = []
+
+    def add_label(self, label, lang=u'', dir=u''):
+        self.labels.append((label, lang, dir))
+
+    def add_info(self, label, lang=u'', dir=u''):
+        self.infos.append((label, lang, dir))
+
+    def add_target(self, nav_target):
+        self.nav_target.append(nav_target)
+
+class NcxNavTarget(object):
+    id = None
+    class_name = None
+    play_order = None
+    labels = None
+    src = None
+
+    def __init__(self):
+        self.id = None
+        self.class_name = None
+        self.play_order = None
+        self.labels = []
+        self.src = None
+
+    def add_label(self, label, lang=u'', dir=u''):
+        self.labels.append((label, lang, dir))
+
