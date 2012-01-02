@@ -12,40 +12,47 @@ import zipfile
 
 from xml.dom import minidom
 
-CONTAINER_NAMESPACE = u'{urn:oasis:names:tc:opendocument:xmlns:container}'
+from epub.ncx import parse_toc
+
 MIMETYPE_OPF = u'application/oebps-package+xml'
-MIMETYPE_NCX = u'application/x-dtbncx+xml'
 
 def open(filename):
-    """
-    Ouvre un fichier epub et retourne un objet EpubFile représentant ce fichier.
+    """Ouvre un fichier epub et retourne un objet EpubFile.
+
     Le fichier est ouvert en lecture seule.
     """
     book = EpubFile()
     book.zip = zipfile.ZipFile(filename)
+
     # Read container.xml to get OPF xml file path
     xmlstring = book.zip.read('META-INF/container.xml')
     container_xml = minidom.parseString(xmlstring).documentElement
+
     for e in container_xml.getElementsByTagName('rootfile'):
         if e.getAttribute('media-type') == MIMETYPE_OPF:
             book.opf_path = e.getAttribute('full-path')
             break
+
     # Read OPF xml file
     xmlstring = book.zip.read(book.opf_path)
     package = minidom.parseString(xmlstring).documentElement
+
     # Store each child nodes into a dict (metadata, manifest, spine, guide)
     data = {}
     for e in package.childNodes:
         if e.nodeType == e.ELEMENT_NODE:
             data[e.tagName.lower()] = e
+
     # Inspect metadata
     book.uid_id = package.getAttribute('unique-identifier')
     metadata = EpubMetadata()
     metadata.set_from_xml(data['metadata'])
     book.metadata = metadata
+
     # Get Uid
     uid = [x for x in book.metadata.identifier if x[1] == book.uid_id][0]
     book.uid = (uid[0], uid[2])
+
     # Inspect manifest
     for e in data['manifest'].childNodes:
         if e.nodeType == e.ELEMENT_NODE:
@@ -55,12 +62,15 @@ def open(filename):
                           e.getAttribute('required-namespace'),
                           e.getAttribute('required-modules'),
                           e.getAttribute('fallback-style'))
+
     # Inspect spine
     item_toc = book.get_item(data['spine'].getAttribute('toc'))
+
     for e in data['spine'].childNodes:
         if e.nodeType == e.ELEMENT_NODE:
             book.add_spine_itemref(e.getAttribute('idref'),
                                    e.getAttribute('linear').lower() != 'no')
+
     # Inspect guide if exist
     if 'guide' in data:
         for e in data['guide'].childNodes:
@@ -68,117 +78,12 @@ def open(filename):
                 book.add_guide_ref(e.getAttribute('href'),
                                    e.getAttribute('type'),
                                    e.getAttribute('title'))
+
     # Inspect NCX toc file
     book.toc = parse_toc(book.read(item_toc))
+
     return book
 
-def parse_toc(xmlstring):
-    """Parse un document xml NCX à partir d'une chaîne de caractères."""
-    ncx = EpubNcx()
-    ncx_xml = minidom.parseString(xmlstring).documentElement
-    head = ncx_xml.getElementsByTagName(u'head')[0]
-    # Inspect head > meta; unknow meta are ignored
-    metas = {'dtb:uid': u'',
-             'dtb:depth': u'',
-             'dtb:totalPageCount': u'',
-             'dtb:maxPageNumber': u'',
-             'dtb:generator': u''}
-    for meta in head.getElementsByTagName('meta'):
-        metas[meta.getAttribute('name')] = meta.getAttribute('content')
-    ncx.uid = metas['dtb:uid']
-    ncx.depth = metas['dtb:depth']
-    ncx.total_page_count = metas['dtb:totalPageCount']
-    ncx.max_page_number = metas['dtb:maxPageNumber']
-    ncx.generator = metas['dtb:generator']
-    # Get title (docTitle tag is required)
-    ncx.title = _parse_for_text_tag(ncx_xml.getElementsByTagName('docTitle')[0])
-    # Get authors (docAuthor tags are optionnal)
-    for author in ncx_xml.getElementsByTagName('docAuthor'):
-        ncx.authors.append(_parse_for_text_tag(author))
-    # Inspect navMap
-    nav_map = ncx_xml.getElementsByTagName('navMap')[0]
-    for e in nav_map.childNodes:
-        if e.nodeType == e.ELEMENT_NODE and e.tagName == 'navPoint':
-            ncx.nav_map.add_point(_parse_xml_nav_point(e))
-    # Inspect pageList (if exist)
-    for page_list in ncx_xml.getElementsByTagName('pageList'):
-        for page_target in page_list.getElementsByTagName('pageTarget'):
-            ncx.page_list.append(_parse_xml_page_target(page_target))
-    return ncx
-
-def _parse_xml_nav_point(xml_element):
-    nav_point = EpubNcxNavPoint()
-    nav_point.id = xml_element.getAttribute('id')
-    nav_point.class_name = xml_element.getAttribute('class')
-    nav_point.play_order = xml_element.getAttribute('playOrder')
-    for e in xml_element.childNodes:
-        if e.nodeType == e.ELEMENT_NODE:
-            if e.tagName == 'navLabel':
-                nav_point.label = _parse_for_text_tag(e)
-            elif e.tagName == 'content':
-                nav_point.src = e.getAttribute('src')
-            elif e.tagName == 'navPoint':
-                nav_point.nav_point.append(_parse_xml_nav_point(e))
-    return nav_point
-
-def _parse_xml_page_target(xml_element):
-    page_target = EpubNcxPageTarget()
-    page_target.id = xml_element.getAttribute('id')
-    page_target.value = xml_element.getAttribute('value')
-    page_target.type = xml_element.getAttribute('type')
-    page_target.class_name = xml_element.getAttribute('class')
-    page_target.play_order = xml_element.getAttribute('playOrder')
-    for e in xml_element.childNodes:
-        if e.nodeType == e.ELEMENT_NODE:
-            if e.tagName == 'navLabel':
-                page_target.label = _parse_for_text_tag(e)
-            elif e.tagName == 'content':
-                page_target.src = e.getAttribute('src')
-    return page_target
-
-def _parse_for_text_tag(xml_element, name=u'text'):
-    text_tag = xml_element.getElementsByTagName(name)[0]
-    text_tag.normalize()
-    return text_tag.firstChild.data
-
-class EpubNcx(object):
-    """Représente le contenu structuré d'un fichier NCX."""
-
-    uid = None
-    depth = None
-    total_page_count = None
-    max_page_number = None
-    generator = None 
-    title = None
-    authors = []
-    nav_map = None
-    page_list = []
-    nav_lists = []
-
-    def __init__(self):
-        self.nav_map = EpubNcxNavMap()
-
-class EpubNcxNavMap(object):
-    map = []
-    def add_point(self, point):
-        self.map.append(point)
-
-class EpubNcxNavPoint(object):
-    id = None
-    class_name = None
-    play_order = None
-    label = None
-    src = None
-    nav_point = []
-
-class EpubNcxPageTarget(object):
-    id = None
-    value = None
-    type = None
-    class_name = None
-    play_order = None
-    label = None
-    src = None
 
 class EpubFile(object):
     """Représente un fichier epub, avec ses meta-données et ses fichiers"""
@@ -188,10 +93,21 @@ class EpubFile(object):
     uid = None
     uid_id = None
     metadata = None
-    manifest = []
-    itemref = []
-    guide = []
+    manifest = None
+    itemref = None
+    guide = None
     toc = None
+
+    def __init__(self):
+        self.zip = None
+        self.opf_path = None
+        self.uid = None
+        self.uid_id = None
+        self.metadata = None
+        self.manifest = []
+        self.itemref = []
+        self.guide = []
+        toc = None
 
     #
     # Manifest, spine & guide
@@ -232,12 +148,14 @@ class EpubFile(object):
     #
 
     def read(self, item):
-        """
-        Lit un fichier contenu dans l'epub.
+        """Lit un fichier contenu dans l'epub.
         
         Le paramètre item peut être le chemin de ce fichier, ou un objet 
         EpubManifestItem. Le chemin du fichier doit être relatif à l'emplacement
         du fichier OPF.
+        
+        Les fragments (#) ne sont pas autorisés : il faut que 
+        le chemin soit exactement celui indiqué dans le fichier OPF.
         """
         path = item
         if isinstance(item, EpubManifestItem):
@@ -246,15 +164,13 @@ class EpubFile(object):
         return self.zip.read(os.path.join(dirpath, path))
 
     def close(self):
-        """
-        Ferme le fichier zip (pas forcément très utile pour le moment)
-        """
+        """Ferme le fichier zip (pas forcément très utile pour le moment)"""
         self.zip.close()
 
+
 class EpubMetadata(object):
-    """
-    Représente les méta-données d'un epub.
-    """
+    """Représente les méta-données d'un epub."""
+
     title = []
     creator = []
     subject = []
@@ -273,64 +189,97 @@ class EpubMetadata(object):
     meta = []
 
     def __init__(self):
-        pass
+        self.title = []
+        self.creator = []
+        self.subject = []
+        self.description = None
+        self.publisher = None
+        self.contributor = []
+        self.date = None
+        self.type = None
+        self.format = None
+        self.identifier = []
+        self.source = None
+        self.language = []
+        self.relation = None
+        self.coverage = None
+        self.rights = None
+        self.meta = []
 
     def set_from_xml(self, xml):
+        """Extrait les meta-données à partir d'un ELEMENT_NODE xml "metadata"
+        
+        La balise "metadata" contient un grand nombre de meta-données, qu'il 
+        faut intégralement parcourir et enregistrer dans les différents 
+        attributs.
         """
-        Renseigne les différents éléments des méta-données à partir de
-        l'élément XML Dom metadata.
-        """
+
         for node in xml.getElementsByTagName(u'dc:title'):
             node.normalize()
             self.add_title(node.firstChild.data, node.getAttribute(u'xml:lang'))
+
         for node in xml.getElementsByTagName(u'dc:creator'):
             node.normalize()
             self.add_creator(node.firstChild.data,
                              node.getAttribute(u'opf:role'),
                              node.getAttribute(u'opf:file-as'))
+
         for node in xml.getElementsByTagName(u'dc:subject'):
             node.normalize()
             self.add_subject(node.firstChild.data)
+
         for node in xml.getElementsByTagName(u'dc:description'):
             node.normalize()
             self.description = node.firstChild.data
+
         for node in xml.getElementsByTagName(u'dc:publisher'):
             node.normalize()
             self.publisher = node.firstChild.data
+
         for node in xml.getElementsByTagName(u'dc:contributor'):
             node.normalize()
             self.add_contributor(node.firstChild.data,
                                  node.getAttribute(u'opf:role'),
                                  node.getAttribute(u'opf:file-as'))
+
         for node in xml.getElementsByTagName(u'dc:date'):
             node.normalize()
             self.date = node.firstChild.data
+
         for node in xml.getElementsByTagName(u'dc:type'):
             node.normalize()
             self.type = node.firstChild.data
+
         for node in xml.getElementsByTagName(u'dc:format'):
             node.normalize()
             self.format = node.firstChild.data
+
         for node in xml.getElementsByTagName(u'dc:identifier'):
             node.normalize()
             self.add_identifier(node.firstChild.data,
                                 node.getAttribute(u'id'),
                                 node.getAttribute(u'opf:scheme'))
+
         for node in xml.getElementsByTagName(u'dc:source'):
             node.normalize()
             self.source = node.firstChild.data
+
         for node in xml.getElementsByTagName(u'dc:language'):
             node.normalize()
             self.add_language(node.firstChild.data)
+
         for node in xml.getElementsByTagName(u'dc:relation'):
             node.normalize()
             self.relation = node.firstChild.data
+
         for node in xml.getElementsByTagName(u'dc:coverage'):
             node.normalize()
             self.coverage = node.firstChild.data
+
         for node in xml.getElementsByTagName(u'dc:rights'):
             node.normalize()
             self.rights = node.firstChild.data
+
         for node in xml.getElementsByTagName(u'dc:meta'):
             self.add_meta(node.getAttribute(u'name'),
                           node.getAttribute(u'content'))
@@ -367,6 +316,8 @@ class EpubMetadata(object):
         return isbn
 
 class EpubManifestItem(object):
+    """Représente un item de la liste d'un Manifest d'Epub"""
+
     id = None
     href = None
     media_type = None
@@ -385,4 +336,3 @@ class EpubManifestItem(object):
         self.required_namespace = required_namespace
         self.required_modules = required_modules
         self.fallback_style = fallback_style
-
