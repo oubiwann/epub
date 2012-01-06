@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Bibliothèque de lecture des epubs
+Lib to open and manipulate epub file as described in version 2.0.1.
 """
 
 __author__ = u'Florian Strzelecki <florian.strzelecki@gmail.com>'
@@ -18,9 +18,9 @@ MIMETYPE_OPF = u'application/oebps-package+xml'
 MIMETYPE_NCX = u'application/x-dtbncx+xml'
 
 def open(filename):
-    """Ouvre un fichier epub et retourne un objet EpubFile.
+    """Open an epub file and return an EpubFile object
 
-    Le fichier est ouvert en lecture seule.
+    File is opened read-only.
     """
     book = EpubFile()
     book.zip = zipfile.ZipFile(filename)
@@ -87,7 +87,9 @@ def open(filename):
 
 
 class EpubFile(object):
-    """Représente un fichier epub, avec ses meta-données et ses fichiers"""
+    """Represents an epub file as described in version 2.0.1
+    
+    See http://idpf.org/epub/201"""
 
     zip = None
     opf_path = None
@@ -126,7 +128,9 @@ class EpubFile(object):
         self.itemref.append((idref, linear))
 
     def get_item(self, id):
-        """Récupère un item du manifest par son identifiant"""
+        """Get an item from manifest through its "id" attribute.
+        
+        Return an EpubManifestItem if found, else None."""
         l = [x for x in self.manifest if x.id == id]
         if l:
             return l[0]
@@ -134,7 +138,9 @@ class EpubFile(object):
             return None
 
     def get_item_by_href(self, href):
-        """Récupère un item du manifest par son attribut href"""
+        """Get an item from manifest through its "href" attribute.
+        
+        Return an EpubManifestItem if found, else None."""
         l = [x for x in self.manifest if x.href == href]
         if l:
             return l[0]
@@ -149,14 +155,13 @@ class EpubFile(object):
     #
 
     def read(self, item):
-        """Lit un fichier contenu dans l'epub.
+        """Read a file from the epub zipfile container.
         
-        Le paramètre item peut être le chemin de ce fichier, ou un objet 
-        EpubManifestItem. Le chemin du fichier doit être relatif à l'emplacement
-        du fichier OPF.
+        "item" parameter can be the relative path to the opf file or an 
+        EpubManifestItem object.
         
-        Les fragments (#) ne sont pas autorisés : il faut que 
-        le chemin soit exactement celui indiqué dans le fichier OPF.
+        Html fragments are not acceptable : the path must be exactly the same 
+        as indicated in the opf file.
         """
         path = item
         if isinstance(item, EpubManifestItem):
@@ -165,12 +170,16 @@ class EpubFile(object):
         return self.zip.read(os.path.join(dirpath, path))
 
     def close(self):
-        """Ferme le fichier zip (pas forcément très utile pour le moment)"""
+        """Close the zipfile archive.
+        
+        Not very usefull yet, because zipfile is open in read-only."""
         self.zip.close()
 
 
 class EpubMetadata(object):
-    """Représente les méta-données d'un epub."""
+    """Represent an epub's metadatas set.
+    
+    See http://idpf.org/epub/20/spec/OPF_2.0.1_draft.htm#Section2.2"""
 
     title = []
     creator = []
@@ -207,81 +216,80 @@ class EpubMetadata(object):
         self.rights = None
         self.meta = []
 
-    def set_from_xml(self, xml):
-        """Extrait les meta-données à partir d'un ELEMENT_NODE xml "metadata"
-        
-        La balise "metadata" contient un grand nombre de meta-données, qu'il 
-        faut intégralement parcourir et enregistrer dans les différents 
-        attributs.
+    def set_from_xml(self, element):
+        """Extract metadata from an xml.dom.Element object (ELEMENT_NODE)
+
+        The "<metadata>" tag has a lot of metadatas about the epub this method 
+        inspect and store into object attributes (like "title" or "creator").
         """
 
-        for node in xml.getElementsByTagName(u'dc:title'):
+        for node in element.getElementsByTagName(u'dc:title'):
             node.normalize()
             self.add_title(node.firstChild.data, node.getAttribute(u'xml:lang'))
 
-        for node in xml.getElementsByTagName(u'dc:creator'):
+        for node in element.getElementsByTagName(u'dc:creator'):
             node.normalize()
             self.add_creator(node.firstChild.data,
                              node.getAttribute(u'opf:role'),
                              node.getAttribute(u'opf:file-as'))
 
-        for node in xml.getElementsByTagName(u'dc:subject'):
+        for node in element.getElementsByTagName(u'dc:subject'):
             node.normalize()
             self.add_subject(node.firstChild.data)
 
-        for node in xml.getElementsByTagName(u'dc:description'):
+        for node in element.getElementsByTagName(u'dc:description'):
             node.normalize()
             self.description = node.firstChild.data
 
-        for node in xml.getElementsByTagName(u'dc:publisher'):
+        for node in element.getElementsByTagName(u'dc:publisher'):
             node.normalize()
             self.publisher = node.firstChild.data
 
-        for node in xml.getElementsByTagName(u'dc:contributor'):
+        for node in element.getElementsByTagName(u'dc:contributor'):
             node.normalize()
             self.add_contributor(node.firstChild.data,
                                  node.getAttribute(u'opf:role'),
                                  node.getAttribute(u'opf:file-as'))
 
-        for node in xml.getElementsByTagName(u'dc:date'):
+        for node in element.getElementsByTagName(u'dc:date'):
             node.normalize()
             self.date = node.firstChild.data
 
-        for node in xml.getElementsByTagName(u'dc:type'):
+        for node in element.getElementsByTagName(u'dc:type'):
             node.normalize()
             self.type = node.firstChild.data
 
-        for node in xml.getElementsByTagName(u'dc:format'):
+        for node in element.getElementsByTagName(u'dc:format'):
             node.normalize()
             self.format = node.firstChild.data
 
-        for node in xml.getElementsByTagName(u'dc:identifier'):
+        for node in element.getElementsByTagName(u'dc:identifier'):
             node.normalize()
             self.add_identifier(node.firstChild.data,
                                 node.getAttribute(u'id'),
                                 node.getAttribute(u'opf:scheme'))
 
-        for node in xml.getElementsByTagName(u'dc:source'):
+        for node in element.getElementsByTagName(u'dc:source'):
             node.normalize()
             self.source = node.firstChild.data
 
-        for node in xml.getElementsByTagName(u'dc:language'):
+        for node in element.getElementsByTagName(u'dc:language'):
             node.normalize()
             self.add_language(node.firstChild.data)
 
-        for node in xml.getElementsByTagName(u'dc:relation'):
+        for node in element.getElementsByTagName(u'dc:relation'):
             node.normalize()
             self.relation = node.firstChild.data
 
-        for node in xml.getElementsByTagName(u'dc:coverage'):
+        for node in element.getElementsByTagName(u'dc:coverage'):
             node.normalize()
             self.coverage = node.firstChild.data
 
-        for node in xml.getElementsByTagName(u'dc:rights'):
+        for node in element.getElementsByTagName(u'dc:rights'):
             node.normalize()
             self.rights = node.firstChild.data
 
-        for node in xml.getElementsByTagName(u'dc:meta'):
+        for node in element.getElementsByTagName(u'meta'):
             self.add_meta(node.getAttribute(u'name'),
                           node.getAttribute(u'content'))
 
@@ -317,7 +325,7 @@ class EpubMetadata(object):
         return isbn
 
 class EpubManifestItem(object):
-    """Représente un item de la liste d'un Manifest d'Epub"""
+    """Represent an item from the epub's manifest."""
 
     id = None
     href = None

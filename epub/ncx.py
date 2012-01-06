@@ -10,7 +10,7 @@ NCX Epub spec: http://idpf.org/epub/20/spec/OPF_2.0.1_draft.htm#Section2.4.1
 from xml.dom import minidom
 
 def parse_toc(xmlstring):
-    """Parse un document xml NCX à partir d'une chaîne de caractères."""
+    """Inspect an NCX formated xml document."""
     toc = NcxFile()
     toc_xml = minidom.parseString(xmlstring).documentElement
 
@@ -53,7 +53,7 @@ def parse_toc(xmlstring):
     return toc
 
 def _parse_xml_nav_map(element):
-    """Parse un ELEMENT_NODE <navMap> et retourne un objet NcxNavMap"""
+    """Inspect an xml.dom.Element <navMap> and return a NcxNavMap object."""
     nav_map = NcxNavMap()
     nav_map.id = element.getAttribute('id')
 
@@ -73,7 +73,7 @@ def _parse_xml_nav_map(element):
     return nav_map
 
 def _parse_xml_nav_point(element):
-    """Parse un ELEMENT_NODE <navPoint> et retourne un objet NcxNavPoint"""
+    """Inspect an xml.dom.Element <navPoint> and return a NcxNavPoint object."""
     nav_point = NcxNavPoint()
     nav_point.id = element.getAttribute('id')
     nav_point.class_name = element.getAttribute('class')
@@ -93,7 +93,7 @@ def _parse_xml_nav_point(element):
     return nav_point
 
 def _parse_xml_page_list(element):
-    """Parse un ELEMENT_NODE <pageList> et retourne un objet NcxPageList"""
+    """Inspect an xml.dom.Element <pageList> and return a NcxPageList object."""
     page_list = NcxPageList()
     page_list.id = element.getAttribute('id')
     page_list.class_name = element.getAttribute('class')
@@ -114,7 +114,7 @@ def _parse_xml_page_list(element):
     return page_list
 
 def _parse_xml_page_target(element):
-    """Parse un ELEMENT_NODE <pageTarget> et retourne un objet NcxPageTarget"""
+    """Inspect an xml.dom.Element <pageTarget> and return a NcxPageTarget object."""
     page_target = NcxPageTarget()
     page_target.id = element.getAttribute('id')
     page_target.value = element.getAttribute('value')
@@ -134,7 +134,7 @@ def _parse_xml_page_target(element):
     return page_target
 
 def _parse_xml_nav_list(element):
-    """Parse un ELEMENT_NODE <navList> et retourne un objet NcxNavList"""
+    """Inspect an xml.dom.Element <navList> and return a NcxNavList object."""
     nav_list = NcxNavList()
     nav_list.id = element.getAttribute('id')
     nav_list.class_name = element.getAttribute('class')
@@ -155,7 +155,8 @@ def _parse_xml_nav_list(element):
     return nav_list
 
 def _parse_xml_nav_target(element):
-    """Parse un ELEMENT_NODE <navTarget> et retourne un objet NcxNavTarget"""
+    """Inspect an xml.dom.Element <navTarget> and return a NcxNavTarget 
+    object."""
     nav_target = NcxNavTarget()
     nav_target.id = element.getAttribute('id')
     nav_target.value = element.getAttribute('value')
@@ -174,17 +175,17 @@ def _parse_xml_nav_target(element):
     return nav_target
 
 def _parse_for_text_tag(xml_element, name=u'text'):
-    """Parse un ELEMENT_NODE pour obtenir le texte de son enfant
+    """Inspect an xml.dom.Element with a child 'name' to get its text value.
     
-    Les fichiers ncx contiennent souvent "navLabel" > "text" > TEXT_NODE, et 
-    cette fonction permet ainsi de factoriser les nombreux traitements.
+    NCX file has many element with a child likes "navLabel" > "text" > TEXT_NODE
+    and this function allow to avoid some boilerplate code.
     
-    Le second paramètre permet de fournir un nom au tag fils recherché ("text" 
-    par défaut).
+    First parameter must be an xml.dom.Element, having one child named by the 
+    second parameter (by default a "text" tag).
     
-    Cette fonction retourne une chaine vide si rien n'est trouvé, sans lever 
-    d'erreur.
+    If nothing is founded, an empty string u'' is returned.
     """
+
     tags = xml_element.getElementsByTagName(name)
     text = u''
     if len(tags) > 0:
@@ -195,7 +196,7 @@ def _parse_for_text_tag(xml_element, name=u'text'):
 
 
 class NcxFile(object):
-    """Représente le contenu structuré d'un fichier NCX."""
+    """Represent the structured content of a NCX file."""
 
     uid = None
     depth = None
@@ -224,7 +225,7 @@ class NcxFile(object):
         self.nav_lists.append(nav_list)
 
 class NcxNavMap(object):
-    """Représente la navMap d'un fichier NCX"""
+    """Represente navMap tag of an NCX file."""
 
     id = None
     labels = None
