@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 
 """
-Module de lecture des fichiers NCX pour epub.
+Python lib for reading NCX formated file for epub.
+
+There is some difference between NCX original format and one for Epub; see 
+officiel documention for more information.1111
 
 NCX doc: http://www.niso.org/workrooms/daisy/Z39-86-2005.html#NCX
 NCX Epub spec: http://idpf.org/epub/20/spec/OPF_2.0.1_draft.htm#Section2.4.1
@@ -230,13 +233,13 @@ class NcxNavMap(object):
     id = None
     labels = None
     infos = None
-    map = None
+    nav_point = None
 
     def __init__(self):
         self.id = None
         self.labels = []
         self.infos = []
-        self.map = []
+        self.nav_point = []
 
     def add_label(self, label, lang=u'', dir=u''):
         self.labels.append((label, lang, dir))
@@ -245,7 +248,7 @@ class NcxNavMap(object):
         self.infos.append((label, lang, dir))
 
     def add_point(self, point):
-        self.map.append(point)
+        self.nav_point.append(point)
 
 
 class NcxNavPoint(object):
