@@ -1,9 +1,23 @@
 # -*- coding: utf-8 -*-
 
+import os
 import unittest
 import epub
 
 from xml.dom import minidom
+
+class TestEpubOpen(unittest.TestCase):
+    epub_path = 'test.epub'
+
+    def test_open(self):
+        test_path = os.path.join(os.path.dirname(__file__), self.epub_path)
+        book = epub.open(test_path)
+        
+        self.assertEqual(book.metadata.language, ['en',])
+        self.assertEqual(book.metadata.title, [(u'Testing Epub', ''),])
+        self.assertEqual(len(book.manifest), 7)
+        for item in book.manifest:
+            self.assertIsInstance(item, epub.EpubManifestItem)
 
 class TestEpubFile(unittest.TestCase):
     """Test class for epub.EpubFile class"""
