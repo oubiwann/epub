@@ -40,50 +40,148 @@ def open(filename):
 
     # Store each child nodes into a dict (metadata, manifest, spine, guide)
     data = {}
-    for e in package.childNodes:
-        if e.nodeType == e.ELEMENT_NODE:
-            data[e.tagName.lower()] = e
+    for node in [e for e in package.childNodes if e.nodeType == e.ELEMENT_NODE]:
+        data[node.tagName.lower()] = node
 
     # Inspect metadata
-    book.uid_id = package.getAttribute('unique-identifier')
-    metadata = EpubMetadata()
-    metadata.set_from_xml(data['metadata'])
-    book.metadata = metadata
+    book.metadata = _parse_xml_metadata(data['metadata'])
 
     # Get Uid
+    book.uid_id = package.getAttribute('unique-identifier')
     uid = [x for x in book.metadata.identifier if x[1] == book.uid_id][0]
     book.uid = (uid[0], uid[2])
 
     # Inspect manifest
-    for e in data['manifest'].childNodes:
-        if e.nodeType == e.ELEMENT_NODE:
-            book.add_item(e.getAttribute('id'), e.getAttribute('href'),
-                          e.getAttribute('media-type'),
-                          e.getAttribute('fallback'),
-                          e.getAttribute('required-namespace'),
-                          e.getAttribute('required-modules'),
-                          e.getAttribute('fallback-style'))
+    book.manifest = _parse_xml_manifest(data['manifest'])
 
     # Inspect spine
     item_toc = book.get_item(data['spine'].getAttribute('toc'))
-
-    for e in data['spine'].childNodes:
-        if e.nodeType == e.ELEMENT_NODE:
-            book.add_spine_itemref(e.getAttribute('idref'),
-                                   e.getAttribute('linear').lower() != 'no')
+    book.spine = _parse_xml_spine(data['spine'])
 
     # Inspect guide if exist
     if 'guide' in data:
-        for e in data['guide'].childNodes:
-            if e.nodeType == e.ELEMENT_NODE:
-                book.add_guide_ref(e.getAttribute('href'),
-                                   e.getAttribute('type'),
-                                   e.getAttribute('title'))
+        book.guide = _parse_xml_guide(data['guide'])
 
     # Inspect NCX toc file
     book.toc = ncx.parse_toc(book.read(item_toc))
 
     return book
+
+def _parse_xml_metadata(element):
+    """Extract metadata from an xml.dom.Element object (ELEMENT_NODE)
+
+    The "<metadata>" tag has a lot of metadatas about the epub this method 
+    inspect and store into object attributes (like "title" or "creator").
+    """
+    metadata = EpubMetadata()
+
+    for node in element.getElementsByTagName(u'dc:title'):
+        node.normalize()
+        metadata.add_title(node.firstChild.data, node.getAttribute(u'xml:lang'))
+
+    for node in element.getElementsByTagName(u'dc:creator'):
+        node.normalize()
+        metadata.add_creator(node.firstChild.data,
+                         node.getAttribute(u'opf:role'),
+                         node.getAttribute(u'opf:file-as'))
+
+    for node in element.getElementsByTagName(u'dc:subject'):
+        node.normalize()
+        metadata.add_subject(node.firstChild.data)
+
+    for node in element.getElementsByTagName(u'dc:description'):
+        node.normalize()
+        metadata.description = node.firstChild.data
+
+    for node in element.getElementsByTagName(u'dc:publisher'):
+        node.normalize()
+        metadata.publisher = node.firstChild.data
+
+    for node in element.getElementsByTagName(u'dc:contributor'):
+        node.normalize()
+        metadata.add_contributor(node.firstChild.data,
+                             node.getAttribute(u'opf:role'),
+                             node.getAttribute(u'opf:file-as'))
+
+    for node in element.getElementsByTagName(u'dc:date'):
+        node.normalize()
+        metadata.date = node.firstChild.data
+
+    for node in element.getElementsByTagName(u'dc:type'):
+        node.normalize()
+        metadata.type = node.firstChild.data
+
+    for node in element.getElementsByTagName(u'dc:format'):
+        node.normalize()
+        metadata.format = node.firstChild.data
+
+    for node in element.getElementsByTagName(u'dc:identifier'):
+        node.normalize()
+        metadata.add_identifier(node.firstChild.data,
+                            node.getAttribute(u'id'),
+                            node.getAttribute(u'opf:scheme'))
+
+    for node in element.getElementsByTagName(u'dc:source'):
+        node.normalize()
+        metadata.source = node.firstChild.data
+
+    for node in element.getElementsByTagName(u'dc:language'):
+        node.normalize()
+        metadata.add_language(node.firstChild.data)
+
+    for node in element.getElementsByTagName(u'dc:relation'):
+        node.normalize()
+        metadata.relation = node.firstChild.data
+
+    for node in element.getElementsByTagName(u'dc:coverage'):
+        node.normalize()
+        metadata.coverage = node.firstChild.data
+
+    for node in element.getElementsByTagName(u'dc:rights'):
+        node.normalize()
+        metadata.rights = node.firstChild.data
+
+    for node in element.getElementsByTagName(u'meta'):
+        metadata.add_meta(node.getAttribute(u'name'),
+                      node.getAttribute(u'content'))
+
+    return metadata
+
+def _parse_xml_manifest(element):
+    """Inspect an xml.dom.Element <manifest> and return a list of 
+    epub.EpubManifestItem object."""
+
+    manifest = []
+    for e in element.getElementsByTagName('item'):
+        item = EpubManifestItem(e.getAttribute('id'),
+                                e.getAttribute('href'),
+                                e.getAttribute('media-type'),
+                                e.getAttribute('fallback'),
+                                e.getAttribute('required-namespace'),
+                                e.getAttribute('required-modules'),
+                                e.getAttribute('fallback-style'))
+        manifest.append(item)
+    return manifest
+
+def _parse_xml_spine(element):
+    """Inspect an xml.dom.Element <spine> and return a list of itemref as tuple.
+    """
+
+    spine = []
+    for e in element.getElementsByTagName('itemref'):
+        spine.append((e.getAttribute('idref'),
+                      e.getAttribute('linear').lower() != 'no'))
+    return spine
+
+def _parse_xml_guide(element):
+    """Inspect an xml.dom.Element <guide> and return a list of ref as tuple."""
+
+    guide = []
+    for e in element.getElementsByTagName('ref'):
+        guide.append((e.getAttribute('href'),
+                      e.getAttribute('type'),
+                      e.getAttribute('title')))
+    return guide
 
 
 class EpubFile(object):
@@ -97,7 +195,7 @@ class EpubFile(object):
     uid_id = None
     metadata = None
     manifest = None
-    itemref = None
+    spine = None
     guide = None
     toc = None
 
@@ -108,7 +206,7 @@ class EpubFile(object):
         self.uid_id = None
         self.metadata = None
         self.manifest = []
-        self.itemref = []
+        self.spine = []
         self.guide = []
         toc = None
 
@@ -125,7 +223,7 @@ class EpubFile(object):
         self.manifest.append(item)
 
     def add_spine_itemref(self, idref, linear=True):
-        self.itemref.append((idref, linear))
+        self.spine.append((idref, linear))
 
     def get_item(self, id):
         """Get an item from manifest through its "id" attribute.
@@ -216,83 +314,6 @@ class EpubMetadata(object):
         self.rights = None
         self.meta = []
 
-    def set_from_xml(self, element):
-        """Extract metadata from an xml.dom.Element object (ELEMENT_NODE)
-
-        The "<metadata>" tag has a lot of metadatas about the epub this method 
-        inspect and store into object attributes (like "title" or "creator").
-        """
-
-        for node in element.getElementsByTagName(u'dc:title'):
-            node.normalize()
-            self.add_title(node.firstChild.data, node.getAttribute(u'xml:lang'))
-
-        for node in element.getElementsByTagName(u'dc:creator'):
-            node.normalize()
-            self.add_creator(node.firstChild.data,
-                             node.getAttribute(u'opf:role'),
-                             node.getAttribute(u'opf:file-as'))
-
-        for node in element.getElementsByTagName(u'dc:subject'):
-            node.normalize()
-            self.add_subject(node.firstChild.data)
-
-        for node in element.getElementsByTagName(u'dc:description'):
-            node.normalize()
-            self.description = node.firstChild.data
-
-        for node in element.getElementsByTagName(u'dc:publisher'):
-            node.normalize()
-            self.publisher = node.firstChild.data
-
-        for node in element.getElementsByTagName(u'dc:contributor'):
-            node.normalize()
-            self.add_contributor(node.firstChild.data,
-                                 node.getAttribute(u'opf:role'),
-                                 node.getAttribute(u'opf:file-as'))
-
-        for node in element.getElementsByTagName(u'dc:date'):
-            node.normalize()
-            self.date = node.firstChild.data
-
-        for node in element.getElementsByTagName(u'dc:type'):
-            node.normalize()
-            self.type = node.firstChild.data
-
-        for node in element.getElementsByTagName(u'dc:format'):
-            node.normalize()
-            self.format = node.firstChild.data
-
-        for node in element.getElementsByTagName(u'dc:identifier'):
-            node.normalize()
-            self.add_identifier(node.firstChild.data,
-                                node.getAttribute(u'id'),
-                                node.getAttribute(u'opf:scheme'))
-
-        for node in element.getElementsByTagName(u'dc:source'):
-            node.normalize()
-            self.source = node.firstChild.data
-
-        for node in element.getElementsByTagName(u'dc:language'):
-            node.normalize()
-            self.add_language(node.firstChild.data)
-
-        for node in element.getElementsByTagName(u'dc:relation'):
-            node.normalize()
-            self.relation = node.firstChild.data
-
-        for node in element.getElementsByTagName(u'dc:coverage'):
-            node.normalize()
-            self.coverage = node.firstChild.data
-
-        for node in element.getElementsByTagName(u'dc:rights'):
-            node.normalize()
-            self.rights = node.firstChild.data
-
-        for node in element.getElementsByTagName(u'meta'):
-            self.add_meta(node.getAttribute(u'name'),
-                          node.getAttribute(u'content'))
-
     def add_title(self, title, lang=''):
         self.title.append((title, lang))
 
@@ -323,6 +344,7 @@ class EpubMetadata(object):
         if l:
             isbn = l[0]
         return isbn
+
 
 class EpubManifestItem(object):
     """Represent an item from the epub's manifest."""
