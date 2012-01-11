@@ -1,0 +1,112 @@
+=======================
+Documentation du projet
+=======================
+
+-------------------------
+Index de la documentation
+-------------------------
+
+.. include:: inclusion.rst
+
+.. _Documentation:
+
+`Documentation`_
+================
+
+.. contents::
+   :local:
+
+Introduction
+------------
+
+Connaissez-vous le format de livre numérique appelé "Epub" ? Il s'agit d'un 
+format ouvert, proposé par l'`IDPF`_, qui le présente ainsi :
+
+  EPUB is the distribution and interchange format standard for digital 
+  publications and documents based on Web Standards. EPUB defines a means of 
+  representing, packaging and encoding structured and semantically enhanced 
+  Web content — including XHTML, CSS, SVG, images, and other resources — for 
+  distribution in a single-file format.
+  
+  EPUB allows publishers to produce and send a single digital publication 
+  file through distribution and offers consumers interoperability between 
+  software/hardware for unencrypted reflowable digital books and other 
+  publications.
+
+En d'autre terme : c'est un format qui permet de rassembler dans un seul 
+fichier un ensemble de fichiers de type "html&css", pour publier du contenu - 
+du genre, un livre numérique.
+
+Dans le monde python, si vous cherchez bien, vous trouverez des solutions tout 
+à fait pertinente d'application pour lire et éditer des fichiers epub.
+
+Ce n'était cependant pas suffisant pour tout le monde, et voici donc la 
+documentation d'une bibliothèque python permettant de lire et manipuler des 
+fichiers epub (pour le moment, version 2 uniquement).
+
+Voir aussi : le site l'`IDPF`_ et la `spécification Epub 2`_.
+
+.. _IDPF: http://idpf.org/epub
+.. _spécification Epub 2: http://idpf.org/epub/201
+
+Licence
+-------
+
+La licence choisie pour cette bibliothèque est la LGPL_.
+
+.. _LGPL: http://www.gnu.org/licenses/lgpl.html
+
+Installation
+------------
+
+Pour le moment, le seul moyen de l'installer est de télécharger les fichiers 
+source, et de placer le répertoire "epub" à un emplacement du python path.
+
+Note : le packaging n'est pas encore en place, mais c'est prévu. Vous pouvez 
+toujours proposer votre aide sur le sujet !
+
+Pour obtenir les sources, le meilleurs moyen est d'aller sur le repo bitbucket.
+
+Url : https://bitbucket.org/exirel/epub
+
+::
+
+  hg clone https://bitbucket.org/exirel/epub
+
+Utilisation
+-----------
+
+Le cas d'utilisation le plus simple est représenté par le code suivant :
+
+::
+
+  import epub
+  
+  book = epub.open('path/to/my/book.epub')
+  
+  for item in book.manifest:
+      content = book.read(item)
+      # do something very nice with the content
+
+Bien entendu, ce n'est qu'un exemple, très incomplet qui plus est, de ce que 
+vous pouvez faire.
+
+Cette bibliothèque ayant pour ambition de suivre les spécifications du format 
+epub, certains éléments pourront paraître obscurs, comme, par exemple, le fait 
+qu'un fichier epub peut disposer de plusieurs "titre", dans différentes langues.
+
+Rassurez-vous, cette documentation est là pour vous apporter le plus possible 
+de réponses à vos interrogations.
+
+Documentation de l'API
+----------------------
+
+Cette librairie est composée de deux principaux modules : epub, et epub.ncx. Le 
+premier est la base, et le second est la partie qui permet de manipuler des 
+fichiers au format NCX (autrement appelé "table of content").
+
+* Documentation du `module epub`_
+* Documentation du `module epub.ncx`_
+
+.. _module epub: epub.html
+.. _module epub.ncx: epub_ncx.html

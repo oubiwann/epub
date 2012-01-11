@@ -1,1 +1,4 @@
 .pyc
+
+syntax: regexp
+^doc/.*\.html
