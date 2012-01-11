@@ -36,6 +36,3 @@ a:hover {
 h1 a, h2 a, h3 a, h4 a, h5 a, h6 a {
     text-decoration: none;
 }
-h1 a:hover:after, h2 a:hover:after, h3 a:hover:after, h4 a:hover:after, h5 a:hover:after, h6 a:hover:after {
-    content: " \00B6";
-}

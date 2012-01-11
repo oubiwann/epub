@@ -1,0 +1,116 @@
+=======================
+Documentation du projet
+=======================
+
+-------------------------
+Index de la documentation
+-------------------------
+
+.. include:: inclusion.rst
+
+.. _Module epub:
+
+`Module epub`_
+==============
+
+.. contents::
+   :local:
+
+Introduction
+------------
+
+API
+---
+
+epub.open(filename)
+...................
+
+Ouvre un fichier epub, et retourne un objet epub.EpubFile.
+
+Le paramètre `filename` est le chemin d'accès au fichier epub.
+
+epub.EpubFile
+.............
+
+Cette classe représente le contenu d'un fichier au format Epub.
+
+``EpubFile.guide``
+``````````````````
+
+Représente la liste des références du ``guide`` présent optionnellement dans le 
+fichier OPF.
+
+``EpubFile.manifest``
+`````````````````````
+
+Liste d'objet de type ``epub.EpubManifestItem``, représentant les ``item`` du 
+manifest du fichier OPF. Chaque item représente donc un fichier présent dans 
+l'archive, et dont le chemin est relatif à l'emplacement du fichier OPF.
+
+``EpubFile.metadata``
+`````````````````````
+
+Objet de la class ``epub.EpubMetadata``, il représente l'ensemble des 
+meta-données indiquées par le fichier OPF du fichier epub.
+
+``EpubFile.opf_path``
+`````````````````````
+
+Chemin d'accès interne à l'archive zip au fichier OPF.
+
+Le chemin du fichier OPF est spécifié par le fichier container.xml à la racine 
+de l'archive zip epub, et ce chemin est renseigné dans cet attribut.
+
+``EpubFile.spine``
+``````````````````
+
+Cet attribut est une liste, qui contient la liste des ``itemref`` décrit dans 
+le fichier OPF de l'epub.
+
+``EpubFile.uid``
+````````````````
+
+Identifiant unique du fichier epub. Cet identifiant peut être un ISBN ou un 
+autre format d'identifiant unique.
+
+Le format de cet attribut est un tuple, contenant trois éléments :
+
+* la valeur de l'identifiant unique (``uid[0]``)
+* l'identifiant associé dans le fichier OPF (``uid[1]``)
+* le schéma tel que défini par l'attribut ``opf::scheme`` (``uid[2]``)
+
+Cet identifiant peut être retrouvé dans la liste des identifiants via les 
+meta-données (voir aussi ``epub.EpubMetadata.identifier``).
+
+``EpubFile.zip``
+````````````````
+
+Le fichier zip, sous la forme d'un objet zipfile.ZipFile. Il représente le 
+contenu de l'archive zip qu'est le fichier epub.
+
+``EpubFile.read(item)``
+```````````````````````
+
+Retourne le contenu d'un fichier présent dans l'archive zip.
+
+Le paramètre ``item`` peut être un objet ``epub.EpubManifestItem`` ou un chemin 
+d'accès du fichier (toujours relatif à l'emplacement du fichier OPF).
+
+``EpubFile.get_item(id):``
+``````````````````````````
+
+Retourne un élément du manifest de l'epub grâce à son attribut ``id``. Cet 
+élément est sous la forme d'un objet ``epub.EpubManifestItem``. Si aucun item ne 
+correspond  à cet id, alors ``None`` est retourné à la place.
+
+``EpubFile.get_item_by_href(href):``
+````````````````````````````````````
+
+Fonctionnement identique à la fonction ``EpubFile.get_item()``, mais utilise 
+l'attribut ``href`` à la place.
+
+epub.EpubMetadata
+.................
+
+epub.EpubManifestItem
+.....................

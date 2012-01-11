@@ -48,8 +48,7 @@ def open(filename):
 
     # Get Uid
     book.uid_id = package.getAttribute('unique-identifier')
-    uid = [x for x in book.metadata.identifier if x[1] == book.uid_id][0]
-    book.uid = (uid[0], uid[2])
+    book.uid = [x for x in book.metadata.identifier if x[1] == book.uid_id][0]
 
     # Inspect manifest
     book.manifest = _parse_xml_manifest(data['manifest'])
