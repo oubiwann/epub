@@ -4,7 +4,7 @@ Python Epub
 
 This directory contains the 0.1.0 release of epub python library.
 
-GNU Make is free software. See the file LICENSE.txt for copying conditions.
+Python Epub is free software. See the file LICENSE.txt for copying conditions.
 
 Downloading
 -----------
@@ -24,7 +24,7 @@ Documentation
 -------------
 
 This library is documented with docutils, and all files can be found into "doc".
-
+:
 The documentation is readable online at http://epub.exirel.me
 
 Development and bug report
