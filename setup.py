@@ -4,8 +4,9 @@ from distutils.core import setup
 
 setup(name='epub',
       version='0.1.0',
-      description='Python Epub library',
+      description='Library to open and read files in the epub version 2.',
       author='Florian Strzelecki',
       author_email='florian.strzelecki@gmail.com',
+      license='LGPL',
       url='http://epub.exirel.me',
       packages=['epub',])

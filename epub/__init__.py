@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 
 """
-Lib to open and manipulate epub file as described in version 2.0.1.
+Library to open and read files in the epub version 2.
 """
 
 __author__ = u'Florian Strzelecki <florian.strzelecki@gmail.com>'
-__version__ = u'0.0.1'
+__version__ = u'0.1.0'
 
 import os
 import zipfile

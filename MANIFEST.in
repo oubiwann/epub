@@ -1,3 +1,4 @@
 include *.txt
 recursive-include doc *.txt
 recursive-include doc *.css
+recursive-include script *
