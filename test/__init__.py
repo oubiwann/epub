@@ -31,7 +31,8 @@ class TestEpubOpen(unittest.TestCase):
             <dc:creator opf:file-as="Doe, Jhon" opf:role="aut">John Doe</dc:creator>
             <dc:contributor opf:file-as="Python, unittest" opf:role="other.test">Python unittest</dc:contributor>
             <dc:contributor opf:file-as="Python, nosetests" opf:role="other.test">Python nosetests</dc:contributor>
-            <dc:date>2012-01-05T16:18:00+00:00</dc:date>
+            <dc:date opf:event="creation">2012-01-05T16:18:00+00:00</dc:date>
+            <dc:date opf:event="publication">2012-01-09T13:37:00+00:00</dc:date>
             <dc:publisher>Exirel</dc:publisher>
             <dc:language>en</dc:language>
             <meta content="Custom Meta" name="custom:meta"/>
@@ -61,7 +62,9 @@ class TestEpubOpen(unittest.TestCase):
                           (u'Python nosetests', u'other.test', u'Python, nosetests')])
         
         # dc:date
-        self.assertEqual(metadata.date, u'2012-01-05T16:18:00+00:00')
+        self.assertEqual(metadata.date,
+                         [(u'2012-01-05T16:18:00+00:00', u'creation'),
+                          (u'2012-01-09T13:37:00+00:00', u'publication')])
         
         # dc:publisher
         self.assertEqual(metadata.publisher, u'Exirel')

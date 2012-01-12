@@ -16,21 +16,30 @@ Index de la documentation
 .. contents::
    :local:
 
+Retour à l'`index de la documentation`__.
+
+.. __: index.html
+
 Introduction
 ------------
+
+Le module ``epub`` permet d'utiliser les fonctionnalités de la librairie. La 
+fonction principale du module est ``open``, qui permet d'ouvrir un fichier epub 
+et d'obtenir un objet de la classe ``EpubFile``, permettant de manipuler les 
+données du fichier : contenu et meta-données.
 
 API
 ---
 
-epub.open(filename)
-...................
+``epub.open(filename)``
+.......................
 
 Ouvre un fichier epub, et retourne un objet epub.EpubFile.
 
 Le paramètre `filename` est le chemin d'accès au fichier epub.
 
-epub.EpubFile
-.............
+``epub.EpubFile``
+.................
 
 Cette classe représente le contenu d'un fichier au format Epub.
 
@@ -40,17 +49,23 @@ Cette classe représente le contenu d'un fichier au format Epub.
 Représente la liste des références du ``guide`` présent optionnellement dans le 
 fichier OPF.
 
+Chaque élément de la liste est un tuple, de la forme suivante : ``(href, type, 
+title)``. Les éléments ``href``, ``type`` et ``title`` correspondent aux 
+attributs décrits par la `spécification Epub, section "Guide"`__.
+
+.. __: http://idpf.org/epub/20/spec/OPF_2.0.1_draft.htm#Section2.6
+
 ``EpubFile.manifest``
 `````````````````````
 
-Liste d'objet de type ``epub.EpubManifestItem``, représentant les ``item`` du 
+Liste d'objet de type `epub.EpubManifestItem`_, représentant les ``item`` du 
 manifest du fichier OPF. Chaque item représente donc un fichier présent dans 
 l'archive, et dont le chemin est relatif à l'emplacement du fichier OPF.
 
 ``EpubFile.metadata``
 `````````````````````
 
-Objet de la class ``epub.EpubMetadata``, il représente l'ensemble des 
+Objet de la class `epub.EpubMetadata`_, il représente l'ensemble des 
 meta-données indiquées par le fichier OPF du fichier epub.
 
 ``EpubFile.opf_path``
@@ -66,6 +81,15 @@ de l'archive zip epub, et ce chemin est renseigné dans cet attribut.
 
 Cet attribut est une liste, qui contient la liste des ``itemref`` décrit dans 
 le fichier OPF de l'epub.
+
+Chaque élément de la liste est un tuple, de la forme suivante : ``(idref, 
+linear)``. Les éléments ``idref`` corresponde à l'attribut décrit par la 
+`spécification Epub, section "Spine"`__.
+
+La valeur de ``linear`` est un booléen : ``True`` si la valeur de l'attribut 
+est différent de "no", ``False`` sinon.
+
+.. __: http://idpf.org/epub/20/spec/OPF_2.0.1_draft.htm#Section2.4
 
 ``EpubFile.uid``
 ````````````````
@@ -96,6 +120,23 @@ Retourne le contenu d'un fichier présent dans l'archive zip.
 Le paramètre ``item`` peut être un objet ``epub.EpubManifestItem`` ou un chemin 
 d'accès du fichier (toujours relatif à l'emplacement du fichier OPF).
 
+*Exemple* :
+
+::
+
+  book = epub.open('mybook.epub')
+  
+  # get chapter 1
+  item = book.get_item('chap01')
+  item_path = item.href # u'Text/chap01.xhtml'
+  
+  # display the same thing
+  print book.read(item)
+  print book.read(item_path)
+  
+  # but this won't work!
+  content = book.read(u'Text/chap01.xhtml#part1')
+
 ``EpubFile.get_item(id):``
 ``````````````````````````
 
@@ -112,5 +153,153 @@ l'attribut ``href`` à la place.
 epub.EpubMetadata
 .................
 
+Cette classe permet de représenter les meta-données décrites dans le fichier 
+OPF du fichier epub, contenu dans la balise ``<metadata>``. La description de 
+chacune de ces meta-données est disponible dans la `spécification Epub, section 
+"Metadata"`__.
+
+.. __: http://idpf.org/epub/20/spec/OPF_2.0.1_draft.htm#Section2.2
+
+Les règles suivantes s'appliquent à tous les attributs :
+
+* La valeur d'une meta-donnée est représentée par un tuple de ses attributs, 
+  chacun représenté par une chaîne de caractère
+* Une meta-donnée peut être présente plusieurs fois avec des valeurs 
+  différentes : chacune est alors stockée dans une liste
+* Un attribut qui n'est pas renseigné dans le fichier xml est représenté par 
+  une chaîne vide.
+
+Ainsi, l'attribut ``EpubMetadata.title`` est une ``list`` de ``tuple`` de la 
+forme ``(title, lang)``.
+
+::
+
+  """
+  <metadata>
+      <dc:title xml:lang="fr">Titre français</dc:title>
+      <dc:title xml:lang="en">English title</dc:title>
+  </metadata>
+  """
+  
+  # equivalent metadata
+  metadata = epub.EpubMetadata()
+  metadata.title = [(u'Titre français', u'fr'), (u'English title', u'en')]
+
+``EpubMetadata.title``
+``````````````````````
+
+Liste des éléments ``<dc:title>`` des meta-données. Chaque élément de la liste 
+est un tuple de la forme ``(title, lang)``.
+
+``EpubMetadata.creator``
+````````````````````````
+
+Liste des éléments ``<dc:creator>`` des meta-données. Chaque élément de la liste 
+est un tuple de la forme ``(name, role, file as)``.
+
+``EpubMetadata.subject``
+````````````````````````
+
+Liste des éléments ``<dc:subjet>`` des meta-données. Chaque élément de la liste 
+est une chaîne de caractère représentant la valeur du sujet.
+
+``EpubMetadata.description``
+````````````````````````````
+
+L'élément ``<dc:description>``, représenté par une chaîne de caractère.
+
+``EpubMetadata.publisher``
+``````````````````````````
+
+L'élément ``<dc:publisher>``, représenté par une chaîne de caractère.
+
+``EpubMetadata.contributor``
+````````````````````````````
+
+Liste des éléments ``<dc:contributor>`` des meta-données. Chaque élément de la 
+liste  est un tuple de la forme ``(name, role, file as)``.
+
+``EpubMetadata.date``
+`````````````````````
+
+Liste des éléments ``<dc:date>`` des meta-données. Chaque élément de la 
+liste est un tuple de la forme ``(date, event)``.
+
+``EpubMetadata.type``
+`````````````````````
+
+L'élément ``<dc:type>``, représenté par une chaîne de caractère.
+
+``EpubMetadata.format``
+```````````````````````
+
+L'élément ``<dc:format>``, représenté par une chaîne de caractère.
+
+``EpubMetadata.identifier``
+```````````````````````````
+
+Liste des éléments ``<dc:identifier>`` des meta-données. Chaque élément de la 
+liste est un tuple de la forme ``(uid, id, scheme)``.
+
+La partie ``id`` est l'identifiant qui permet de référencer quel ``identifier`` 
+doit être utilisé pour définir l'UID de fichier epub.
+
+``EpubMetadata.source``
+```````````````````````
+
+L'élément ``<dc:source>``, représenté par une chaîne de caractère.
+
+``EpubMetadata.language``
+`````````````````````````
+
+Liste des éléments ``<dc:language>`` des meta-données. Chaque élément de la 
+liste est une chaîne de caractère.
+
+Plus de précision sur la balise ``<dc:language>`` dans la `spécification epub, 
+section "metadata : language"`__
+
+.. __: http://idpf.org/epub/20/spec/OPF_2.0.1_draft.htm#Section2.2.12
+
+``EpubMetadata.relation``
+`````````````````````````
+
+L'élément ``<dc:relation>``, représenté par une chaîne de caractère.
+
+``EpubMetadata.coverage``
+`````````````````````````
+
+L'élément ``<dc:coverage>``, représenté par une chaîne de caractère.
+
+``EpubMetadata.rights``
+```````````````````````
+
+L'élément ``<dc:coverage>``, représenté par une chaîne de caractère.
+
+``EpubMetadata.meta``
+`````````````````````
+
+Liste des éléments ``<dc:meta>`` des meta-données. Chaque élément de la 
+liste est un tuple de la forme ``(name, content)``.
+
 epub.EpubManifestItem
 .....................
+
+Cette classe permet de représenter chaque élément ``item`` du ``manifest`` de 
+l'epub.
+
+Chacun des attributs représente donc la valeur d'un attribut xml d'un ``item``, 
+dont la description est dans la `spécification Epub, section "Manifest"`__. 
+Chacun de ces attributs est représenté par une simple chaîne de caractères.
+
+.. __: http://idpf.org/epub/20/spec/OPF_2.0.1_draft.htm#Section2.3
+
+``Liste des attributs``
+```````````````````````
+
+* ``EpubManifestItem.id``
+* ``EpubManifestItem.href``
+* ``EpubManifestItem.media_type``
+* ``EpubManifestItem.fallback``
+* ``EpubManifestItem.required_namespace``
+* ``EpubManifestItem.required_modules``
+* ``EpubManifestItem.fallback_style``

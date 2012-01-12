@@ -104,7 +104,8 @@ def _parse_xml_metadata(element):
 
     for node in element.getElementsByTagName(u'dc:date'):
         node.normalize()
-        metadata.date = node.firstChild.data
+        metadata.add_date(node.firstChild.data,
+                          node.getAttribute(u'opf:event'))
 
     for node in element.getElementsByTagName(u'dc:type'):
         node.normalize()
@@ -284,7 +285,7 @@ class EpubMetadata(object):
     description = None
     publisher = None
     contributor = []
-    date = None
+    date = []
     type = None
     format = None
     identifier = []
@@ -302,7 +303,7 @@ class EpubMetadata(object):
         self.description = None
         self.publisher = None
         self.contributor = []
-        self.date = None
+        self.date = []
         self.type = None
         self.format = None
         self.identifier = []
@@ -325,8 +326,8 @@ class EpubMetadata(object):
     def add_contributor(self, name, role=u'oth', file_as=u''):
         self.contributor.append((name, role, file_as))
 
-    def set_date(self, date, event=''):
-        self.date = (date, event)
+    def add_date(self, date, event=''):
+        self.date.append((date, event))
 
     def add_identifier(self, content, id=u'', scheme=u''):
         self.identifier.append((content, id, scheme))

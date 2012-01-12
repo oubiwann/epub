@@ -1,0 +1,44 @@
+=======================
+Documentation du projet
+=======================
+
+-------------------------
+Index de la documentation
+-------------------------
+
+.. include:: inclusion.rst
+
+.. _Module epub.ncx:
+
+`Module epub.ncx`_
+==================
+
+.. contents::
+   :local:
+
+Retour à l'`index de la documentation`__.
+
+.. __: index.html
+
+Introduction
+------------
+
+Le format NCX a pour but de proposer un format de table des matières, et permet 
+de fournir un mécanisme de navigation au travers du document numérique. Dans le 
+cas du format Epub, le format NCX n'est pas utilisé entièrement (il est 
+notamment plus permissif, et n'utilise pas les éléments "audio").
+
+API
+---
+
+``ncx.parse_toc(xmlstring)``
+............................
+
+Parse un document XML au format NCX, à partir de la chaîne de caractère 
+``xmlstring`` fournie en paramètre. Cette méthode retourne un objet 
+`ncx.NcxFile`_ correspondant.
+
+``ncx.NcxFile``
+...............
+
+Cette classe représente le contenu d'un fichier xml au format NCX.
