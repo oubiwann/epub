@@ -59,19 +59,21 @@ La licence choisie pour cette bibliothèque est la LGPL_.
 Installation
 ------------
 
-Pour le moment, le seul moyen de l'installer est de télécharger les fichiers 
-source, et de placer le répertoire "epub" à un emplacement du python path.
-
-Note : le packaging n'est pas encore en place, mais c'est prévu. Vous pouvez 
-toujours proposer votre aide sur le sujet !
-
-Pour obtenir les sources, le meilleurs moyen est d'aller sur le repo bitbucket.
-
-Url : https://bitbucket.org/exirel/epub
+Disponible sur pypi, vous pouvez installer Python Epub via la commande "pip" :
 
 ::
 
+  # install from pip
+  pip install epub
+
+Sinon, vous pouvez obtenir la dernière version des sources via mercurial :
+
+::
+
+  # install latest version from repository
   hg clone https://bitbucket.org/exirel/epub
+  cd epub
+  python setup.py install
 
 Utilisation
 -----------
