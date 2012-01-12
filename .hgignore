@@ -1,4 +1,7 @@
 .pyc
+MANIFEST$
+dist/
+build/
 
 syntax: regexp
 ^doc/.*\.html

@@ -7,7 +7,7 @@ import epub
 from xml.dom import minidom
 
 class TestEpubOpen(unittest.TestCase):
-    epub_path = 'test.epub'
+    epub_path = '_data/test.epub'
 
     def test_open(self):
         test_path = os.path.join(os.path.dirname(__file__), self.epub_path)
