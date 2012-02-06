@@ -197,6 +197,17 @@ def _parse_for_text_tag(xml_element, name=u'text'):
         text = tag.firstChild.data
     return text
 
+def _create_xml_element_text(data, name=u'text'):
+    """Create a <text> ... </text> Element node.
+    
+    You can use a different tag name with the name argument 
+    (default is "text")."""
+    
+    doc = minidom.Document()
+    element = doc.createElement(name)
+    element.appendChild(doc.createTextNode(data))
+    return element
+
 
 class NcxFile(object):
     """Represent the structured content of a NCX file."""
@@ -250,6 +261,34 @@ class NcxNavMap(object):
     def add_point(self, point):
         self.nav_point.append(point)
 
+    def as_xml_element(self):
+        """Return an xml dom Element node."""
+        doc = minidom.Document()
+        nav_map = doc.createElement('navMap')
+        
+        for text, lang, dir in self.labels:
+            label = doc.createElement('navLabel')
+            label.appendChild(_create_xml_element_text(text))
+            if lang:
+                label.setAttribute('xml:lang', lang)
+            if dir:
+                label.setAttribute('dir', dir)
+            nav_map.appendChild(label)
+        
+        for text, lang, dir in self.infos:
+            info = doc.createElement('navInfo')
+            info.appendChild(_create_xml_element_text(text))
+            if lang:
+                info.setAttribute('xml:lang', lang)
+            if dir:
+                info.setAttribute('dir', dir)
+            nav_map.appendChild(info)
+        
+        for nav_point in self.nav_point:
+            nav_map.appendChild(nav_point.as_xml_element())
+
+        return nav_map
+
 
 class NcxNavPoint(object):
     id = None
@@ -272,6 +311,38 @@ class NcxNavPoint(object):
 
     def add_point(self, nav_point):
         self.nav_point.append(nav_point)
+
+    def as_xml_element(self):
+        """Return an xml dom Element node."""
+        doc = minidom.Document()
+        nav_point = doc.createElement('navPoint')
+        
+        if self.id:
+            nav_point.setAttribute('id', self.id)
+        
+        if self.class_name:
+            nav_point.setAttribute('class', self.class_name)
+        
+        if self.play_order:
+            nav_point.setAttribute('playOrder', self.play_order)
+
+        content = doc.createElement('content')
+        content.setAttribute('src', self.src)
+        
+        for text, lang, dir in self.labels:
+            label = doc.createElement('navLabel')
+            label.appendChild(_create_xml_element_text(text))
+            if lang:
+                label.setAttribute('xml:lang', lang)
+            if dir:
+                label.setAttribute('dir', dir)
+            nav_point.appendChild(label)
+        
+        for child in self.nav_point:
+            nav_point.appendChild(child.as_xml_element())
+        
+        return nav_point
+
 
 class NcxPageList(object):
     id = None
