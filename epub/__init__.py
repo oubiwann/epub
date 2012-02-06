@@ -209,6 +209,12 @@ class EpubFile(object):
         self.guide = []
         toc = None
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, type, value, traceback):
+        self.close()
+
     #
     # Manifest, spine & guide
     #
