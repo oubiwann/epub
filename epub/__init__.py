@@ -22,8 +22,7 @@ def open(filename):
 
     File is opened read-only.
     """
-    book = EpubFile()
-    book.zip = zipfile.ZipFile(filename)
+    book = EpubFile(zip=zipfile.ZipFile(filename))
 
     # Read container.xml to get OPF xml file path
     xmlstring = book.zip.read('META-INF/container.xml')
@@ -199,8 +198,8 @@ class EpubFile(object):
     guide = None
     toc = None
 
-    def __init__(self):
-        self.zip = None
+    def __init__(self, zip=None):
+        self.zip = zip
         self.opf_path = None
         self.uid = None
         self.uid_id = None
