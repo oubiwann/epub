@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import os
 import unittest
 
 from xml.dom import minidom
@@ -8,6 +9,41 @@ from epub import ncx
 
 class TestNcxFunction(unittest.TestCase):
     """Test case for all the _parse_* function."""
+
+    ncx_path = '_data/test.ncx'
+
+    def test_parse_toc(self):
+        test_path = os.path.join(os.path.dirname(__file__), self.ncx_path)
+        doc = minidom.parse(test_path)
+        xml_string = doc.toprettyxml()
+        toc = ncx.parse_toc(xml_string)
+        
+        self.assertEqual(toc.xmlns,
+                         u'http://www.daisy.org/z3986/2005/ncx/')
+        self.assertEqual(toc.version,
+                         u'2005-1')
+        self.assertEqual(toc.lang, u'en-US')
+        self.assertEqual(toc.title,
+                         u'Selections from "Great Pictures, As Seen and Described by Famous Writers"')
+        self.assertEqual(toc.authors,
+                         [u'Esther Singleton',
+                          u'Test Author'])
+        self.assertEqual(toc.uid,
+                         u'org-example-5059463624137734586')
+        # nav map
+        self.assertIsInstance(toc.nav_map, ncx.NcxNavMap)
+        self.assertEqual(len(toc.nav_map.nav_point), 2,
+                         u'Il manque des nav_point !')
+        # page list
+        self.assertIsInstance(toc.page_list, ncx.NcxPageList)
+        self.assertEqual(len(toc.page_list.page_target), 2,
+                         u'Il manque des page_target !')
+        # nav list
+        self.assertEqual(len(toc.nav_lists), 1,
+                         u'Il manque des nav_list !')
+        self.assertIsInstance(toc.nav_lists[0], ncx.NcxNavList)
+        self.assertEqual(len(toc.nav_lists[0].nav_target), 2,
+                         u'Il manque des page_target !')
 
     def test_parse_for_text_tag(self):
         """Test function "_parse_for_text_tag"."""
@@ -58,6 +94,18 @@ class TestNcxFunction(unittest.TestCase):
         xml_element = minidom.parseString(xml_string).documentElement
         text = ncx._parse_for_text_tag(xml_element, 'noText')
         self.assertEqual(text, u'', u'Il ne devrait pas y avoir de résultat !')
+
+        xml_string = """
+        <someTag>
+            <text>
+                Du texte avec espace et retour à la ligne.
+            </text>
+        </someTag>
+        """
+        xml_element = minidom.parseString(xml_string).documentElement
+        text = ncx._parse_for_text_tag(xml_element)
+        self.assertEqual(text, u'Du texte avec espace et retour à la ligne.',
+                         u'Il ne devrait pas y avoir de différence !')
 
     def test_parse_xml_nav_target(self):
         """Test function "_parse_xml_nav_target"."""
@@ -412,4 +460,106 @@ class TestNavList(unittest.TestCase):
 
         self.assertEqual(nav_list.as_xml_element().toxml(),
                          xml_element.toxml())
+
+
+class TestNcx(unittest.TestCase):
+    
+    def test_as_xml_document(self):
+        """Check if ncx.as_xml_document reproduce a good xml.
+        
+        ... And yeah, I hate XML with unit testing :("""
+        
+        xml_string = """<?xml version="1.0" ?>
+<ncx version="2005-1" xml:lang="en-US" xmlns="http://www.daisy.org/z3986/2005/ncx/">
+    <head>
+        <meta content="org-example-5059463624137734586" name="dtb:uid"/>
+    </head>
+    <docTitle>
+        <text>
+            Selections from &quot;Great Pictures, As Seen and Described by Famous Writers&quot;
+        </text>
+    </docTitle>
+    <docAuthor>
+        <text>
+            Esther Singleton
+        </text>
+    </docAuthor>
+    <docAuthor>
+        <text>
+            Test Author
+        </text>
+    </docAuthor>
+    <navMap>
+        <navPoint class="h1" id="ch1">
+            <navLabel>
+                <text>
+                    Chapter 1
+                </text>
+            </navLabel>
+            <content src="content.html#ch_1"/>
+            <navPoint class="h2" id="ch_1_1">
+                <navLabel>
+                    <text>
+                        Chapter 1.1
+                    </text>
+                </navLabel>
+                <content src="content.html#ch_1_1"/>
+            </navPoint>
+        </navPoint>
+        <navPoint class="h1" id="ncx-2">
+            <navLabel>
+                <text>
+                    Chapter 2
+                </text>
+            </navLabel>
+            <content src="content.html#ch_2"/>
+        </navPoint>
+    </navMap>
+    <pageList>
+        <pageTarget id="p1" type="normal" value="1">
+            <navLabel>
+                <text>
+                    1
+                </text>
+            </navLabel>
+            <content src="content.html#p1"/>
+        </pageTarget>
+        <pageTarget id="p2" type="normal" value="2">
+            <navLabel>
+                <text>
+                    2
+                </text>
+            </navLabel>
+            <content src="content.html#p2"/>
+        </pageTarget>
+    </pageList>
+    <navList>
+        <navLabel>
+            <text>
+                List of Illustrations
+            </text>
+        </navLabel>
+        <navTarget id="ill-1">
+            <navLabel>
+                <text>
+                    Portratit of Georg Gisze (Holbein)
+                </text>
+            </navLabel>
+            <content src="content.html#ill1"/>
+        </navTarget>
+        <navTarget id="ill-2">
+            <navLabel>
+                <text>
+                    The adoration of the lamb (Van Eyck)
+                </text>
+            </navLabel>
+            <content src="content.html#ill2"/>
+        </navTarget>
+    </navList>
+</ncx>
+"""
+        toc = ncx.parse_toc(xml_string)
+        xml_toc = toc.as_xml_document().toprettyxml('    ')
+
+        self.assertEqual(xml_toc, xml_string)
 

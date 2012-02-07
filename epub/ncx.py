@@ -16,7 +16,19 @@ def parse_toc(xmlstring):
     """Inspect an NCX formated xml document."""
     toc = NcxFile()
     toc_xml = minidom.parseString(xmlstring).documentElement
-
+    
+    xmlns = toc_xml.getAttribute('xmlns')
+    if xmlns:
+        toc.xmlns = xmlns
+    
+    version = toc_xml.getAttribute('version')
+    if version:
+        toc.version = version
+    
+    lang = toc_xml.getAttribute('xml:lang')
+    if lang:
+        toc.lang = lang
+    
     # Inspect head > meta; unknow meta are ignored
     head = toc_xml.getElementsByTagName(u'head')[0]
     metas = {'dtb:uid': u'',
@@ -187,6 +199,8 @@ def _parse_for_text_tag(xml_element, name=u'text'):
     second parameter (by default a "text" tag).
     
     If nothing is founded, an empty string u'' is returned.
+    
+    Whitespaces and tabulations are stripped.
     """
 
     tags = xml_element.getElementsByTagName(name)
@@ -194,7 +208,7 @@ def _parse_for_text_tag(xml_element, name=u'text'):
     if len(tags) > 0:
         tag = tags[0]
         tag.normalize()
-        text = tag.firstChild.data
+        text = tag.firstChild.data.strip()
     return text
 
 def _create_xml_element_text(data, name=u'text'):
@@ -212,18 +226,10 @@ def _create_xml_element_text(data, name=u'text'):
 class NcxFile(object):
     """Represent the structured content of a NCX file."""
 
-    uid = None
-    depth = None
-    total_page_count = None
-    max_page_number = None
-    generator = None 
-    title = None
-    authors = None
-    nav_map = None
-    page_list = None
-    nav_lists = None
-
     def __init__(self):
+        self.xmlns = u'http://www.daisy.org/z3986/2005/ncx/'
+        self.version = u'2005-1'
+        self.lang = None
         self.uid = None
         self.depth = None
         self.total_page_count = None
@@ -237,6 +243,70 @@ class NcxFile(object):
 
     def add_nav_list(self, nav_list):
         self.nav_lists.append(nav_list)
+
+    def as_xml_document(self):
+        """Return an xml dom Document node."""
+        doc = minidom.Document()
+        ncx = doc.createElement('ncx')
+        ncx.setAttribute('xmlns', self.xmlns)
+        ncx.setAttribute('version', self.version)
+        if self.lang:
+            ncx.setAttribute('xml:lang', self.lang)
+
+        # head
+        ncx.appendChild(self._head_as_xml_element())
+        
+        # title
+        title = doc.createElement('docTitle')
+        title.appendChild(_create_xml_element_text(self.title))
+        ncx.appendChild(title)
+        
+        # authors
+        for text in self.authors:
+            author = doc.createElement('docAuthor')
+            author.appendChild(_create_xml_element_text(text))
+            ncx.appendChild(author)
+        
+        # nav_map
+        ncx.appendChild(self.nav_map.as_xml_element())
+        
+        # page_list
+        if self.page_list:
+            ncx.appendChild(self.page_list.as_xml_element())
+        
+        # nav_lists
+        for nav_list in self.nav_lists:
+            ncx.appendChild(nav_list.as_xml_element())
+
+        doc.appendChild(ncx)
+        return doc
+
+    def _head_as_xml_element(self):
+        """Create an xml Element node <head> with meta-data of Ncx item."""
+        doc = minidom.Document()
+        head = doc.createElement('head')
+        if self.uid:
+            head.appendChild(self._meta_as_xml_element('dtb:uid', self.uid))
+        if self.depth:
+            head.appendChild(self._meta_as_xml_element('dtb:depth', self.depth))
+        if self.total_page_count:
+            head.appendChild(self._meta_as_xml_element('dtb:totalPageCount',
+                                                       self.total_page_count))
+        if self.max_page_number:
+            head.appendChild(self._meta_as_xml_element('dtb:maxPageNumber',
+                                                       self.max_page_number))
+        if self.generator:
+            head.appendChild(self._meta_as_xml_element('dtb:generator',
+                                                       self.generator))
+        return head
+
+    def _meta_as_xml_element(self, name, content):
+        """Create an xml Element node <meta> with attributes name & content."""
+        doc = minidom.Document()
+        meta = doc.createElement('meta')
+        meta.setAttribute('name', name)
+        meta.setAttribute('content', content)
+        return meta
 
 
 class NcxNavMap(object):
