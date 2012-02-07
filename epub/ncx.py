@@ -312,11 +312,6 @@ class NcxFile(object):
 class NcxNavMap(object):
     """Represente navMap tag of an NCX file."""
 
-    id = None
-    labels = None
-    infos = None
-    nav_point = None
-
     def __init__(self):
         self.id = None
         self.labels = []
@@ -362,12 +357,6 @@ class NcxNavMap(object):
 
 
 class NcxNavPoint(object):
-    id = None
-    class_name = None
-    play_order = None
-    labels = None
-    src = None
-    nav_point = None
 
     def __init__(self):
         self.id = None
@@ -421,11 +410,6 @@ class NcxNavPoint(object):
 
 
 class NcxPageList(object):
-    id = None
-    class_name = None
-    labels = None
-    infos = None
-    page_target = None
 
     def __init__(self):
         self.id = None
@@ -483,13 +467,6 @@ class NcxPageList(object):
 
 
 class NcxPageTarget(object):
-    id = None
-    value = None
-    type = None
-    class_name = None
-    play_order = None
-    src = None
-    labels = None
 
     def __init__(self):
         self.id = None
@@ -543,11 +520,6 @@ class NcxPageTarget(object):
 
 
 class NcxNavList(object):
-    id = None
-    class_name = None
-    labels = None
-    infos = None
-    nav_target = None
 
     def __init__(self):
         self.id = None
@@ -605,12 +577,6 @@ class NcxNavList(object):
 
 
 class NcxNavTarget(object):
-    id = None
-    class_name = None
-    value = None
-    play_order = None
-    labels = None
-    src = None
 
     def __init__(self):
         self.id = None

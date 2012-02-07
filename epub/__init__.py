@@ -188,16 +188,6 @@ class EpubFile(object):
     
     See http://idpf.org/epub/201"""
 
-    zip = None
-    opf_path = None
-    uid = None
-    uid_id = None
-    metadata = None
-    manifest = None
-    spine = None
-    guide = None
-    toc = None
-
     def __init__(self, zip=None):
         self.zip = zip
         self.opf_path = None
@@ -283,23 +273,6 @@ class EpubMetadata(object):
     """Represent an epub's metadatas set.
     
     See http://idpf.org/epub/20/spec/OPF_2.0.1_draft.htm#Section2.2"""
-
-    title = []
-    creator = []
-    subject = []
-    description = None
-    publisher = None
-    contributor = []
-    date = []
-    type = None
-    format = None
-    identifier = []
-    source = None
-    language = []
-    relation = None
-    coverage = None
-    rights = None
-    meta = []
 
     def __init__(self):
         self.title = []
@@ -455,14 +428,6 @@ class EpubMetadata(object):
 
 class EpubManifestItem(object):
     """Represent an item from the epub's manifest."""
-
-    id = None
-    href = None
-    media_type = None
-    fallback = None
-    required_namespace = None
-    required_modules = None
-    fallback_style = None
 
     def __init__(self, id, href, media_type=None, fallback=None, 
                  required_namespace=None, required_modules=None, 
