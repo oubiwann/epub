@@ -6,7 +6,7 @@ from xml.dom import minidom
 
 from epub import ncx
 
-class TestParseFunction(unittest.TestCase):
+class TestNcxFunction(unittest.TestCase):
     """Test case for all the _parse_* function."""
 
     def test_parse_for_text_tag(self):
@@ -65,7 +65,7 @@ class TestParseFunction(unittest.TestCase):
         xml_string = """
         <navTarget playOrder="5"
                    id="part1_target-fragment"
-                   value="Some Value"
+                   value="5"
                    class="some_class">
             <navLabel><text>Label de la Target</text></navLabel>
             <content src="Text/part1.xhtml#target-fragment" />
@@ -75,7 +75,7 @@ class TestParseFunction(unittest.TestCase):
         nav_target = ncx._parse_xml_nav_target(xml_element)
         self.assertIsInstance(nav_target, ncx.NcxNavTarget)
         self.assertEqual(nav_target.id, u'part1_target-fragment')
-        self.assertEqual(nav_target.value, u'Some Value')
+        self.assertEqual(nav_target.value, u'5')
         self.assertEqual(nav_target.class_name, u'some_class')
         self.assertEqual(nav_target.play_order, u'5')
         self.assertEqual(nav_target.labels, [(u'Label de la Target', '', ''),])
@@ -97,8 +97,7 @@ class TestParseFunction(unittest.TestCase):
         """Test function "_parse_xml_nav_list"."""
         
         xml_string = """
-        <navList id="navlist-1"
-                 class="list_class">
+        <navList id="navlist-1" class="list_class">
             <navLabel xml:lang="fr"><text>Label français</text></navLabel>
             <navLabel xml:lang="en"><text>English label</text></navLabel>
             <navInfo xml:lang="fr"><text>Info de navigation</text></navInfo>
@@ -283,3 +282,134 @@ class TestParseFunction(unittest.TestCase):
         self.assertEqual(len(nav_map.nav_point), 2)
         self.assertEqual(len(nav_map.nav_point[0].nav_point), 0)
         self.assertEqual(len(nav_map.nav_point[1].nav_point), 2)
+
+    def test_create_xml_element_text(self):
+        xml_string = """<text>Some text</text>"""
+        xml_element = ncx._create_xml_element_text(u'Some text')
+        self.assertEqual(xml_element.toxml(), xml_string)
+        
+        xml_string = """<otherText>Some text</otherText>"""
+        xml_element = ncx._create_xml_element_text(u'Some text', u'otherText')
+        self.assertEqual(xml_element.toxml(), xml_string)
+
+
+class TestNavPoint(unittest.TestCase):
+    
+    def test_as_xml_element(self):
+        xml_string = """<navPoint class="some_class" id="point5" playOrder="5">""" + \
+            """<navLabel xml:lang="fr"><text>Label fr</text></navLabel>""" + \
+            """<navLabel xml:lang="en"><text>Label en</text></navLabel>""" + \
+            """<content src="Text/Point1.xhtml#fragment5"/>""" + \
+            """<navPoint id="point5_1" playOrder="6">""" + \
+                """<navLabel xml:lang="fr"><text>Sous-Label 6</text></navLabel>""" + \
+                """<content src="Text/Point1.xhtml#fragment5_1"/>""" + \
+            """</navPoint>""" + \
+            """<navPoint id="point5_2" playOrder="7">""" + \
+                """<navLabel xml:lang="fr"><text>Sous-Label 7</text></navLabel>""" + \
+                """<content src="Text/Point1.xhtml#fragment5_2"/>""" + \
+            """</navPoint>""" + \
+        """</navPoint>"""
+
+        xml_element = minidom.parseString(xml_string).documentElement
+        nav_point = ncx._parse_xml_nav_point(xml_element)
+
+        self.assertEqual(nav_point.as_xml_element().toxml(),
+                         xml_element.toxml())
+
+
+class TestNavMap(unittest.TestCase):
+    
+    def test_as_xml_element(self):
+        xml_string = """<navMap>""" + \
+            """<navLabel xml:lang="fr"><text>Label fr</text></navLabel>""" + \
+            """<navLabel xml:lang="en"><text>Label en</text></navLabel>""" + \
+            """<navInfo xml:lang="fr"><text>Label fr</text></navInfo>""" + \
+            """<navInfo xml:lang="en"><text>Label en</text></navInfo>""" + \
+            """<navPoint id="point5_2" playOrder="7">""" + \
+                """<navLabel xml:lang="fr"><text>Sous-Label 7</text></navLabel>""" + \
+                """<content src="Text/Point1.xhtml#fragment5_2"/>""" + \
+            """</navPoint>""" + \
+        """</navMap>"""
+
+        xml_element = minidom.parseString(xml_string).documentElement
+        nav_map = ncx._parse_xml_nav_map(xml_element)
+
+        self.assertEqual(nav_map.as_xml_element().toxml(),
+                         xml_element.toxml())
+
+
+class TestPageTarget(unittest.TestCase):
+
+    def test_as_xml_element(self):
+        xml_string = """<pageTarget class="some_class" id="testid" playOrder="5" type="page_type" value="Some Value">""" + \
+            """<navLabel xml:lang="fr"><text>Label fr</text></navLabel>""" + \
+            """<navLabel xml:lang="en"><text>Label en</text></navLabel>""" + \
+            """<content src="Text/Point1.xhtml#fragment5_2"/>""" + \
+        """</pageTarget>"""
+
+        xml_element = minidom.parseString(xml_string).documentElement
+        page_target = ncx._parse_xml_page_target(xml_element)
+
+        self.assertEqual(page_target.as_xml_element().toxml(),
+                         xml_element.toxml())
+
+
+class TestPageList(unittest.TestCase):
+
+    def test_as_xml_element(self):
+        xml_string = """<pageList id="pagelist-1" class="page_class">""" + \
+            """<navLabel xml:lang="fr"><text>Label fr</text></navLabel>""" + \
+            """<navLabel xml:lang="en"><text>Label en</text></navLabel>""" + \
+            """<navInfo xml:lang="fr"><text>Info de navigation</text></navInfo>""" + \
+            """<navInfo xml:lang="en"><text>Navigation's info</text></navInfo>""" + \
+            """<pageTarget class="some_class" id="testid" playOrder="5" type="page_type" value="Some Value">""" + \
+                """<navLabel xml:lang="fr"><text>Label fr</text></navLabel>""" + \
+                """<navLabel xml:lang="en"><text>Label en</text></navLabel>""" + \
+                """<content src="Text/Point1.xhtml#fragment5_2"/>""" + \
+            """</pageTarget>""" + \
+        """</pageList>"""
+
+        xml_element = minidom.parseString(xml_string).documentElement
+        page_list = ncx._parse_xml_page_list(xml_element)
+
+        self.assertEqual(page_list.as_xml_element().toxml(),
+                         xml_element.toxml())
+
+
+class TestNavTarget(unittest.TestCase):
+
+    def test_as_xml_element(self):
+        xml_string = """<navTarget class="some_class" id="testid" playOrder="5" value="5">""" + \
+            """<navLabel xml:lang="fr"><text>Label fr</text></navLabel>""" + \
+            """<navLabel xml:lang="en"><text>Label en</text></navLabel>""" + \
+            """<content src="Text/Point1.xhtml#fragment5_2"/>""" + \
+        """</navTarget>"""
+
+        xml_element = minidom.parseString(xml_string).documentElement
+        nav_target = ncx._parse_xml_nav_target(xml_element)
+
+        self.assertEqual(nav_target.as_xml_element().toxml(),
+                         xml_element.toxml())
+
+
+class TestNavList(unittest.TestCase):
+
+    def test_as_xml_element(self):
+        xml_string = """<navList class="some_class" id="testid">""" + \
+            """<navLabel xml:lang="fr"><text>Label fr</text></navLabel>""" + \
+            """<navLabel xml:lang="en"><text>Label en</text></navLabel>""" + \
+            """<navInfo xml:lang="fr"><text>Info de navigation</text></navInfo>""" + \
+            """<navInfo xml:lang="en"><text>Navigation's info</text></navInfo>""" + \
+            """<navTarget class="some_class" id="testid" playOrder="5" value="5">""" + \
+                """<navLabel xml:lang="fr"><text>Label fr</text></navLabel>""" + \
+                """<navLabel xml:lang="en"><text>Label en</text></navLabel>""" + \
+                """<content src="Text/Point1.xhtml#fragment5_2"/>""" + \
+            """</navTarget>""" + \
+        """</navList>"""
+
+        xml_element = minidom.parseString(xml_string).documentElement
+        nav_list = ncx._parse_xml_nav_list(xml_element)
+
+        self.assertEqual(nav_list.as_xml_element().toxml(),
+                         xml_element.toxml())
+

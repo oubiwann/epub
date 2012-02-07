@@ -436,7 +436,7 @@ class NcxPageTarget(object):
     def as_xml_element(self):
         """Return an xml dom Element node."""
         doc = minidom.Document()
-        page_target = doc.createElement('pageList')
+        page_target = doc.createElement('pageTarget')
         
         # attributes
         if self.id:
@@ -537,6 +537,7 @@ class NcxNavList(object):
 class NcxNavTarget(object):
     id = None
     class_name = None
+    value = None
     play_order = None
     labels = None
     src = None
@@ -544,6 +545,7 @@ class NcxNavTarget(object):
     def __init__(self):
         self.id = None
         self.class_name = None
+        self.value= None
         self.play_order = None
         self.labels = []
         self.src = None
@@ -562,6 +564,9 @@ class NcxNavTarget(object):
         
         if self.class_name:
             nav_target.setAttribute('class', self.class_name)
+        
+        if self.value:
+            nav_target.setAttribute('value', self.value)
         
         if self.play_order:
             nav_target.setAttribute('playOrder', self.play_order)
