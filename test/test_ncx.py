@@ -31,17 +31,17 @@ class TestNcxFunction(unittest.TestCase):
         self.assertEqual(toc.uid,
                          u'org-example-5059463624137734586')
         # nav map
-        self.assertIsInstance(toc.nav_map, ncx.NcxNavMap)
+        self.assertIsInstance(toc.nav_map, ncx.NavMap)
         self.assertEqual(len(toc.nav_map.nav_point), 2,
                          u'Il manque des nav_point !')
         # page list
-        self.assertIsInstance(toc.page_list, ncx.NcxPageList)
+        self.assertIsInstance(toc.page_list, ncx.PageList)
         self.assertEqual(len(toc.page_list.page_target), 2,
                          u'Il manque des page_target !')
         # nav list
         self.assertEqual(len(toc.nav_lists), 1,
                          u'Il manque des nav_list !')
-        self.assertIsInstance(toc.nav_lists[0], ncx.NcxNavList)
+        self.assertIsInstance(toc.nav_lists[0], ncx.NavList)
         self.assertEqual(len(toc.nav_lists[0].nav_target), 2,
                          u'Il manque des page_target !')
 
@@ -121,7 +121,7 @@ class TestNcxFunction(unittest.TestCase):
         """
         xml_element = minidom.parseString(xml_string).documentElement
         nav_target = ncx._parse_xml_nav_target(xml_element)
-        self.assertIsInstance(nav_target, ncx.NcxNavTarget)
+        self.assertIsInstance(nav_target, ncx.NavTarget)
         self.assertEqual(nav_target.id, u'part1_target-fragment')
         self.assertEqual(nav_target.value, u'5')
         self.assertEqual(nav_target.class_name, u'some_class')
@@ -168,7 +168,7 @@ class TestNcxFunction(unittest.TestCase):
         """
         xml_element = minidom.parseString(xml_string).documentElement
         nav_list = ncx._parse_xml_nav_list(xml_element)
-        self.assertIsInstance(nav_list, ncx.NcxNavList)
+        self.assertIsInstance(nav_list, ncx.NavList)
         self.assertEqual(nav_list.id, u'navlist-1')
         self.assertEqual(nav_list.class_name, u'list_class')
         self.assertEqual(nav_list.labels, [(u'Label français', 'fr', ''),
@@ -178,7 +178,7 @@ class TestNcxFunction(unittest.TestCase):
         self.assertEqual(len(nav_list.nav_target), 2)
 
         for nav_target in nav_list.nav_target:
-            self.assertIsInstance(nav_target, ncx.NcxNavTarget)
+            self.assertIsInstance(nav_target, ncx.NavTarget)
             test_label = u'Label de la Target %s' % nav_target.play_order
             self.assertEqual(nav_target.labels[0],
                              (test_label, u'', u''))
@@ -198,7 +198,7 @@ class TestNcxFunction(unittest.TestCase):
         """
         xml_element = minidom.parseString(xml_string).documentElement
         page_target = ncx._parse_xml_page_target(xml_element)
-        self.assertIsInstance(page_target, ncx.NcxPageTarget)
+        self.assertIsInstance(page_target, ncx.PageTarget)
         self.assertEqual(page_target.id, u'part1_target-fragment')
         self.assertEqual(page_target.value, u'Some Value')
         self.assertEqual(page_target.type, u'page_type')
@@ -249,7 +249,7 @@ class TestNcxFunction(unittest.TestCase):
         """
         xml_element = minidom.parseString(xml_string).documentElement
         page_list = ncx._parse_xml_page_list(xml_element)
-        self.assertIsInstance(page_list, ncx.NcxPageList)
+        self.assertIsInstance(page_list, ncx.PageList)
         self.assertEqual(page_list.id, u'pagelist-1')
         self.assertEqual(page_list.class_name, u'page_class')
         self.assertEqual(page_list.labels, [(u'Label français', 'fr', ''),
@@ -259,7 +259,7 @@ class TestNcxFunction(unittest.TestCase):
         self.assertEqual(len(page_list.page_target), 2)
 
         for page_target in page_list.page_target:
-            self.assertIsInstance(page_target, ncx.NcxPageTarget)
+            self.assertIsInstance(page_target, ncx.PageTarget)
             test_label = u'Label français %s' % page_target.play_order
             self.assertEqual(page_target.labels,
                              [(test_label, u'fr', u''),])
@@ -286,7 +286,7 @@ class TestNcxFunction(unittest.TestCase):
         """
         xml_element = minidom.parseString(xml_string).documentElement
         nav_point = ncx._parse_xml_nav_point(xml_element)
-        self.assertIsInstance(nav_point, ncx.NcxNavPoint)
+        self.assertIsInstance(nav_point, ncx.NavPoint)
         self.assertEqual(nav_point.id, u'point5')
         self.assertEqual(nav_point.class_name, u'some_class')
         self.assertEqual(nav_point.labels, [(u'Label fr', 'fr', ''),
@@ -294,7 +294,7 @@ class TestNcxFunction(unittest.TestCase):
         self.assertEqual(nav_point.src, u'Text/Point1.xhtml#fragment5')
         self.assertEqual(len(nav_point.nav_point), 2)
         for child_nav_point in nav_point.nav_point:
-            self.assertIsInstance(child_nav_point, ncx.NcxNavPoint)
+            self.assertIsInstance(child_nav_point, ncx.NavPoint)
             test_label = u'Sous-Label %s' % child_nav_point.play_order
             self.assertEqual(child_nav_point.labels,
                              [(test_label, u'fr', u''),])
@@ -325,7 +325,7 @@ class TestNcxFunction(unittest.TestCase):
         """
         xml_element = minidom.parseString(xml_string).documentElement
         nav_map = ncx._parse_xml_nav_map(xml_element)
-        self.assertIsInstance(nav_map, ncx.NcxNavMap)
+        self.assertIsInstance(nav_map, ncx.NavMap)
         self.assertEqual(nav_map.id, u'the_only_one_map')
         self.assertEqual(len(nav_map.nav_point), 2)
         self.assertEqual(len(nav_map.nav_point[0].nav_point), 0)

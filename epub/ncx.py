@@ -14,7 +14,7 @@ from xml.dom import minidom
 
 def parse_toc(xmlstring):
     """Inspect an NCX formated xml document."""
-    toc = NcxFile()
+    toc = Ncx()
     toc_xml = minidom.parseString(xmlstring).documentElement
     
     xmlns = toc_xml.getAttribute('xmlns')
@@ -69,7 +69,7 @@ def parse_toc(xmlstring):
 
 def _parse_xml_nav_map(element):
     """Inspect an xml.dom.Element <navMap> and return a NcxNavMap object."""
-    nav_map = NcxNavMap()
+    nav_map = NavMap()
     nav_map.id = element.getAttribute('id')
 
     children = [e for e in element.childNodes if e.nodeType == e.ELEMENT_NODE]
@@ -89,7 +89,7 @@ def _parse_xml_nav_map(element):
 
 def _parse_xml_nav_point(element):
     """Inspect an xml.dom.Element <navPoint> and return a NcxNavPoint object."""
-    nav_point = NcxNavPoint()
+    nav_point = NavPoint()
     nav_point.id = element.getAttribute('id')
     nav_point.class_name = element.getAttribute('class')
     nav_point.play_order = element.getAttribute('playOrder')
@@ -109,7 +109,7 @@ def _parse_xml_nav_point(element):
 
 def _parse_xml_page_list(element):
     """Inspect an xml.dom.Element <pageList> and return a NcxPageList object."""
-    page_list = NcxPageList()
+    page_list = PageList()
     page_list.id = element.getAttribute('id')
     page_list.class_name = element.getAttribute('class')
 
@@ -130,7 +130,7 @@ def _parse_xml_page_list(element):
 
 def _parse_xml_page_target(element):
     """Inspect an xml.dom.Element <pageTarget> and return a NcxPageTarget object."""
-    page_target = NcxPageTarget()
+    page_target = PageTarget()
     page_target.id = element.getAttribute('id')
     page_target.value = element.getAttribute('value')
     page_target.type = element.getAttribute('type')
@@ -150,7 +150,7 @@ def _parse_xml_page_target(element):
 
 def _parse_xml_nav_list(element):
     """Inspect an xml.dom.Element <navList> and return a NcxNavList object."""
-    nav_list = NcxNavList()
+    nav_list = NavList()
     nav_list.id = element.getAttribute('id')
     nav_list.class_name = element.getAttribute('class')
 
@@ -172,7 +172,7 @@ def _parse_xml_nav_list(element):
 def _parse_xml_nav_target(element):
     """Inspect an xml.dom.Element <navTarget> and return a NcxNavTarget 
     object."""
-    nav_target = NcxNavTarget()
+    nav_target = NavTarget()
     nav_target.id = element.getAttribute('id')
     nav_target.value = element.getAttribute('value')
     nav_target.class_name = element.getAttribute('class')
@@ -223,7 +223,7 @@ def _create_xml_element_text(data, name=u'text'):
     return element
 
 
-class NcxFile(object):
+class Ncx(object):
     """Represent the structured content of a NCX file."""
 
     def __init__(self):
@@ -309,7 +309,7 @@ class NcxFile(object):
         return meta
 
 
-class NcxNavMap(object):
+class NavMap(object):
     """Represente navMap tag of an NCX file."""
 
     def __init__(self):
@@ -356,7 +356,7 @@ class NcxNavMap(object):
         return nav_map
 
 
-class NcxNavPoint(object):
+class NavPoint(object):
 
     def __init__(self):
         self.id = None
@@ -409,7 +409,7 @@ class NcxNavPoint(object):
         return nav_point
 
 
-class NcxPageList(object):
+class PageList(object):
 
     def __init__(self):
         self.id = None
@@ -466,7 +466,7 @@ class NcxPageList(object):
         return page_list
 
 
-class NcxPageTarget(object):
+class PageTarget(object):
 
     def __init__(self):
         self.id = None
@@ -519,7 +519,7 @@ class NcxPageTarget(object):
         return page_target
 
 
-class NcxNavList(object):
+class NavList(object):
 
     def __init__(self):
         self.id = None
@@ -576,7 +576,7 @@ class NcxNavList(object):
         return nav_list
 
 
-class NcxNavTarget(object):
+class NavTarget(object):
 
     def __init__(self):
         self.id = None

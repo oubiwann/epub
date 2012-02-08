@@ -55,7 +55,7 @@ class EpubFile(object):
         self.opf_path = None
         self.opf = opf.Opf()
         self.uid = None
-        self.toc = ncx.NcxFile()
+        self.toc = ncx.Ncx()
 
     def __enter__(self):
         return self
