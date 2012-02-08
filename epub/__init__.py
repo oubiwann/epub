@@ -67,17 +67,6 @@ class EpubFile(object):
     # Manifest, spine & guide
     #
 
-    def add_item(self, id, href, media_type=None, fallback=None, 
-                 required_namespace=None, required_modules=None, 
-                 fallback_style=None):
-        item = opf.ManifestItem(id, href, media_type,
-                                fallback, required_namespace, required_modules,
-                                fallback_style)
-        self.opf.manifest.append(item)
-
-    def add_spine_itemref(self, idref, linear=True):
-        self.opf.spine.append((idref, linear))
-
     def get_item(self, id):
         """Get an item from manifest through its "id" attribute.
         
@@ -97,9 +86,6 @@ class EpubFile(object):
             return l[0]
         else:
             return None
-
-    def add_guide_ref(self, href, type, title):
-        self.opf.guide.append((href, type, title))
 
     #
     # Traitement et lecture des fichiers

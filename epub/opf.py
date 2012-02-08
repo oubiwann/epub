@@ -3,6 +3,9 @@
 """
 Python lib for reading OPF formated file for epub.
 
+Since the "Tour" element is deprecated in Epub 2, it is not supported by this 
+library.
+
 OPF epub : http://idpf.org/epub/20/spec/OPF_2.0.1_draft.htm
 """
 
@@ -21,7 +24,10 @@ def parse_opf(xml_string):
     opf.uid_id = package.getAttribute('unique-identifier')
     
     # Store each child nodes into a dict (metadata, manifest, spine, guide)
-    data = {}
+    data = {u'metadata': None,
+            u'manifest': None,
+            u'spine': None,
+            u'guide': None}
     for node in [e for e in package.childNodes if e.nodeType == e.ELEMENT_NODE]:
         data[node.tagName.lower()] = node
     
@@ -127,14 +133,13 @@ def _parse_xml_manifest(element):
 
     manifest = Manifest()
     for e in element.getElementsByTagName('item'):
-        item = ManifestItem(e.getAttribute('id'),
-                            e.getAttribute('href'),
-                            e.getAttribute('media-type'),
-                            e.getAttribute('fallback'),
-                            e.getAttribute('required-namespace'),
-                            e.getAttribute('required-modules'),
-                            e.getAttribute('fallback-style'))
-        manifest.append(item)
+        manifest.add_item(e.getAttribute('id'),
+                          e.getAttribute('href'),
+                          e.getAttribute('media-type'),
+                          e.getAttribute('fallback'),
+                          e.getAttribute('required-namespace'),
+                          e.getAttribute('required-modules'),
+                          e.getAttribute('fallback-style'))
     return manifest
 
 def _parse_xml_spine(element):
@@ -143,8 +148,8 @@ def _parse_xml_spine(element):
     spine = Spine()
     spine.toc = element.getAttribute('toc')
     for e in element.getElementsByTagName('itemref'):
-        spine.append((e.getAttribute('idref'),
-                      e.getAttribute('linear').lower() != 'no'))
+        spine.add_itemref(e.getAttribute('idref'),
+                          e.getAttribute('linear').lower() != 'no')
     return spine
 
 def _parse_xml_guide(element):
@@ -152,9 +157,9 @@ def _parse_xml_guide(element):
 
     guide = Guide()
     for e in element.getElementsByTagName('ref'):
-        guide.append((e.getAttribute('href'),
-                      e.getAttribute('type'),
-                      e.getAttribute('title')))
+        guide.add_reference(e.getAttribute('href'),
+                            e.getAttribute('type'),
+                            e.getAttribute('title'))
     return guide
 
 
@@ -231,6 +236,8 @@ class Metadata(object):
         """Return an xml dom Element node."""
         doc = minidom.Document()
         metadata = doc.createElement('metadata')
+        metadata.setAttribute('xmlns:dc', XMLNS_DC)
+        metadata.setAttribute('xmlns:opf', XMLNS_OPF)
 
         for text, lang in self.titles:
             title = doc.createElement('dc:title')
@@ -331,13 +338,30 @@ class Metadata(object):
 
 
 class Manifest(object):
-    
+
     def __init__(self):
         self.items = []
-    
+
     def append(self, item):
         self.items.append(item)
 
+    def add_item(self, id, href, media_type=None, fallback=None, 
+                 required_namespace=None, required_modules=None, 
+                 fallback_style=None):
+        item = ManifestItem(id, href, media_type,
+                                fallback, required_namespace, required_modules,
+                                fallback_style)
+        self.append(item)
+
+    def as_xml_element(self):
+        """Return an xml dom Element node."""
+        doc = minidom.Document()
+        manifest = doc.createElement('manifest')
+        
+        for item in self.items:
+            manifest.appendChild(item.as_xml_element())
+        
+        return manifest
 
 class ManifestItem(object):
     """Represent an item from the epub's manifest."""
@@ -355,9 +379,9 @@ class ManifestItem(object):
 
     def as_xml_element(self):
         """Return an xml dom Element node."""
-
+        
         item = minidom.Document().createElement("item")
-
+        
         item.setAttribute('id', self.id)
         item.setAttribute('href', self.href)
         if self.media_type:
@@ -370,25 +394,61 @@ class ManifestItem(object):
             item.setAttribute('required_modules', self.required_modules)
         if self.fallback_style:
             item.setAttribute('fallback_style', self.fallback_style)
-
+        
         return item
 
 
 class Spine(object):
-    
+
     def __init__(self):
         self.toc = None
         self.itemrefs = []
-    
+
     def append(self, itemref):
         self.itemrefs.append(itemref)
 
+    def add_itemref(self, idref, linear=True):
+        self.append((idref, linear))
+
+    def as_xml_element(self):
+        doc = minidom.Document()
+        spine = doc.createElement('spine')
+        spine.setAttribute('toc', self.toc)
+        
+        for idref, linear in self.itemrefs:
+            itemref = doc.createElement('itemref')
+            itemref.setAttribute('idref', idref)
+            if not linear:
+                itemref.setAttribute('linear', u'no')
+            spine.appendChild(itemref)
+        
+        return spine
+
 
 class Guide(object):
-    
+
     def __init__(self):
         self.references = []
-    
+
     def append(self, reference):
         self.references.append(reference)
+
+    def add_reference(self, href, type=None, title=None):
+        self.append((href, type, title))
+
+    def as_xml_element(self):
+        doc = minidom.Document()
+        guide = doc.createElement('guide')
+        
+        for href, type, title in self.references:
+            reference = doc.createElement('reference')
+            if type:
+                reference.setAttribute('type', type)
+            if title:
+                reference.setAttribute('title', title)
+            if href:
+                reference.setAttribute('href', href)
+            guide.appendChild(reference)
+        
+        return guide
 

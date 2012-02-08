@@ -7,7 +7,7 @@ from xml.dom import minidom
 
 from epub import ncx
 
-class TestNcxFunction(unittest.TestCase):
+class TestFunction(unittest.TestCase):
     """Test case for all the _parse_* function."""
 
     ncx_path = '_data/test.ncx'
