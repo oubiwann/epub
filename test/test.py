@@ -13,10 +13,10 @@ class TestEpubOpen(unittest.TestCase):
         test_path = os.path.join(os.path.dirname(__file__), self.epub_path)
         book = epub.open(test_path)
         
-        self.assertEqual(book.metadata.language, ['en',])
-        self.assertEqual(book.metadata.title, [(u'Testing Epub', ''),])
-        self.assertEqual(len(book.manifest), 7)
-        for item in book.manifest:
+        self.assertEqual(book.opf.metadata.languages, ['en',])
+        self.assertEqual(book.opf.metadata.titles, [(u'Testing Epub', ''),])
+        self.assertEqual(len(book.opf.manifest.items), 7)
+        for item in book.opf.manifest.items:
             self.assertIsInstance(item, epub.opf.ManifestItem)
 
     def test_parse_xml_metadata(self):
@@ -43,26 +43,26 @@ class TestEpubOpen(unittest.TestCase):
         metadata = epub.opf._parse_xml_metadata(element)
         
         # dc:identifier
-        self.assertEqual(metadata.identifier,
+        self.assertEqual(metadata.identifiers,
                          [(u'1', u'epub_id', u'epub_test'),
                           (u'18430f16-c687-400b-9b9c-54a9c8b0646c', u'uuid_id', u'uuid')])
         
         # dc:title
-        self.assertEqual(metadata.title,
+        self.assertEqual(metadata.titles,
                          [(u'Metadata for testing purpose', ''),
                           (u'Metadonnée pour les tests.', 'fr')])
         
         # dc:creator
-        self.assertEqual(metadata.creator,
+        self.assertEqual(metadata.creators,
                          [(u'John Doe', u'aut', u'Doe, Jhon'),])
         
         # dc:contributor
-        self.assertEqual(metadata.contributor,
+        self.assertEqual(metadata.contributors,
                          [(u'Python unittest', u'other.test', u'Python, unittest'),
                           (u'Python nosetests', u'other.test', u'Python, nosetests')])
         
         # dc:date
-        self.assertEqual(metadata.date,
+        self.assertEqual(metadata.dates,
                          [(u'2012-01-05T16:18:00+00:00', u'creation'),
                           (u'2012-01-09T13:37:00+00:00', u'publication')])
         
@@ -70,11 +70,11 @@ class TestEpubOpen(unittest.TestCase):
         self.assertEqual(metadata.publisher, u'Exirel')
         
         # dc:language
-        self.assertEqual(metadata.language,
+        self.assertEqual(metadata.languages,
                          [u'en',])
         
         # meta
-        self.assertEqual(metadata.meta,
+        self.assertEqual(metadata.metas,
                          [(u'custom:meta', u'Custom Meta'),
                           (u'custom:other', u'Another Custom Meta')])
 
@@ -90,20 +90,23 @@ class TestEpubOpen(unittest.TestCase):
         """
         xml_element = minidom.parseString(xml_string).documentElement
         manifest = epub.opf._parse_xml_manifest(xml_element)
-        self.assertEqual(len(manifest), 4)
+        self.assertIsInstance(manifest, epub.opf.Manifest,
+                              u'Manifest must be an epub.opf.Manifest instance.')
+        self.assertEqual(len(manifest.items), 4)
         
-        for item in manifest:
+        for item in manifest.items:
             self.assertIsInstance(item, epub.opf.ManifestItem)
         
-        self.assertEqual(manifest[0].id, u'toc')
-        self.assertEqual(manifest[1].id, u'cover')
-        self.assertEqual(manifest[2].id, u'chap1')
-        self.assertEqual(manifest[3].id, u'chap2')
+        self.assertEqual(manifest.items[0].id, u'toc')
+        self.assertEqual(manifest.items[1].id, u'cover')
+        self.assertEqual(manifest.items[2].id, u'chap1')
+        self.assertEqual(manifest.items[3].id, u'chap2')
         
-        self.assertEqual(manifest[0].href, u'toc.ncx')
-        self.assertEqual(manifest[1].href, u'Text/cover.html')
-        self.assertEqual(manifest[2].href, u'Text/chap1.html')
-        self.assertEqual(manifest[3].href, u'Text/chap2.html')
+        self.assertEqual(manifest.items[0].href, u'toc.ncx')
+        self.assertEqual(manifest.items[1].href, u'Text/cover.html')
+        self.assertEqual(manifest.items[2].href, u'Text/chap1.html')
+        self.assertEqual(manifest.items[3].href, u'Text/chap2.html')
+
 
 class TestEpubFile(unittest.TestCase):
     """Test class for epub.EpubFile class"""
@@ -112,29 +115,31 @@ class TestEpubFile(unittest.TestCase):
 
     def setUp(self):
         epub_file = epub.EpubFile()
-        manifest = [epub.opf.ManifestItem('toc', 'toc.ncx', epub.MIMETYPE_NCX),
+        manifest = epub.opf.Manifest()
+        manifest.items = [epub.opf.ManifestItem('toc', 'toc.ncx', epub.MIMETYPE_NCX),
                     epub.opf.ManifestItem('Chap001', 'Text/chap1.xhtml',
                                           epub.MIMETYPE_OPF),
                     epub.opf.ManifestItem('Chap002', 'Text/chap2.xhtml',
                                           epub.MIMETYPE_OPF),
                     ]
-        epub_file.manifest = manifest
+        epub_file.opf = epub.opf.Opf()
+        epub_file.opf.manifest = manifest
         self.epub_file  = epub_file
 
     def test_add_item(self):
         """Check EpubFile.add_item() add an item to the manifest."""
-        self.assertEqual(len(self.epub_file.manifest), 3,
+        self.assertEqual(len(self.epub_file.opf.manifest.items), 3,
                          u'Le setup n\'est pas bon')
         self.epub_file.add_item('Chap003', 'Text/chap3.xhtml',
                                 epub.MIMETYPE_OPF)
-        self.assertEqual(len(self.epub_file.manifest), 4,
+        self.assertEqual(len(self.epub_file.opf.manifest.items), 4,
                          u'Il manque un objet !')
 
     def test_get_item(self):
         """Check EpubFile.get_item() return an EpubManifestItem by its id"""
         item = self.epub_file.get_item('Chap002')
         self.assertIsInstance(item, epub.opf.ManifestItem,
-                              u'L\'item retourné doit être un objet de type <EpubManifestItem>')
+                              u'L\'item retourné doit être un objet de type <epub.opf.ManifestItem>')
         self.assertEqual(item.id, 'Chap002', u'id attendu incorrect.')
         self.assertEqual(item.href, 'Text/chap2.xhtml',
                          u'href attendu incorrect.')
@@ -143,7 +148,7 @@ class TestEpubFile(unittest.TestCase):
         """Check EpubFile.get_item() return an EpubManifestItem by its href"""
         item = self.epub_file.get_item_by_href('Text/chap2.xhtml')
         self.assertIsInstance(item, epub.opf.ManifestItem,
-                              u'L\'item retourné doit être un objet de type <EpubManifestItem>')
+                              u'L\'item retourné doit être un objet de type <epub.opf.ManifestItem>')
         self.assertEqual(item.id, 'Chap002', u'id attendu incorrect.')
         self.assertEqual(item.href, 'Text/chap2.xhtml',
                          u'href attendu incorrect.')

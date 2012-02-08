@@ -19,47 +19,26 @@ MIMETYPE_NCX = u'application/x-dtbncx+xml'
 
 def open(filename):
     """Open an epub file and return an EpubFile object
-
+    
     File is opened read-only.
     """
     book = EpubFile(zip=zipfile.ZipFile(filename))
-
+    
     # Read container.xml to get OPF xml file path
     xmlstring = book.zip.read('META-INF/container.xml')
     container_xml = minidom.parseString(xmlstring).documentElement
-
+    
     for e in container_xml.getElementsByTagName('rootfile'):
         if e.getAttribute('media-type') == MIMETYPE_OPF:
             book.opf_path = e.getAttribute('full-path')
             break
-
+    
     # Read OPF xml file
-    xmlstring = book.zip.read(book.opf_path)
-    package = minidom.parseString(xmlstring).documentElement
-
-    # Store each child nodes into a dict (metadata, manifest, spine, guide)
-    data = {}
-    for node in [e for e in package.childNodes if e.nodeType == e.ELEMENT_NODE]:
-        data[node.tagName.lower()] = node
-
-    # Inspect metadata
-    book.metadata = opf._parse_xml_metadata(data['metadata'])
-
-    # Get Uid
-    book.uid_id = package.getAttribute('unique-identifier')
-    book.uid = [x for x in book.metadata.identifier if x[1] == book.uid_id][0]
-
-    # Inspect manifest
-    book.manifest = opf._parse_xml_manifest(data['manifest'])
-
-    # Inspect spine
-    item_toc = book.get_item(data['spine'].getAttribute('toc'))
-    book.spine = opf._parse_xml_spine(data['spine'])
-
-    # Inspect guide if exist
-    if 'guide' in data:
-        book.guide = opf._parse_xml_guide(data['guide'])
-
+    xml_string = book.zip.read(book.opf_path)
+    book.opf = opf.parse_opf(xml_string)
+    book.uid = [x for x in book.opf.metadata.identifiers if x[1] == book.opf.uid_id][0]
+    item_toc = book.get_item(book.opf.spine.toc)
+    
     # Inspect NCX toc file
     book.toc = ncx.parse_toc(book.read(item_toc))
 
@@ -74,13 +53,9 @@ class EpubFile(object):
     def __init__(self, zip=None):
         self.zip = zip
         self.opf_path = None
+        self.opf = opf.Opf()
         self.uid = None
-        self.uid_id = None
-        self.metadata = None
-        self.manifest = []
-        self.spine = []
-        self.guide = []
-        self.toc = None
+        self.toc = ncx.NcxFile()
 
     def __enter__(self):
         return self
@@ -98,16 +73,16 @@ class EpubFile(object):
         item = opf.ManifestItem(id, href, media_type,
                                 fallback, required_namespace, required_modules,
                                 fallback_style)
-        self.manifest.append(item)
+        self.opf.manifest.append(item)
 
     def add_spine_itemref(self, idref, linear=True):
-        self.spine.append((idref, linear))
+        self.opf.spine.append((idref, linear))
 
     def get_item(self, id):
         """Get an item from manifest through its "id" attribute.
         
         Return an EpubManifestItem if found, else None."""
-        l = [x for x in self.manifest if x.id == id]
+        l = [x for x in self.opf.manifest.items if x.id == id]
         if l:
             return l[0]
         else:
@@ -117,14 +92,14 @@ class EpubFile(object):
         """Get an item from manifest through its "href" attribute.
         
         Return an EpubManifestItem if found, else None."""
-        l = [x for x in self.manifest if x.href == href]
+        l = [x for x in self.opf.manifest.items if x.href == href]
         if l:
             return l[0]
         else:
             return None
 
     def add_guide_ref(self, href, type, title):
-        self.guide.append((href, type, title))
+        self.opf.guide.append((href, type, title))
 
     #
     # Traitement et lecture des fichiers
