@@ -110,3 +110,57 @@ class TestManifest(unittest.TestCase):
                          u'Il manque un objet !')
         self.assertIsInstance(manifest.items[0], epub.opf.ManifestItem)
 
+
+class TestOpf(unittest.TestCase):
+    
+    def test_as_xml_document(self):
+        xml_string = """<?xml version="1.0" ?>
+<package unique-identifier="BookId" version="2.0" xmlns="http://www.idpf.org/2007/opf">
+    <metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf">
+        <dc:title>
+            Testing Epub
+        </dc:title>
+        <dc:creator opf:role="aut">
+            Florian Strzelecki
+        </dc:creator>
+        <dc:identifier id="BookId" opf:scheme="UUID">
+            urn:uuid:477d1a82-a70d-4ee5-a0ff-0dddc60fd2bb
+        </dc:identifier>
+        <dc:language>
+            en
+        </dc:language>
+        <meta content="0.4.2" name="Sigil version"/>
+    </metadata>
+    <manifest>
+        <item href="toc.ncx" id="ncx" media-type="application/x-dtbncx+xml"/>
+        <item href="Text/introduction.xhtml" id="introduction.xhtml" media-type="application/xhtml+xml"/>
+        <item href="Text/cover.xhtml" id="cover.xhtml" media-type="application/xhtml+xml"/>
+        <item href="Text/Section0002.xhtml" id="Section0002.xhtml" media-type="application/xhtml+xml"/>
+        <item href="Text/Section0001.xhtml" id="Section0001.xhtml" media-type="application/xhtml+xml"/>
+        <item href="Text/Section0003.xhtml" id="Section0003.xhtml" media-type="application/xhtml+xml"/>
+        <item href="Text/Section0004.xhtml" id="Section0004.xhtml" media-type="application/xhtml+xml"/>
+    </manifest>
+    <spine toc="ncx">
+        <itemref idref="cover.xhtml"/>
+        <itemref idref="introduction.xhtml"/>
+        <itemref idref="Section0001.xhtml"/>
+        <itemref idref="Section0002.xhtml"/>
+        <itemref idref="Section0003.xhtml"/>
+        <itemref idref="Section0004.xhtml"/>
+    </spine>
+    <guide>
+        <reference href="Text/introduction.xhtml" title="Preface" type="preface"/>
+        <reference href="Text/cover.xhtml" title="Cover" type="cover"/>
+        <reference href="Text/Section0001.xhtml" title="Text" type="text"/>
+        <reference href="Text/Section0002.xhtml" title="Text" type="text"/>
+        <reference href="Text/Section0003.xhtml" title="Text" type="text"/>
+        <reference href="Text/Section0004.xhtml" title="Text" type="text"/>
+    </guide>
+</package>
+"""
+        opf = epub.opf.parse_opf(xml_string)
+        xml_toc = opf.as_xml_document().toprettyxml('    ')
+
+        print xml_string
+        print xml_toc
+        self.assertEqual(xml_string, xml_toc)

@@ -41,7 +41,7 @@ def parse_opf(xml_string):
     opf.spine = _parse_xml_spine(data['spine'])
     
     # Inspect guide if exist
-    if 'guide' in data:
+    if not data['guide'] == None:
         opf.guide = _parse_xml_guide(data['guide'])
     
     return opf
@@ -56,70 +56,70 @@ def _parse_xml_metadata(element):
 
     for node in element.getElementsByTagName(u'dc:title'):
         node.normalize()
-        metadata.add_title(node.firstChild.data, node.getAttribute(u'xml:lang'))
+        metadata.add_title(node.firstChild.data.strip(), node.getAttribute(u'xml:lang'))
 
     for node in element.getElementsByTagName(u'dc:creator'):
         node.normalize()
-        metadata.add_creator(node.firstChild.data,
+        metadata.add_creator(node.firstChild.data.strip(),
                          node.getAttribute(u'opf:role'),
                          node.getAttribute(u'opf:file-as'))
 
     for node in element.getElementsByTagName(u'dc:subject'):
         node.normalize()
-        metadata.add_subject(node.firstChild.data)
+        metadata.add_subject(node.firstChild.data.strip())
 
     for node in element.getElementsByTagName(u'dc:description'):
         node.normalize()
-        metadata.description = node.firstChild.data
+        metadata.description = node.firstChild.data.strip()
 
     for node in element.getElementsByTagName(u'dc:publisher'):
         node.normalize()
-        metadata.publisher = node.firstChild.data
+        metadata.publisher = node.firstChild.data.strip()
 
     for node in element.getElementsByTagName(u'dc:contributor'):
         node.normalize()
-        metadata.add_contributor(node.firstChild.data,
+        metadata.add_contributor(node.firstChild.data.strip(),
                              node.getAttribute(u'opf:role'),
                              node.getAttribute(u'opf:file-as'))
 
     for node in element.getElementsByTagName(u'dc:date'):
         node.normalize()
-        metadata.add_date(node.firstChild.data,
+        metadata.add_date(node.firstChild.data.strip(),
                           node.getAttribute(u'opf:event'))
 
     for node in element.getElementsByTagName(u'dc:type'):
         node.normalize()
-        metadata.type = node.firstChild.data
+        metadata.type = node.firstChild.data.strip()
 
     for node in element.getElementsByTagName(u'dc:format'):
         node.normalize()
-        metadata.format = node.firstChild.data
+        metadata.format = node.firstChild.data.strip()
 
     for node in element.getElementsByTagName(u'dc:identifier'):
         node.normalize()
-        metadata.add_identifier(node.firstChild.data,
+        metadata.add_identifier(node.firstChild.data.strip(),
                             node.getAttribute(u'id'),
                             node.getAttribute(u'opf:scheme'))
 
     for node in element.getElementsByTagName(u'dc:source'):
         node.normalize()
-        metadata.source = node.firstChild.data
+        metadata.source = node.firstChild.data.strip()
 
     for node in element.getElementsByTagName(u'dc:language'):
         node.normalize()
-        metadata.add_language(node.firstChild.data)
+        metadata.add_language(node.firstChild.data.strip())
 
     for node in element.getElementsByTagName(u'dc:relation'):
         node.normalize()
-        metadata.relation = node.firstChild.data
+        metadata.relation = node.firstChild.data.strip()
 
     for node in element.getElementsByTagName(u'dc:coverage'):
         node.normalize()
-        metadata.coverage = node.firstChild.data
+        metadata.coverage = node.firstChild.data.strip()
 
     for node in element.getElementsByTagName(u'dc:rights'):
         node.normalize()
-        metadata.rights = node.firstChild.data
+        metadata.rights = node.firstChild.data.strip()
 
     for node in element.getElementsByTagName(u'meta'):
         metadata.add_meta(node.getAttribute(u'name'),
@@ -156,7 +156,7 @@ def _parse_xml_guide(element):
     """Inspect an xml.dom.Element <guide> and return a list of ref as tuple."""
 
     guide = Guide()
-    for e in element.getElementsByTagName('ref'):
+    for e in element.getElementsByTagName('reference'):
         guide.add_reference(e.getAttribute('href'),
                             e.getAttribute('type'),
                             e.getAttribute('title'))
@@ -176,6 +176,19 @@ class Opf(object):
         self.manifest = Manifest()
         self.spine = Spine()
         self.guide = Guide()
+
+    def as_xml_document(self):
+        doc = minidom.Document()
+        package = doc.createElement('package')
+        package.setAttribute('version', self.version)
+        package.setAttribute('unique-identifier', self.uid_id)
+        package.setAttribute('xmlns', self.xmlns)
+        package.appendChild(self.metadata.as_xml_element())
+        package.appendChild(self.manifest.as_xml_element())
+        package.appendChild(self.spine.as_xml_element())
+        package.appendChild(self.guide.as_xml_element())
+        doc.appendChild(package)
+        return doc
 
 
 class Metadata(object):
@@ -363,6 +376,7 @@ class Manifest(object):
         
         return manifest
 
+
 class ManifestItem(object):
     """Represent an item from the epub's manifest."""
 
@@ -385,15 +399,15 @@ class ManifestItem(object):
         item.setAttribute('id', self.id)
         item.setAttribute('href', self.href)
         if self.media_type:
-            item.setAttribute('media_type', self.media_type)
+            item.setAttribute('media-type', self.media_type)
         if self.fallback:
             item.setAttribute('fallback', self.fallback)
         if self.required_namespace:
-            item.setAttribute('required_namespace', self.required_namespace)
+            item.setAttribute('required-namespace', self.required_namespace)
         if self.required_modules:
-            item.setAttribute('required_modules', self.required_modules)
+            item.setAttribute('required-modules', self.required_modules)
         if self.fallback_style:
-            item.setAttribute('fallback_style', self.fallback_style)
+            item.setAttribute('fallback-style', self.fallback_style)
         
         return item
 
