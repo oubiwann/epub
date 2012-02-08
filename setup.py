@@ -6,7 +6,7 @@ with open("README.txt") as f:
     long_description = f.read()
 
 setup(name='epub',
-      version='0.1.1',
+      version='0.2.0',
       description='Library to open and read files in the epub version 2.',
       long_description=long_description,
       author='Florian Strzelecki',

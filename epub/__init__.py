@@ -5,7 +5,7 @@ Library to open and read files in the epub version 2.
 """
 
 __author__ = u'Florian Strzelecki <florian.strzelecki@gmail.com>'
-__version__ = u'0.1.1'
+__version__ = u'0.2.0'
 
 import os
 import zipfile

@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 
-import os
 import unittest
-import epub
 
 from xml.dom import minidom
+
+import epub
+
 
 class TestFunction(unittest.TestCase):
 
@@ -110,6 +111,26 @@ class TestManifest(unittest.TestCase):
                          u'Il manque un objet !')
         self.assertIsInstance(manifest.items[0], epub.opf.ManifestItem)
 
+    def test_as_xml_element(self):
+        xml_string = u"""<manifest>
+    <item href="toc.ncx" id="ncx" media-type="application/x-dtbncx+xml"/>
+    <item href="Text/introduction.xhtml" id="introduction.xhtml" media-type="application/xhtml+xml"/>
+    <item href="Text/cover.xhtml" id="cover.xhtml" media-type="application/xhtml+xml"/>
+    <item href="Text/Section0002.xhtml" id="Section0002.xhtml" media-type="application/xhtml+xml"/>
+    <item href="Text/Section0001.xhtml" id="Section0001.xhtml" media-type="application/xhtml+xml"/>
+    <item href="Text/Section0003.xhtml" id="Section0003.xhtml" media-type="application/xhtml+xml"/>
+    <item href="Text/Section0004.xhtml" id="Section0004.xhtml" media-type="application/xhtml+xml"/>
+</manifest>"""
+
+        self.maxDiff = None
+        doc = minidom.parseString(xml_string)
+        xml_element = doc.documentElement
+        
+        manifest = epub.opf._parse_xml_manifest(xml_element)
+        
+        self.assertEqual(manifest.as_xml_element().toprettyxml('    ').strip(),
+                         xml_element.toxml().strip())
+
 
 class TestOpf(unittest.TestCase):
     
@@ -161,6 +182,4 @@ class TestOpf(unittest.TestCase):
         opf = epub.opf.parse_opf(xml_string)
         xml_toc = opf.as_xml_document().toprettyxml('    ')
 
-        print xml_string
-        print xml_toc
         self.assertEqual(xml_string, xml_toc)
