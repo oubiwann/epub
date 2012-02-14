@@ -25,9 +25,10 @@ pip install or pip site, or clone latest version from bitbucket repository.
 Documentation
 -------------
 
-This library is documented with docutils, and all files can be found into "doc".
+This library is documented with Sphinx, and all files can be found into "docs".
 
-The documentation is readable online at http://epub.exirel.me
+The documentation for version 0.1.0 is readable online at http://epub.exirel.me
+and will be available for 0.2.0 version as soon as it will be pushed on pypi.
 
 Development and bug report
 --------------------------
