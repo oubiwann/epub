@@ -1,7 +1,8 @@
 .pyc
+.coverage
 MANIFEST$
-dist/
 build/
+dist/
+test/_cover/
+docs/_build/
 
-syntax: regexp
-^doc/.*\.html

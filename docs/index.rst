@@ -1,20 +1,12 @@
-=======================
-Documentation du projet
-=======================
+Python-Epub
+===========
 
--------------------------
-Index de la documentation
--------------------------
+.. toctree::
+   :maxdepth: 2
 
-.. include:: inclusion.rst
-
-.. _Documentation:
-
-`Documentation`_
-================
-
-.. contents::
-   :local:
+   epub/index
+   epub/opf
+   epub/ncx
 
 Introduction
 ------------
@@ -48,7 +40,7 @@ Voir aussi : le site l'`IDPF`_ et la `spécification Epub 2`_.
 
 .. _IDPF: http://idpf.org/epub
 .. _spécification Epub 2: http://idpf.org/epub/201
-
+   index
 Licence
 -------
 
@@ -61,16 +53,14 @@ Installation
 
 Disponible sur pypi, vous pouvez installer Python Epub via la commande "pip" :
 
-::
+.. code-block:: bash
 
-  # install from pip
   pip install epub
 
 Sinon, vous pouvez obtenir la dernière version des sources via mercurial :
 
-::
+.. code-block:: bash
 
-  # install latest version from repository
   hg clone https://bitbucket.org/exirel/epub
   cd epub
   python setup.py install
@@ -86,7 +76,7 @@ Le cas d'utilisation le plus simple est représenté par le code suivant :
   
   book = epub.open('path/to/my/book.epub')
   
-  for item in book.manifest:
+  for item in book.opf.manifest.items:
       content = book.read(item)
       # do something very nice with the content
 
@@ -94,21 +84,16 @@ Bien entendu, ce n'est qu'un exemple, très incomplet qui plus est, de ce que
 vous pouvez faire.
 
 Cette bibliothèque ayant pour ambition de suivre les spécifications du format 
-epub, certains éléments pourront paraître obscurs, comme, par exemple, le fait 
-qu'un fichier epub peut disposer de plusieurs "titre", dans différentes langues.
+epub, certains éléments pourront paraître obscurs.
 
 Rassurez-vous, cette documentation est là pour vous apporter le plus possible 
 de réponses à vos interrogations.
 
-Documentation de l'API
-----------------------
 
-Cette librairie est composée de deux principaux modules : epub, et epub.ncx. Le 
-premier est la base, et le second est la partie qui permet de manipuler des 
-fichiers au format NCX (autrement appelé "table of content").
+Indices and tables
+==================
 
-* Documentation du `module epub`_
-* Documentation du `module epub.ncx`_
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
 
-.. _module epub: epub.html
-.. _module epub.ncx: epub_ncx.html

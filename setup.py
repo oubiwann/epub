@@ -13,4 +13,9 @@ setup(name='epub',
       author_email='florian.strzelecki@gmail.com',
       license='LGPL',
       url='http://epub.exirel.me',
-      packages=['epub',])
+      packages=['epub',],
+      classifier=['Development Status :: 4 - Beta',
+                  'Intended Audience :: Developers',
+                  'License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)',
+                  'Programming Language :: Python :: 2.7',
+                  'Topic :: Software Development :: Libraries :: Python Modules'])
