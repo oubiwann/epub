@@ -32,15 +32,16 @@ du genre, un livre numérique.
 Dans le monde python, si vous cherchez bien, vous trouverez des solutions tout 
 à fait pertinente d'application pour lire et éditer des fichiers epub.
 
-Ce n'était cependant pas suffisant pour tout le monde, et voici donc la 
+Cependant, il s'agit beaucoup de solutions spécifiques, et voici donc la 
 documentation d'une bibliothèque python permettant de lire et manipuler des 
-fichiers epub (pour le moment, version 2 uniquement).
+fichiers epub (pour le moment, version 2 uniquement) (et pour le moment encore,
+c'est uniquement en lecture-seule).
 
 Voir aussi : le site l'`IDPF`_ et la `spécification Epub 2`_.
 
 .. _IDPF: http://idpf.org/epub
 .. _spécification Epub 2: http://idpf.org/epub/201
-   index
+
 Licence
 -------
 

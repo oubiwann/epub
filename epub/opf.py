@@ -168,14 +168,28 @@ class Opf(object):
     
     OPF is an xml formated file, used in the epub spec."""
     
-    def __init__(self):
-        self.uid_id = None
-        self.version = u'2.0'
-        self.xmlns = XMLNS_OPF
-        self.metadata = Metadata()
-        self.manifest = Manifest()
-        self.spine = Spine()
-        self.guide = Guide()
+    def __init__(self, uid_id=None, version=u'2.0', xmlns=XMLNS_OPF,
+                 metadata=None, manifest=None, spine=None, guide=None):
+        self.uid_id = uid_id
+        self.version = version
+        self.xmlns = xmlns
+        
+        if metadata is None:
+            self.metadata = Metadata()
+        else:
+            self.metadata = Metadata()
+        if manifest is None:
+            self.manifest = Manifest()
+        else:
+            self.manifest = manifest
+        if spine is None:
+            self.spine = Spine()
+        else:
+            self.spine= spine
+        if guide is None:
+            self.guide = Guide()
+        else:
+            self.guide = guide
 
     def as_xml_document(self):
         doc = minidom.Document()
