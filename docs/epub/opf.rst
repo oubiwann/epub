@@ -365,7 +365,7 @@ Les classes Manifest et ManifestItem
       préoccupe donc pas du contenu réel du fichier epub.
     
       :param string id: Identifiant
-      :param string href: Chaine de caractère
+      :param string href: Chemin d'accès du fichier, relatif à l'emplacement du fichier OPF
       :param string media_type: Le mime-type de l'élément.
       :param string fallback: Identifiant de l'élément fallback
       :param string required_namespace: voir spec epub "required-namespace"
@@ -454,5 +454,65 @@ Les classes Guide et Spine
 
 .. py:class:: Guide
 
+   .. py:attribute:: references
+   
+      Liste des références de l'élément ``<guide>``. Chaque élément de la liste 
+      est un ``tuple`` de la forme ``(href, type, title)``.
+      
+      La valeur de ``href`` est une url d'accès relative à l'emplacement du 
+      fichier OPF. Cependant, cette url ne peut pas être utilisée directement 
+      par les méthodes :meth:`epub.EpubFile.get_item_by_href` ou 
+      :meth:`epub.EpubFile.read`, car il peut comporter une ancre (le 
+      caractère ``#`` suivit d'un identifiant d'ancre).
+   
+   .. py:method:: add_reference(href, type=None, title=None)
+   
+      Ajoute une référence au guide.
+    
+      :param string href: Chemin d'accès du fichier, relatif à l'emplacement du fichier OPF, peut contenir une ancre
+      :param string type: Le type de fichier (voir la spécification epub)
+      :param string title: Titre de la référence
+
+   .. py:method:: append(reference)
+    
+      Ajoute une référence au guide ; elle doit être un tuple de la forme
+      ``(href, type, title)``.
+       
+      :param tuple reference: la référence à ajouter.
+
 .. py:class:: Spine
+
+   .. py:attribute:: itemrefs
+   
+      Liste des items du manifest référencés par l'ordre de lecture de 
+      l'élément ``<spine>``. Les items sont dans l'ordre naturel de la liste 
+      (c'est à dire que l'élement présent en première position est le premier 
+      dans l'ordre de lecture).
+      
+      Chaque élement est un ``tuple`` de la forme ``(idref, linear)``. La 
+      valeur de ``idref`` est une chaîne de caractère indiquant l'identifiant 
+      du fichier listé dans le manifest, et ``linear`` est un booléen indiquant 
+      si l'élément sort du flux de lecture "linéaire" (voir la spécification 
+      epub pour plus d'information à ce sujet).
+   
+   .. py:attribute:: toc
+      
+      Chaîne de caractère : il s'agit de l'identifiant permettant de récupérer 
+      le fichier de navigation NCX dans la liste des fichiers du manifest.
+
+   .. py:method:: append(itemref):
+    
+      Ajoute une référence au spine ; elle doit être un tuple de la forme
+      ``(id, linear)``. L'élément est ajouté à la suite des autres.
+       
+      :param tuple itemref: la référence à ajouter.
+
+   .. py:method:: add_itemref(idref, linear=True)
+   
+      Ajoute un élément au spine, à la suite des autres déjà présents.
+      
+      :param string idref: l'identifiant de l'élément à ajouter
+      :param bool linear: indicateur d'élément linéaire (par défaut) ou non
+
+
 
