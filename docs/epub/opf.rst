@@ -145,6 +145,41 @@ C'est l'élément ``<manifest>`` qui propose ces informations :
 :class:`epub.EpubFile` peut retrouver le contenu associé, grâce à sa méthode 
 :meth:`epub.EpubFile.read`.
 
+Les meta-données
+................
+
+La classe :class:`Metadata` permet de représenter et donc de manipuler les 
+meta-données d'un fichier epub : chacun de ses attributs représente un type de 
+meta-données.
+
+Les règles suivantes s'appliquent à tous les attributs composés de plusieurs 
+éléments :
+
+* La valeur d'une meta-donnée est représentée par un tuple de ses attributs, 
+  chacun représenté par une chaîne de caractère
+* Une meta-donnée peut être présente plusieurs fois avec des valeurs 
+  différentes : chacune est alors stockée dans une liste
+* Un attribut qui n'est pas renseigné dans le fichier xml est représenté par 
+  une chaîne vide.
+
+Ainsi, l'attribut :attr:`titles` est une ``list`` de ``tuple`` de la forme 
+``(title, lang)``.
+
+Les autres attributs simples sont représentées par une chaîne de caractères.
+
+.. code-block:: python
+
+   """
+   <metadata>
+       <dc:title xml:lang="fr">Titre français</dc:title>
+       <dc:title xml:lang="en">English title</dc:title>
+   </metadata>
+   """
+   
+   # equivalent metadata
+   metadata = epub.opf.Metadata()
+   metadata.title = [(u'Titre français', u'fr'), (u'English title', u'en')]
+
 Utiliser l'élélement ``<spine>``
 ................................
 
@@ -228,37 +263,6 @@ La classe Metadata
 ..................
 
 .. py:class:: Metadata()
-
-   Cette classe permet de représenter les meta-données décrites dans le fichier 
-   OPF du fichier epub, contenu dans la balise ``<metadata>``. 
-
-   Les règles suivantes s'appliquent à tous les attributs composés de plusieurs 
-   éléments :
-
-   * La valeur d'une meta-donnée est représentée par un tuple de ses attributs, 
-     chacun représenté par une chaîne de caractère
-   * Une meta-donnée peut être présente plusieurs fois avec des valeurs 
-     différentes : chacune est alors stockée dans une liste
-   * Un attribut qui n'est pas renseigné dans le fichier xml est représenté par 
-     une chaîne vide.
-
-   Ainsi, l'attribut :attr:`titles` est une ``list`` de ``tuple`` de la 
-   forme ``(title, lang)``.
-
-   Les autres attributs simples sont représentées par une chaîne de caractères.
-
-   .. code-block:: python
-
-      """
-      <metadata>
-          <dc:title xml:lang="fr">Titre français</dc:title>
-          <dc:title xml:lang="en">English title</dc:title>
-      </metadata>
-      """
-      
-      # equivalent metadata
-      metadata = epub.opf.Metadata()
-      metadata.title = [(u'Titre français', u'fr'), (u'English title', u'en')]
 
    .. py:attribute:: titles
 
