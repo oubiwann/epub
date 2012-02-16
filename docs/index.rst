@@ -30,17 +30,33 @@ fichier un ensemble de fichiers de type "html&css", pour publier du contenu -
 du genre, un livre numérique.
 
 Dans le monde python, si vous cherchez bien, vous trouverez des solutions tout 
-à fait pertinente d'application pour lire et éditer des fichiers epub.
+à fait pertinentes d'applications pour lire et éditer des fichiers epub.
 
-Cependant, il s'agit beaucoup de solutions spécifiques, et voici donc la 
-documentation d'une bibliothèque python permettant de lire et manipuler des 
-fichiers epub (pour le moment, version 2 uniquement) (et pour le moment encore,
-c'est uniquement en lecture-seule).
+Cependant, il s'agit beaucoup de solutions spécifiques (et en outre, très peu 
+de bibliothèques), d'où l'existence de cette bibliothèque qui permet d'ouvrir 
+(en lecture seule pour le moment) des fichiers au format epub (dans la version 
+2 de la spécification, pour le moment).
 
 Voir aussi : le site l'`IDPF`_ et la `spécification Epub 2`_.
 
 .. _IDPF: http://idpf.org/epub
 .. _spécification Epub 2: http://idpf.org/epub/201
+
+.. warning::
+
+   Pour le moment, cette bibliothèque est en phase de développement. Chaque 
+   release effectuée sur pypi est testée unitairement (ce qui évite en théorie 
+   la présence de bugs), mais l'API n'est pas dans une forme stable. Des 
+   changements et évolutions sont notamment à prévoir sur la façon d'accéder 
+   aux fichiers contenus dans l'archive epub.
+   
+   En outre il est vivement déconseillé d'utiliser la version de développement 
+   à partir du repository mercurial, ce derniers étant tout sauf stable. Vous 
+   êtes par contre vivement encouragés à l'utiliser pour détecter des bugs, 
+   proposer des améliorations, et/ou remonter toutes les incohérences et/ou 
+   maladresses présentes dans le code.
+   
+   Les bonnes volontés et les remarques sont **toutes** bonnes à prendre.
 
 Licence
 -------

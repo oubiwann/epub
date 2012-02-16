@@ -1,5 +1,5 @@
-Documentation du module epub.ncx
-================================
+Le fichier de navigation NCX
+============================
 
 .. py:module:: epub.ncx
 

@@ -1,13 +1,13 @@
-Documentation du module epub.opf
-================================
+Le fichier OPF
+==============
 
 .. py:module:: epub.opf
 
 .. toctree::
    :maxdepth: 2
 
-Le fichier OPF
---------------
+Open Packaging Format
+---------------------
 
 Le format OPF (pour `Open Packaging Format`) spécifié par l'IDPF permet 
 d'indiquer au système de lecture quelle est la structure et le contenu d'un 
@@ -25,16 +25,159 @@ La bibliothèque python-epub propose un module à part entière pour manipuler c
 format (dans sa version pour Epub 2.0), permettant une plus grande souplesse 
 dans son utilisation.
 
+Chaque élément du fichier OP est représenté par une structure permettant 
+d'accéder à tous ses éléments, sans avoir à analyser le fichier xml soi-même. 
+Ces éléments sont tous renseignés dans les attributs de la classe :class:`Opf` :
+
+* :attr:`Opf.manifest` pour l'élément ``<manifest>``
+* :attr:`Opf.metadata` pour l'élément ``<metadata>``
+* :attr:`Opf.guide` pour l'élément ``<guide>`` (s'il est présent)
+* :attr:`Opf.spine` pour l'élément ``<spine>``
+
+L'élément ``<manifest>``
+........................
+
+Cet élément référence la liste des fichiers du livre numérique : textes, 
+images, feuilles de style, couverture, etc. ainsi que les `fallback` des 
+fichiers qui sortent de la spécification Epub (comme les fichiers PDF).
+
+Vous pouvez obtenir plus d'information directement dans la spécification epub à 
+propos de `l'élément manifest`__.
+
+.. __: http://idpf.org/epub/20/spec/OPF_2.0.1_draft.htm#Section2.3
+
+Il est représenté par la classe :class:`Manifest`, et chaque élément du 
+manifest est représenté par un objet de la classe :class:`ManifestItem`.
+
+Les métadonnées et l'élément ``<metadata>``
+...........................................
+
+Les méta-données d'un epub sont renseignés dans l'élément ``<metadata>`` du 
+fichier OPF. Pour les représenter, un objet de la classe :class:`Metadata` est 
+employé.
+
+La description de chacune de ces meta-données est disponible dans la 
+`spécification Epub, section "Metadata"`__.
+
+.. __: http://idpf.org/epub/20/spec/OPF_2.0.1_draft.htm#Section2.2
+
+Comme la pluspart des meta-données peuvent être renseignées plusieurs fois, les 
+attributs de cette classe sont souvent des listes d'éléments (principalement 
+des tuples contenant à leur tour de simples chaînes de caractères).
+
+Par exemple, pour l'élément ``<title>`` qui peut se décliner en plusieurs 
+langues, voici comment il est possible de l'exploiter :
+
+.. code-block:: python
+
+   # meta est un objet de la classe Metadata contenant plusieurs titres
+   for title, lang in meta.titles:
+       print u'Le titre en %s est "%s"' % (title, lang)
+
+Chaque attribut est décrit avec la forme de son contenu dans la documentation 
+de la classe :class:`Metadata`.
+
+L'élément ``<guide>``
+.....................
+
+
+L'élément ``<guide>`` d'un fichier OPF représente une liste des tables et des 
+références du livre, pouvant indiquer la couverture, la table des contenus, des 
+illustrations, etc.
+
+Voir aussi la `spécification epub OPF, section "guide"`__
+
+.. __: http://idpf.org/epub/20/spec/OPF_2.0.1_draft.htm#Section2.6
+
+Cet élément est représenté par la classe :class:`Guide`.
+
+L'élément ``<spine>``
+.....................
+
+L'élément ``<spine>`` propose une liste de fichiers dans un ordre de lecture 
+dit "linéaire", c'est à dire dans l'ordre de lecture logique.
+
+La `spécification epub OPF, section "spine"`__ donne plus d'information au 
+sujet de cet élément.
+
+.. __: http://idpf.org/epub/20/spec/OPF_2.0.1_draft.htm#Section2.4
+
+C'est aussi à partir de cet élément que l'on obtient l'identifiant du fichier 
+de navigation NCX, qui permet de retrouver le fichier dans la liste du manifest.
+
+Cet élément est représenté par la classe :class:`Spine`.
+
+Manipuler le fichier OPF
+------------------------
+
+En connaissant la structure d'un fichier OPF, structure décrite dans la 
+spécification Epub pour le format OPF, il est plutôt simple d'exploiter les 
+données proposées par la classe :class:`Opf`.
+
+Cependant, lire une spécification entière n'est pas forcément nécessaire... 
+passons à des explications concrètes : comment manipuler un fichier OPF avec 
+le module :mod:`epub.opf` ?
+
+Ouvrir et analyser un fichier OPF
+.................................
+
+Le plus simple est d'utiliser la fonction :func:`parse_opf`, en lui fournissant 
+le contenu du fichier, sous forme d'une chaîne de caractère. Cette fonction 
+retourne alors un objet :class:`Opf` qu'il suffit d'utiliser.
+
+Cet objet permet d'accéder aux différents éléments via ses attributs : 
+:attr:`metadata <Opf.metadata>`, :attr:`manifest <Opf.manifest>`, 
+:attr:`spine <Opf.spine>`, et :attr:`guide <Opf.guide>`.
+
+Obtenir la liste des fichiers
+.............................
+
+C'est l'élément ``<manifest>`` qui propose ces informations :
+
+.. code-block:: python
+
+   # manifest est un objet de la classe epub.opf.Manifest
+   for item in manifest.items:
+       # item est un objet de la classe ManifestItem
+       print 'Fichier Id : "%s" [href="%s"]' % (item.id, item.href)
+
+À partir d'un objet de la classe :class:`ManifestItem`, un objet de la classe 
+:class:`epub.EpubFile` peut retrouver le contenu associé, grâce à sa méthode 
+:meth:`epub.EpubFile.read`.
+
+Utiliser l'élélement ``<spine>``
+................................
+
+L'élément ``<spine>`` ne fournit pas directement une liste de fichiers, mais y 
+fait seulement référence par l'identifiant de ces fichiers.
+
+.. code-block:: python
+
+   # spine est un objet de la classe epub.opf.Spine
+   for id, linear in spine.itemrefs:
+       # item est un objet de la classe ManifestItem
+       item = book.get_item(id)
+       print 'Fichier Id : "%s" [href="%s"]' % (item.id, item.href)
+
+API du module
+-------------
+
+La fonction parse_opf
+.....................
+
 .. py:function:: parse_opf(xml_string)
 
-   :param string xml_string
+   Analyse les données xml au format OPF, et retourne un objet de la classe 
+   :class:`Opf` représentant ces données.
+   
+   :param string xml_string: Le contenu du fichier xml OPF.
+   :rtype: Opf
+
+La classe Opf
+.............
 
 .. py:class:: Opf(uid_id=None, version=u'2.0', xmlns=XMLNS_OPF, metadata=None, manifest=None, spine=None, guide=None)
 
-   Le format OPF permet de décrire le contenu d'un fichier epub : il décrit non 
-   seulement les méta-données (titres, auteurs, etc.) mais aussi la liste des 
-   fichiers qui représentent le contenu du livre.
-   
    :param epub.opf.Metadata metadata: Les méta-données du fichier OPF
    :param epub.opf.Manifest manifest: L'élélement manifest du fichier OPF
    :param epub.opf.Spine spine: L'élément spine du fichier OPF
@@ -81,132 +224,13 @@ dans son utilisation.
       fichier OPF indiquant une liste de références (tables de contenus, 
       d'illustration, etc.).
 
-L'élément ``<manifest>``
-------------------------
-
-.. py:class:: Manifest()
-
-   Représente l'élément ``<manifest>`` d'un fichier OPF.
-
-   Cet élément référence la liste des fichiers du livre numérique : textes, 
-   images, feuilles de style, couverture, etc. ainsi que les `fallback` des 
-   fichiers qui sortent de la spécification Epub (comme les fichiers PDF).
-
-   La spécification epub à propos de `l'élément manifest`__.
-   
-   .. __: http://idpf.org/epub/20/spec/OPF_2.0.1_draft.htm#Section2.3
-
-   .. py:attribute:: items
-   
-      Cet attribut est une liste, contenant les fichiers référencés par le 
-      manifest de l'epub. Chaque élément de cette liste est un objet de la 
-      classe :class:`ManifestItem`
-
-   .. py:method:: add_item(id, href, media_type=None, fallback=None, required_namespace=None, required_modules=None, fallback_style=None)
-    
-      Crée et ajoute un élément au manifest.
-      
-      Cette méthode n'ajoute rien d'autre qu'une référence à un fichier, mais 
-      en aucun cas ne permet d'ajouter concrètement un fichier à l'archive 
-      epub : la classe OPF permet de gérer uniquement le fichier XML, et ne se 
-      préoccupe donc pas du contenu réel du fichier epub.
-    
-      :param string id: Identifiant
-      :param string href: Chaine de caractère
-      :param string media_type: Le mime-type de l'élément.
-      :param string fallback: Identifiant de l'élément fallback
-      :param string required_namespace: voir spec epub "required-namespace"
-      :param string required_module: voir spec epub "required-module"
-      :param string fallback_style: Identifiant de l'élément de style en fallback.
-
-   .. py:method:: append(item)
-    
-      Ajoute un élément au manifest.
-      
-      :param epub.opf.ManifestItem item: l'élément à ajouter au manifest
-
-.. py:class:: ManifestItem(id, href, media_type=None, fallback=None, required_namespace=None, required_modules=None, fallback_style=None)
-
-   Un objet de la classe :class:`ManifestItem` représente un élément du 
-   manifest du fichier epub, c'est à dire l'un des fichiers qui compose le 
-   livre numérique.
-   
-   Chacun de ses attributs représente l'un des attributs de l'élément 
-   ``<item>`` tel qu'il est décrit par la spécification epub.
-   
-   .. code-block:: python
-
-      """
-      <item id="chap01" href="Text/chap01.xhtml" media-type="application/xhtml+xml"/>
-      """
-      
-      # equivalent metadata
-      item = epub.opf.ManifestItem()
-      item.id = u'chap01'
-      item.href = u'Text/chap01.xhtml'
-      item.media_type = u'application/xhtml+xml'
-      
-      # ou bien directement avec le constructeur
-      item = epub.opf.ManifestItem(id=u'chap01', href=u'Text/chap01.xhtml',
-                                   media_type=u'application/xhtml+xml')
-   
-   .. py:attribute:: id
-   
-      Identifiant de l'item, qui doit être unique pour permettre de récupérer 
-      chaque élément dans la liste des items du manifest.
-      
-      Il s'agit d'une chaîne de caractère.
-      
-   .. py:attribute:: href
-   
-      Chemin d'accès au fichier présent dans l'archive zip. Ce chemin d'accès 
-      est relatif à l'emplacement du fichier opf dans lequel est décrit l'item.
-   
-   .. py:attribute:: media_types
-   
-      Chaîne de caractère, indique le mime-type du fichier correspondant à 
-      l'item.
-   
-   .. py:attribute:: fallback
-   
-      Chaîne de caractère, indique l'identifiant de l'item servant de 
-      `fallback` à cet item (ce mécanisme est décrit dans la spécification 
-      epub).
-   
-   .. py:attribute:: required_namespace
-   
-      Chaîne de caractère, indique le namespace pour les élements `"Out-of-Line 
-      XML Island"`.
-   
-   .. py:attribute:: required_modules
-   
-      Chaîne de caractère, indique le ou les modules pour les élements 
-      `"Out-of-Line XML Island"`.
-      
-   .. py:attribute:: fallback_style
-   
-      Indique l'identifiant de l'item servant de `fallback` pour la feuille de 
-      style à cet item (ce mécanisme est décrit dans la spécification epub).
-
-   .. py:method:: as_xml_element()
-      
-      Créer un ``Element Node`` représentant l'objet avec ses attributs. Un 
-      attribut dont la valeur est ``None`` ou une chaîne vide ne sera pas 
-      ajouté à l'élément xml retourné (il ne crée pas d'attribut vide).
-      
-      :rtype: :class:`xml.dom.Element`
-
-Les métadonnées et l'élément ``<metadata>``
--------------------------------------------
+La classe Metadata
+..................
 
 .. py:class:: Metadata()
 
    Cette classe permet de représenter les meta-données décrites dans le fichier 
-   OPF du fichier epub, contenu dans la balise ``<metadata>``. La description 
-   de chacune de ces meta-données est disponible dans la `spécification Epub, 
-   section "Metadata"`__.
-
-   .. __: http://idpf.org/epub/20/spec/OPF_2.0.1_draft.htm#Section2.2
+   OPF du fichier epub, contenu dans la balise ``<metadata>``. 
 
    Les règles suivantes s'appliquent à tous les attributs composés de plusieurs 
    éléments :
@@ -309,33 +333,122 @@ Les métadonnées et l'élément ``<metadata>``
 
    .. py:attribute:: right
 
-   L'élément ``<dc:coverage>``, représenté par une chaîne de caractère.
+   L'élément ``<dc:rights>``, représenté par une chaîne de caractère.
 
    .. py:attribute:: metas
 
    Liste des éléments ``<dc:meta>`` des meta-données. Chaque élément de la 
    liste est un tuple de la forme ``(name, content)``.
 
-Les éléments ``<guide>`` et ``<spine>``
----------------------------------------
+Les classes Manifest et ManifestItem
+....................................
+
+.. py:class:: Manifest()
+
+   .. py:attribute:: items
+   
+      Cet attribut est une liste, contenant les fichiers référencés par le 
+      manifest de l'epub. Chaque élément de cette liste est un objet de la 
+      classe :class:`ManifestItem`
+
+   .. py:method:: add_item(id, href, media_type=None, fallback=None, required_namespace=None, required_modules=None, fallback_style=None)
+    
+      Crée et ajoute un élément au manifest.
+      
+      Cette méthode n'ajoute rien d'autre qu'une référence à un fichier, mais 
+      en aucun cas ne permet d'ajouter concrètement un fichier à l'archive 
+      epub : la classe OPF permet de gérer uniquement le fichier XML, et ne se 
+      préoccupe donc pas du contenu réel du fichier epub.
+    
+      :param string id: Identifiant
+      :param string href: Chaine de caractère
+      :param string media_type: Le mime-type de l'élément.
+      :param string fallback: Identifiant de l'élément fallback
+      :param string required_namespace: voir spec epub "required-namespace"
+      :param string required_module: voir spec epub "required-module"
+      :param string fallback_style: Identifiant de l'élément de style en fallback.
+
+   .. py:method:: append(item)
+    
+      Ajoute un élément au manifest.
+      
+      :param epub.opf.ManifestItem item: l'élément à ajouter au manifest
+
+.. py:class:: ManifestItem(id, href, media_type=None, fallback=None, required_namespace=None, required_modules=None, fallback_style=None)
+
+   Un objet de la classe :class:`ManifestItem` représente un élément du 
+   manifest du fichier epub, c'est à dire l'un des fichiers qui compose le 
+   livre numérique.
+   
+   Chacun de ses attributs représente l'un des attributs de l'élément 
+   ``<item>`` tel qu'il est décrit par la spécification epub.
+   
+   .. code-block:: python
+
+      """
+      <item id="chap01" href="Text/chap01.xhtml" media-type="application/xhtml+xml"/>
+      """
+      
+      # equivalent metadata
+      item = epub.opf.ManifestItem()
+      item.id = u'chap01'
+      item.href = u'Text/chap01.xhtml'
+      item.media_type = u'application/xhtml+xml'
+      
+      # ou bien directement avec le constructeur
+      item = epub.opf.ManifestItem(id=u'chap01', href=u'Text/chap01.xhtml',
+                                   media_type=u'application/xhtml+xml')
+   
+   .. py:attribute:: id
+   
+      Identifiant de l'item, qui doit être unique pour permettre de récupérer 
+      chaque élément dans la liste des items du manifest.
+      
+      Il s'agit d'une chaîne de caractère.
+      
+   .. py:attribute:: href
+   
+      Chemin d'accès au fichier présent dans l'archive zip. Ce chemin d'accès 
+      est relatif à l'emplacement du fichier opf dans lequel est décrit l'item.
+   
+   .. py:attribute:: media_types
+   
+      Chaîne de caractère, indique le mime-type du fichier correspondant à 
+      l'item.
+   
+   .. py:attribute:: fallback
+   
+      Chaîne de caractère, indique l'identifiant de l'item servant de 
+      `fallback` à cet item (ce mécanisme est décrit dans la spécification 
+      epub).
+   
+   .. py:attribute:: required_namespace
+   
+      Chaîne de caractère, indique le namespace pour les élements `"Out-of-Line 
+      XML Island"`.
+   
+   .. py:attribute:: required_modules
+   
+      Chaîne de caractère, indique le ou les modules pour les élements 
+      `"Out-of-Line XML Island"`.
+      
+   .. py:attribute:: fallback_style
+   
+      Indique l'identifiant de l'item servant de `fallback` pour la feuille de 
+      style à cet item (ce mécanisme est décrit dans la spécification epub).
+
+   .. py:method:: as_xml_element()
+      
+      Créer un ``Element Node`` représentant l'objet avec ses attributs. Un 
+      attribut dont la valeur est ``None`` ou une chaîne vide ne sera pas 
+      ajouté à l'élément xml retourné (il ne crée pas d'attribut vide).
+      
+      :rtype: :class:`xml.dom.Element`
+
+Les classes Guide et Spine
+..........................
 
 .. py:class:: Guide
 
-   L'élément ``<guide>`` d'un fichier OPF représente une liste des tables et 
-   des références du livre, pouvant indiquer la couverture, la table des 
-   contenus, des illustrations, etc.
-   
-   Voir aussi la `spécification epub OPF, section "guide"`__
-   
-   .. __: http://idpf.org/epub/20/spec/OPF_2.0.1_draft.htm#Section2.6
-
 .. py:class:: Spine
 
-   Permet de représenter l'élément ``<spine>`` d'un fichier OPF.
-   
-   Cet élément indique une liste de fichiers dans un ordre de lecture dit 
-   "linéaire", c'est à dire dans l'ordre de lecture logique.
-
-   Voir aussi la `spécification epub OPF, section "spine"`__
-   
-   .. __: http://idpf.org/epub/20/spec/OPF_2.0.1_draft.htm#Section2.4

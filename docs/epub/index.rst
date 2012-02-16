@@ -1,17 +1,122 @@
-Documentation du module epub
-============================
+Le fichier Epub
+===============
 
 .. py:module:: epub
 
 .. toctree::
    :maxdepth: 2
 
-La fonction open()
-------------------
+Introduction
+------------
+
+Pour manipuler un fichier epub, il est nécessaire d'en comprendre la structure. 
+Cela n'a rien de bien compliqué en réalité : il s'agit simplement d'une archive 
+zip, avec une structure de contenu un peu particulière, et quelques règles 
+supplémentaires sur le contenu (format, style, etc.).
+
+Lorsque vous souhaitez lire un fichier epub, vous devez commencer par l'ouvrir 
+comme un fichier zip, puis rechercher les fichiers importants qui vous 
+permettront de naviguer au travers (le fichier `OPF` d'une part, et le fichier 
+de navigation `NCX` d'autre part).
+
+Le module :mod:`epub` vous permet de vous abstraire d'une grosse partie du 
+travail d'analyse de cette structure, en fournissant des objets contenant ces 
+informations.
+
+Cependant, pour plus de facilité, il est vivement recommandé de connaître un 
+minimum la `spécification Epub 2`__, disponible en ligne sur le site de l'IDPF.
+
+.. __: http://idpf.org/epub/201
+
+Ouvrir un fichier Epub
+----------------------
 
 La fonction principale du module est :func:`epub.open`, qui permet d'ouvrir 
-un fichier epub et d'obtenir un objet de la classe ``EpubFile``, permettant de 
-manipuler les données du fichier : contenu et meta-données.
+un fichier epub et d'obtenir un objet de la classe :class:`EpubFile`, 
+permettant de manipuler les données du fichier : son contenu et ses 
+meta-données.
+
+Elle s'utilise très simplement en lui fournissant le chemin d'accès (relatif 
+ou absolu) du fichier epub à ouvrir, et retourne un objet de la classe 
+:class:`epub.EpubFile` représentant l'archive epub ainsi ouverte.
+
+On parle ici "d'archive epub", car un fichier epub n'est ni plus ni moins qu'un 
+fichier zip avec une structure un peu particulière. Tous les détails de cette 
+utilisation du format zip se trouvent dans la `spécification epub`__ (et plus 
+spécifiquement dans la spécification OCF).
+
+.. __: http://idpf.org/epub/201
+
+De plus, l'objet :class:`EpubFile` implémentant les bonnes méthodes, vous 
+pouvez utiliser la fonction :func:`open` avec l'instruction ``with`` :
+
+.. code-block:: python
+
+   with epub.open('path/to/my_book.epub') as book:
+       print 'Vous pouvez lire votre livre !'
+
+Lire le contenu du fichier
+--------------------------
+
+Suivant la norme Epub 2, le contenu du fichier epub est décrit par le fichier 
+opf, indiqué par le fichier ``META-INF/container.xml``. Si :func:`open` se 
+charge de le trouver pour vous, il vous reste à exploiter la liste des fichiers.
+
+Pour se faire, vous pouvez, au choix, utiliser les informations du fichier opf
+(via l'attribut :attr:`EpubFile.opf`), ou les informations du fichier ncx (via 
+l'attribut :attr:`EpubFile.toc`).
+
+Par exemple pour accéder à l'ensemble des items du fichier :
+
+.. code-block:: python
+
+   book = epub.open('book.epub')
+   
+   for item in book.opf.manifest.items:
+       # read the content
+       data = book.read(item)
+
+.. warning::
+
+   Cette façon de parcourir la liste des éléments est soumise à de très 
+   probables changements futur, car pour le moment, cette méthode reste trop 
+   peu intuitive pour être satisfaisante.
+   
+   De plus, il reste tout à fait possible d'utiliser le fichier de navigation 
+   ncx, dont la structure logique sera sans doute bien plus approprié quoi 
+   qu'il arrive à la façon d'accéder aux fichiers.
+   
+   En outre, les méthodes :meth:`EpubFile.get_item` et 
+   :meth:`EpubFile.get_item_by_href` continueront de retourner les éléments 
+   demandés en prenant les mêmes paramètres. `Tout n'est pas perdu.`
+
+Il est possible d'accéder à l'ordre linéaire des éléments en utilisant 
+l'objet de la classe :attr:`opf.Spine` disponible de cette façon :
+
+.. code-block:: python
+
+   book = epub.open('book.epub')
+   
+   for item_id, linear in book.opf.spine.itemrefs:
+       item = book.get_item(item_id)
+       # Check if linear or not
+       if linear:
+           print u'Linear item "%s"' % item.href
+       else:
+           print u'Non-linear item "%s"' % item.href
+       # read the content
+       data = book.read(item)
+
+Quant au fichier de navigation NCX, il est accessible via l'attribut 
+:attr:`EpubFile.toc`. Cet attribut est de la classe :class:`ncx.Ncx` et 
+représente le fichier de navigation du livre numérique, et propose une 
+structure logique de lecture des fichiers.
+
+API du module
+-------------
+
+La fonction open
+................
 
 .. py:function:: open(filename)
    
@@ -20,7 +125,7 @@ manipuler les données du fichier : contenu et meta-données.
    :param string filename: chemin d'accès au fichier epub
 
 La classe EpubFile
-------------------
+..................
 
 .. py:class:: EpubFile([zip])
 

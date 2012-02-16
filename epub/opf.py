@@ -56,7 +56,8 @@ def _parse_xml_metadata(element):
 
     for node in element.getElementsByTagName(u'dc:title'):
         node.normalize()
-        metadata.add_title(node.firstChild.data.strip(), node.getAttribute(u'xml:lang'))
+        metadata.add_title(node.firstChild.data.strip(),
+                           node.getAttribute(u'xml:lang'))
 
     for node in element.getElementsByTagName(u'dc:creator'):
         node.normalize()
