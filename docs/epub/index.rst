@@ -188,14 +188,14 @@ La classe EpubFile
       fichier de l'epub.
       
       :param string id: Identifiant de l'item recherché.
-      :rtype: Un objet :class:`epub.opf.ManifestItem` ou ``None`` s'il n'existe pas.
+      :rtype: :class:`epub.opf.ManifestItem` ou ``None`` s'il n'existe pas.
 
    .. py:method:: EpubFile.get_item_by_href(href)
 
       Fonctionne de la même façon que :meth:`get_item <EpubFile.get_item>`
    
       :param string href: Chemin d'accès (relatif au fichier opf) de l'item recherché.
-      :rtype: Un objet :class:`epub.opf.ManifestItem` ou ``None`` s'il n'existe pas.
+      :rtype: :class:`epub.opf.ManifestItem` ou ``None`` s'il n'existe pas.
 
    .. py:method:: EpubFile.read(item)
    
@@ -220,7 +220,7 @@ La classe EpubFile
          # but this won't work!
          content = book.read(u'Text/chap01.xhtml#part1')
       
-      :rtype: Le contenu du fichier recherché, sous forme d'une chaîne de caractères.
+      :rtype: string
 
    .. py:method:: EpubFile.close()
    

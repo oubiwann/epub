@@ -27,8 +27,8 @@ Documentation
 
 This library is documented with Sphinx, and all files can be found into "docs".
 
-The documentation for version 0.1.0 is readable online at http://epub.exirel.me
-and will be available for 0.2.0 version as soon as it will be pushed on pypi.
+The documentation for version 0.2.0 is readable online at http://epub.exirel.me
+and can be downloaded from bitbucket.
 
 Development and bug report
 --------------------------

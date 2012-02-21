@@ -1,4 +1,6 @@
 include *.txt
-recursive-include doc *.txt
-recursive-include doc *.css
+include docs/Makefile
+recursive-include docs *.rst
+recursive-include docs *.py
+recursive-include docs *.bat
 recursive-include script *
