@@ -413,7 +413,7 @@ class PageList(object):
 
     def __init__(self):
         self.id = None
-        self.class_nampe = None
+        self.class_name = None
         self.page_target = []
         self.labels = []
         self.infos = []

@@ -25,7 +25,7 @@ La bibliothèque python-epub propose un module à part entière pour manipuler c
 format (dans sa version pour Epub 2.0), permettant une plus grande souplesse 
 dans son utilisation.
 
-Chaque élément du fichier OP est représenté par une structure permettant 
+Chaque élément du fichier OPF est représenté par une structure permettant 
 d'accéder à tous ses éléments, sans avoir à analyser le fichier xml soi-même. 
 Ces éléments sont tous renseignés dans les attributs de la classe :class:`Opf` :
 
@@ -79,7 +79,6 @@ de la classe :class:`Metadata`.
 
 L'élément ``<guide>``
 .....................
-
 
 L'élément ``<guide>`` d'un fichier OPF représente une liste des tables et des 
 références du livre, pouvant indiquer la couverture, la table des contenus, des 
@@ -197,8 +196,8 @@ fait seulement référence par l'identifiant de ces fichiers.
 API du module
 -------------
 
-La fonction parse_opf
-.....................
+La fonction ``parse_opf``
+.........................
 
 .. py:function:: parse_opf(xml_string)
 
@@ -208,8 +207,8 @@ La fonction parse_opf
    :param string xml_string: Le contenu du fichier xml OPF.
    :rtype: Opf
 
-La classe Opf
-.............
+La classe ``Opf``
+.................
 
 .. py:class:: Opf(uid_id=None, version=u'2.0', xmlns=XMLNS_OPF, metadata=None, manifest=None, spine=None, guide=None)
 
