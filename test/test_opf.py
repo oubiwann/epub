@@ -9,6 +9,49 @@ import epub
 
 class TestFunction(unittest.TestCase):
 
+    def test_parse_opf(self):
+        xml_string = """<?xml version="1.0" ?>
+<package unique-identifier="BookId" version="2.0" xmlns="http://www.idpf.org/2007/opf">
+    <metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf">
+        <dc:title>
+            Testing Epub
+        </dc:title>
+        <dc:creator opf:role="aut">
+            Florian Strzelecki
+        </dc:creator>
+        <dc:identifier id="BookId" opf:scheme="UUID">
+            urn:uuid:477d1a82-a70d-4ee5-a0ff-0dddc60fd2bb
+        </dc:identifier>
+        <dc:language>
+            en
+        </dc:language>
+        <meta content="0.4.2" name="Sigil version"/>
+    </metadata>
+    <manifest>
+        <item href="toc.ncx" id="ncx" media-type="application/x-dtbncx+xml"/>
+        <item href="Text/introduction.xhtml" id="introduction.xhtml" media-type="application/xhtml+xml"/>
+        <item href="Text/cover.xhtml" id="cover.xhtml" media-type="application/xhtml+xml"/>
+        <item href="Text/Section0002.xhtml" id="Section0002.xhtml" media-type="application/xhtml+xml"/>
+        <item href="Text/Section0001.xhtml" id="Section0001.xhtml" media-type="application/xhtml+xml"/>
+        <item href="Text/Section0003.xhtml" id="Section0003.xhtml" media-type="application/xhtml+xml"/>
+        <item href="Text/Section0004.xhtml" id="Section0004.xhtml" media-type="application/xhtml+xml"/>
+    </manifest>
+    <spine toc="ncx">
+        <itemref idref="cover.xhtml"/>
+        <itemref idref="introduction.xhtml"/>
+        <itemref idref="Section0001.xhtml"/>
+        <itemref idref="Section0002.xhtml"/>
+        <itemref idref="Section0003.xhtml"/>
+        <itemref idref="Section0004.xhtml"/>
+    </spine>
+</package>
+"""
+        opf = epub.opf.parse_opf(xml_string)
+        self.assertIsInstance(opf.metadata, epub.opf.Metadata)
+        self.assertIsInstance(opf.manifest, epub.opf.Manifest)
+        self.assertIsInstance(opf.guide, epub.opf.Guide)
+        self.assertIsInstance(opf.spine, epub.opf.Spine)
+
     def test_parse_xml_metadata(self):
         """Test _parse_xml_metadata."""
         
@@ -183,6 +226,52 @@ class TestFunction(unittest.TestCase):
         self.assertEqual(manifest.items[3].href, u'Text/chap2.html')
 
 
+class TestMetadata(unittest.TestCase):
+    
+    def test_add_identifier(self):
+        metadata = epub.opf.Metadata()
+        self.assertEqual(metadata.identifiers, [])
+        
+        metadata.add_identifier(u'978-284172074-3', u'ID_ISBN', 'isbn')
+        
+        self.assertEqual(metadata.identifiers,
+                         [(u'978-284172074-3', u'ID_ISBN', 'isbn')])
+        
+        metadata.add_identifier(u'781445645135453123543', u'ID_UID', 'UID')
+        
+        self.assertEqual(metadata.identifiers,
+                         [(u'978-284172074-3', u'ID_ISBN', 'isbn'),
+                          (u'781445645135453123543', u'ID_UID', 'UID')])
+        
+    def test_get_isbn(self):
+        metadata = epub.opf.Metadata()
+        self.assertEqual(metadata.get_isbn(), None)
+        
+        metadata.add_identifier(u'978-284172074-3', u'ID_ISBN', 'isbn')
+        metadata.add_identifier(u'781445645135453123543', u'ID_UID', 'UID')
+        
+        self.assertEqual(metadata.get_isbn(), u'978-284172074-3')
+
+    def test_as_xml_element(self):
+        xml_string = """<metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf">
+    <dc:title xml:lang="fr">
+        Le titre.
+    </dc:title>
+    <dc:title xml:lang="en">
+        The title.
+    </dc:title>
+</metadata>"""
+
+        self.maxDiff = None
+        doc = minidom.parseString(xml_string)
+        xml_element = doc.documentElement
+        
+        metadata = epub.opf._parse_xml_metadata(xml_element)
+        
+        self.assertEqual(metadata.as_xml_element().toprettyxml('    ').strip(),
+                         xml_element.toxml().strip())
+
+
 class TestManifest(unittest.TestCase):
 
     def test_add_item(self):
@@ -197,13 +286,12 @@ class TestManifest(unittest.TestCase):
 
     def test_as_xml_element(self):
         xml_string = u"""<manifest>
-    <item href="toc.ncx" id="ncx" media-type="application/x-dtbncx+xml"/>
-    <item href="Text/introduction.xhtml" id="introduction.xhtml" media-type="application/xhtml+xml"/>
-    <item href="Text/cover.xhtml" id="cover.xhtml" media-type="application/xhtml+xml"/>
-    <item href="Text/Section0002.xhtml" id="Section0002.xhtml" media-type="application/xhtml+xml"/>
-    <item href="Text/Section0001.xhtml" id="Section0001.xhtml" media-type="application/xhtml+xml"/>
-    <item href="Text/Section0003.xhtml" id="Section0003.xhtml" media-type="application/xhtml+xml"/>
-    <item href="Text/Section0004.xhtml" id="Section0004.xhtml" media-type="application/xhtml+xml"/>
+    <item id="item1" href="Doc1.hpy" media-type="text/happy+xml" required-namespace="http://happy.com/ns/happy1/" fallback="item2" />
+    <item id="item2" href="Doc1.less-hpy" media-type="text/less-happy+xml" required-namespace="http://happy.com/ns/happy2/" fallback="item2.5" fallback-style="css1" />
+    <item id="item2.5" href="Doc1.htm" media-type="application/xhtml+xml" required-namespace="http://www.w3.org/1999/xhtml" required-modules="ruby, server-side-image-map" fallback="item3" />
+    <item id="item3" href="Doc1.dtb" media-type="application/x-dtbook+xml" />
+    <item id="item4" href="Doc2.hpy" media-type="text/happy+xml" required-namespace="http://happy.com/ns/happy1/" fallback-style="css1" />
+    <item id="css1" href="happy.css" media-type="text/css" />
 </manifest>"""
 
         self.maxDiff = None
@@ -216,13 +304,64 @@ class TestManifest(unittest.TestCase):
                          xml_element.toxml().strip())
 
 
+class TestGuide(unittest.TestCase):
+    
+    def test_as_xml_element(self):
+        xml_string = u"""<guide>
+    <reference type="toc" title="Table of Contents" href="toc.html" />
+    <reference type="loi" title="List Of Illustrations" href="toc.html#figures" />
+    <reference type="other.intro" title="Introduction" href="intro.html" />
+</guide>"""
+
+        self.maxDiff = None
+        doc = minidom.parseString(xml_string)
+        xml_element = doc.documentElement
+        
+        guide = epub.opf._parse_xml_guide(xml_element)
+        
+        self.assertEqual(guide.as_xml_element().toprettyxml('    ').strip(),
+                         xml_element.toxml().strip())
+
+
+class TestSpine(unittest.TestCase):
+    
+    def test_as_xml_element(self):
+        xml_string = u"""<spine toc="ncx">
+    <itemref idref="intro" />
+    <itemref idref="c1" />
+    <itemref idref="c1-answerkey" linear="no" />
+    <itemref idref="c2" />
+    <itemref idref="c2-answerkey" linear="no" />
+    <itemref idref="c3" />
+    <itemref idref="c3-answerkey" linear="no" />
+    <itemref idref="note" linear="no" />
+</spine>"""
+
+        self.maxDiff = None
+        doc = minidom.parseString(xml_string)
+        xml_element = doc.documentElement
+        
+        spine = epub.opf._parse_xml_spine(xml_element)
+        
+        self.assertEqual(spine.as_xml_element().toprettyxml('    ').strip(),
+                         xml_element.toxml().strip())
+
+
 class TestOpf(unittest.TestCase):
     
+    def test_init(self):
+        opf = epub.opf.Opf()
+        
+        self.assertIsInstance(opf.metadata, epub.opf.Metadata)
+        self.assertIsInstance(opf.manifest, epub.opf.Manifest)
+        self.assertIsInstance(opf.spine, epub.opf.Spine)
+        self.assertIsInstance(opf.guide, epub.opf.Guide)
+
     def test_as_xml_document(self):
         xml_string = """<?xml version="1.0" ?>
 <package unique-identifier="BookId" version="2.0" xmlns="http://www.idpf.org/2007/opf">
     <metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf">
-        <dc:title>
+        <dc:title xml:lang="en">
             Testing Epub
         </dc:title>
         <dc:creator opf:role="aut">
