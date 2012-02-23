@@ -14,17 +14,69 @@ class TestFunction(unittest.TestCase):
         
         xml_string = u"""
         <metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf">
-            <dc:identifier opf:scheme="epub_test" id="epub_id">1</dc:identifier>
-            <dc:identifier opf:scheme="uuid" id="uuid_id">18430f16-c687-400b-9b9c-54a9c8b0646c</dc:identifier>
-            <dc:title>Metadata for testing purpose</dc:title>
-            <dc:title xml:lang="fr">Metadonnée pour les tests.</dc:title>
-            <dc:creator opf:file-as="Doe, Jhon" opf:role="aut">John Doe</dc:creator>
-            <dc:contributor opf:file-as="Python, unittest" opf:role="other.test">Python unittest</dc:contributor>
-            <dc:contributor opf:file-as="Python, nosetests" opf:role="other.test">Python nosetests</dc:contributor>
-            <dc:date opf:event="creation">2012-01-05T16:18:00+00:00</dc:date>
-            <dc:date opf:event="publication">2012-01-09T13:37:00+00:00</dc:date>
-            <dc:publisher>Exirel</dc:publisher>
-            <dc:language>en</dc:language>
+            <dc:identifier opf:scheme="epub_test" id="epub_id">
+                1
+            </dc:identifier>
+            <dc:identifier opf:scheme="uuid" id="uuid_id">
+                18430f16-c687-400b-9b9c-54a9c8b0646c
+            </dc:identifier>
+            <dc:title>
+                Metadata for testing purpose
+            </dc:title>
+            <dc:title xml:lang="fr">
+                Metadonnée pour les tests.
+            </dc:title>
+            <dc:creator opf:file-as="Doe, Jhon" opf:role="aut">
+                John Doe
+            </dc:creator>
+            <dc:subject>
+                This is an arbitrary subjet.
+            </dc:subject>
+            <dc:subject>
+                Another usefull subject.
+            </dc:subject>
+            <dc:contributor opf:file-as="Python, unittest" opf:role="other.test">
+                Python unittest
+            </dc:contributor>
+            <dc:contributor opf:file-as="Python, nosetests" opf:role="other.test">
+                Python nosetests
+            </dc:contributor>
+            <dc:description>
+                A long description. There is not any information about how a 
+                description must be. Long, short, etc.
+                
+                We just don't know anything about this.
+            </dc:description>
+            <dc:date opf:event="creation">
+                2012-01-05T16:18:00+00:00
+            </dc:date>
+            <dc:date opf:event="publication">
+                2012-01-09T13:37:00+00:00
+            </dc:date>
+            <dc:type>
+                Is this a type?
+            </dc:type>
+            <dc:format>
+               Well formated, sir!
+            </dc:format>
+            <dc:publisher>
+                Exirel
+            </dc:publisher>
+            <dc:language>
+                en
+            </dc:language>
+            <dc:source>
+                From the far old west (Brittany, France).
+            </dc:source>
+            <dc:relation>
+                It's complicated...
+            </dc:relation>
+            <dc:coverage>
+                An art of cover.
+            </dc:coverage>
+            <dc:rights>
+                To the left!
+            </dc:rights>
             <meta content="Custom Meta" name="custom:meta"/>
             <meta content="Another Custom Meta" name="custom:other"/>
         </metadata>
@@ -46,6 +98,18 @@ class TestFunction(unittest.TestCase):
         self.assertEqual(metadata.creators,
                          [(u'John Doe', u'aut', u'Doe, Jhon'),])
         
+        # dc:subject
+        self.assertEqual(metadata.subjects,
+                         [u'This is an arbitrary subjet.',
+                          u'Another usefull subject.'])
+        
+        # dc:description
+        self.assertEqual(metadata.description,
+                         u"""A long description. There is not any information about how a 
+                description must be. Long, short, etc.
+                
+                We just don't know anything about this.""")
+        
         # dc:contributor
         self.assertEqual(metadata.contributors,
                          [(u'Python unittest', u'other.test', u'Python, unittest'),
@@ -56,6 +120,12 @@ class TestFunction(unittest.TestCase):
                          [(u'2012-01-05T16:18:00+00:00', u'creation'),
                           (u'2012-01-09T13:37:00+00:00', u'publication')])
         
+        # dc:type
+        self.assertEqual(metadata.type, u'Is this a type?')
+        
+        # dc:format
+        self.assertEqual(metadata.format, u'Well formated, sir!')
+        
         # dc:publisher
         self.assertEqual(metadata.publisher, u'Exirel')
         
@@ -63,6 +133,21 @@ class TestFunction(unittest.TestCase):
         self.assertEqual(metadata.languages,
                          [u'en',])
         
+        # dc:source
+        self.assertEqual(metadata.source,
+                         u'From the far old west (Brittany, France).')
+        
+        # dc:relation
+        self.assertEqual(metadata.relation,
+                         u'It\'s complicated...')
+        
+        # dc:coverage
+        self.assertEqual(metadata.coverage,
+                         u'An art of cover.')
+        
+        # dc:rights
+        self.assertEqual(metadata.right,
+                         u'To the left!')
         # meta
         self.assertEqual(metadata.metas,
                          [(u'custom:meta', u'Custom Meta'),
@@ -104,7 +189,6 @@ class TestManifest(unittest.TestCase):
         """Check epub.opf.Manifest.add_item()"""
         
         manifest = epub.opf.Manifest()
-        manifest.items = []
         
         manifest.add_item('Chap003', 'Text/chap3.xhtml', epub.MIMETYPE_OPF)
         self.assertEqual(len(manifest.items), 1,

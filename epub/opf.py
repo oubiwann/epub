@@ -17,11 +17,10 @@ XMLNS_DC = u'http://purl.org/dc/elements/1.1/'
 XMLNS_OPF = u'http://www.idpf.org/2007/opf'
 
 def parse_opf(xml_string):
-    opf = Opf()
     package = minidom.parseString(xml_string).documentElement
     
     # Get Uid
-    opf.uid_id = package.getAttribute('unique-identifier')
+    uid_id = package.getAttribute('unique-identifier')
     
     # Store each child nodes into a dict (metadata, manifest, spine, guide)
     data = {u'metadata': None,
@@ -32,18 +31,25 @@ def parse_opf(xml_string):
         data[node.tagName.lower()] = node
     
     # Inspect metadata
-    opf.metadata = _parse_xml_metadata(data['metadata'])
+    metadata = _parse_xml_metadata(data['metadata'])
     
     # Inspect manifest
-    opf.manifest = _parse_xml_manifest(data['manifest'])
+    manifest = _parse_xml_manifest(data['manifest'])
     
     # Inspect spine
-    opf.spine = _parse_xml_spine(data['spine'])
+    spine = _parse_xml_spine(data['spine'])
     
     # Inspect guide if exist
-    if not data['guide'] == None:
-        opf.guide = _parse_xml_guide(data['guide'])
+    if data['guide'] is None:
+        guide = None
+    else:
+        guide = _parse_xml_guide(data['guide'])
     
+    opf =  Opf(uid_id=uid_id,
+               metadata=metadata,
+               manifest=manifest,
+               spine=spine,
+               guide=guide)
     return opf
 
 def _parse_xml_metadata(element):
@@ -120,7 +126,7 @@ def _parse_xml_metadata(element):
 
     for node in element.getElementsByTagName(u'dc:rights'):
         node.normalize()
-        metadata.rights = node.firstChild.data.strip()
+        metadata.right = node.firstChild.data.strip()
 
     for node in element.getElementsByTagName(u'meta'):
         metadata.add_meta(node.getAttribute(u'name'),
@@ -178,7 +184,7 @@ class Opf(object):
         if metadata is None:
             self.metadata = Metadata()
         else:
-            self.metadata = Metadata()
+            self.metadata = metadata
         if manifest is None:
             self.manifest = Manifest()
         else:
