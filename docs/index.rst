@@ -93,7 +93,7 @@ Le cas d'utilisation le plus simple est représenté par le code suivant :
   
   book = epub.open('path/to/my/book.epub')
   
-  for item in book.opf.manifest.items:
+  for id, item in book.opf.manifest.iteritems():
       content = book.read(item)
       # do something very nice with the content
 

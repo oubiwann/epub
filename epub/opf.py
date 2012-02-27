@@ -371,13 +371,25 @@ class Metadata(object):
         return metadata
 
 
-class Manifest(object):
+class Manifest(dict):
 
-    def __init__(self):
-        self.items = []
+    def __contains__(self, item):
+        if hasattr(item, 'id'):
+            return super(Manifest, self).__contains__(item.id)
+        else:
+            return super(Manifest, self).__contains__(item)
+
+    def __setitem__(self, key, value):
+        if hasattr(value, 'id') and hasattr(value, 'href'):
+            if value.id == key:
+                super(Manifest, self).__setitem__(key, value)
+            else:
+                raise ValueError(u'Value\'s id is different from insert key.')
+        else:
+            raise ValueError(u'Value does not fit the requirement (id and href attributes).')
 
     def append(self, item):
-        self.items.append(item)
+        self.__setitem__(item.id, item)
 
     def add_item(self, id, href, media_type=None, fallback=None, 
                  required_namespace=None, required_modules=None, 
@@ -392,7 +404,7 @@ class Manifest(object):
         doc = minidom.Document()
         manifest = doc.createElement('manifest')
         
-        for item in self.items:
+        for item in self.itervalues():
             manifest.appendChild(item.as_xml_element())
         
         return manifest

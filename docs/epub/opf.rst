@@ -47,7 +47,9 @@ propos de `l'élément manifest`__.
 .. __: http://idpf.org/epub/20/spec/OPF_2.0.1_draft.htm#Section2.3
 
 Il est représenté par la classe :class:`Manifest`, et chaque élément du 
-manifest est représenté par un objet de la classe :class:`ManifestItem`.
+manifest est représenté par un objet de la classe :class:`ManifestItem`. En 
+outre, la classe :class:`Manifest` peut être utilisée exactement comme un 
+``dict`` ne pouvant contenir des objets de type ``ManifestItem``.
 
 Les métadonnées et l'élément ``<metadata>``
 ...........................................
@@ -131,13 +133,16 @@ Cet objet permet d'accéder aux différents éléments via ses attributs :
 Obtenir la liste des fichiers
 .............................
 
-C'est l'élément ``<manifest>`` qui propose ces informations :
+C'est l'élément ``<manifest>`` qui propose ces informations, il est représenté 
+par un objet de la classe :class:`Manifest`, classe qui étend le comportement 
+du type ``dict`` :
 
 .. code-block:: python
 
    # manifest est un objet de la classe epub.opf.Manifest
-   for item in manifest.items:
+   for id in manifest:
        # item est un objet de la classe ManifestItem
+       item = manifest[id]
        print 'Fichier Id : "%s" [href="%s"]' % (item.id, item.href)
 
 À partir d'un objet de la classe :class:`ManifestItem`, un objet de la classe 
@@ -348,11 +353,27 @@ Les classes Manifest et ManifestItem
 
 .. py:class:: Manifest()
 
-   .. py:attribute:: items
+   La classe :class:`Manifest` étend le type ``dict`` et peut donc être 
+   utilisé de la même façon. Cependant, lorsqu'un élément est inséré dans le 
+   dictionnaire, il est vérifié que l'élément en question dispose d'au moins 
+   deux attributs nécessaires : ``id`` et ``href``.
    
-      Cet attribut est une liste, contenant les fichiers référencés par le 
-      manifest de l'epub. Chaque élément de cette liste est un objet de la 
-      classe :class:`ManifestItem`
+   Il est préférable de ne stocker que des objets de la classe 
+   :class:`ManifestItem`, qui correspond à un usage "normal".
+   
+   La clé d'accès à chaque élément est la valeur de son attribut ``id``, ce qui 
+   permet de retrouver rapidement un objet dans le manifest, exemple :
+   
+   .. code-block:: python
+      
+      # manifest is an epub.opf.Manifest object
+      item = manifest[u'chap001']
+      print item.id # display "chap001"
+      
+      item in manifest # Return true
+      
+      # raise a Value Error (key != item.id)
+      manifest['bad_id'] = item
 
    .. py:method:: add_item(id, href, media_type=None, fallback=None, required_namespace=None, required_modules=None, fallback_style=None)
     
@@ -373,9 +394,18 @@ Les classes Manifest et ManifestItem
 
    .. py:method:: append(item)
     
-      Ajoute un élément au manifest.
+      Ajoute un élément au manifest. Cet élément doit avoir au moins deux 
+      attributs : ``id`` et ``href``. L'attribut ``id`` doit être un 
+      ``hashable``, c'est à dire un objet immuable permettant de l'utiliser 
+      comme clé d'un dictionnaire (comme une chaîne de caractères).
       
       :param epub.opf.ManifestItem item: l'élément à ajouter au manifest
+
+   .. py:method:: as_xml_element()
+    
+      Retourne un élément xml ``<manifest>`` équivalent au contenu de l'objet.
+    
+      :rtype: :class:`xml.dom.Element`
 
 .. py:class:: ManifestItem(id, href, media_type=None, fallback=None, required_namespace=None, required_modules=None, fallback_style=None)
 

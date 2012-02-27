@@ -52,8 +52,8 @@ pouvez utiliser la fonction :func:`open` avec l'instruction ``with`` :
 
 .. code-block:: python
 
-   with epub.open('path/to/my_book.epub') as book:
-       print 'Vous pouvez lire votre livre !'
+   with epub.open(u'path/to/my_book.epub') as book:
+       print u'Vous pouvez lire votre livre !'
 
 Lire le contenu du fichier
 --------------------------
@@ -70,32 +70,18 @@ Par exemple pour accéder à l'ensemble des items du fichier :
 
 .. code-block:: python
 
-   book = epub.open('book.epub')
+   book = epub.open(u'book.epub')
    
-   for item in book.opf.manifest.items:
+   for id, item in book.opf.manifest.iteritems():
        # read the content
        data = book.read(item)
-
-.. warning::
-
-   Cette façon de parcourir la liste des éléments est soumise à de très 
-   probables changements futur, car pour le moment, cette méthode reste trop 
-   peu intuitive pour être satisfaisante.
-   
-   De plus, il reste tout à fait possible d'utiliser le fichier de navigation 
-   ncx, dont la structure logique sera sans doute bien plus approprié quoi 
-   qu'il arrive à la façon d'accéder aux fichiers.
-   
-   En outre, les méthodes :meth:`EpubFile.get_item` et 
-   :meth:`EpubFile.get_item_by_href` continueront de retourner les éléments 
-   demandés en prenant les mêmes paramètres. `Tout n'est pas perdu.`
 
 Il est possible d'accéder à l'ordre linéaire des éléments en utilisant 
 l'objet de la classe :attr:`opf.Spine` disponible de cette façon :
 
 .. code-block:: python
 
-   book = epub.open('book.epub')
+   book = epub.open(u'book.epub')
    
    for item_id, linear in book.opf.spine.itemrefs:
        item = book.get_item(item_id)
@@ -121,6 +107,15 @@ La fonction open
 .. py:function:: open(filename)
    
    Ouvre un fichier epub, et retourne un objet :class:`epub.EpubFile`.
+   
+   Il est possible d'utiliser cette fonction avec la directive ``with`` de 
+   cette façon :
+   
+   .. code-block:: python
+      
+      with epub.open(u'path/to/my.epub') as book:
+          # do thing with book, for exemple:
+          print book.read(u'Text/cover.xhtml')
    
    :param string filename: chemin d'accès au fichier epub
 
@@ -207,10 +202,10 @@ La classe EpubFile
 
       .. code-block:: python
       
-         book = epub.open('mybook.epub')
+         book = epub.open(u'mybook.epub')
       
          # get chapter 1
-         item = book.get_item('chap01')
+         item = book.get_item(u'chap01')
          item_path = item.href # u'Text/chap01.xhtml'
          
          # display the same thing

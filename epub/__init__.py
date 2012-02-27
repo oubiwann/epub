@@ -5,7 +5,7 @@ Library to open and read files in the epub version 2.
 """
 
 __author__ = u'Florian Strzelecki <florian.strzelecki@gmail.com>'
-__version__ = u'0.2.0'
+__version__ = u'0.3.0'
 
 import os
 import zipfile
@@ -71,9 +71,8 @@ class EpubFile(object):
         """Get an item from manifest through its "id" attribute.
         
         Return an EpubManifestItem if found, else None."""
-        l = [x for x in self.opf.manifest.items if x.id == id]
-        if l:
-            return l[0]
+        if id in self.opf.manifest:
+            return self.opf.manifest[id]
         else:
             return None
 
@@ -81,9 +80,12 @@ class EpubFile(object):
         """Get an item from manifest through its "href" attribute.
         
         Return an EpubManifestItem if found, else None."""
-        l = [x for x in self.opf.manifest.items if x.href == href]
-        if l:
+        l = [x for x in self.opf.manifest.values() if x.href == href]
+        size = len(l)
+        if size == 1:
             return l[0]
+        elif size > 1:
+            raise LookupError(u'Multiple items are found with this href.')
         else:
             return None
 
