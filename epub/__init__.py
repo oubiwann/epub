@@ -22,10 +22,10 @@ def open(filename):
     
     File is opened read-only.
     """
-    book = EpubFile(zip=zipfile.ZipFile(filename))
+    book = EpubFile(filename, mode=u'r')
     
     # Read container.xml to get OPF xml file path
-    xmlstring = book.zip.read('META-INF/container.xml')
+    xmlstring = book.read_file('META-INF/container.xml')
     container_xml = minidom.parseString(xmlstring).documentElement
     
     for e in container_xml.getElementsByTagName('rootfile'):
@@ -34,7 +34,7 @@ def open(filename):
             break
     
     # Read OPF xml file
-    xml_string = book.zip.read(book.opf_path)
+    xml_string = book.read_file(book.opf_path)
     book.opf = opf.parse_opf(xml_string)
     book.uid = [x for x in book.opf.metadata.identifiers if x[1] == book.opf.uid_id][0]
     item_toc = book.get_item(book.opf.spine.toc)
@@ -45,23 +45,28 @@ def open(filename):
     return book
 
 
-class EpubFile(object):
-    """Represents an epub file as described in version 2.0.1
+class EpubFile(zipfile.ZipFile):
+    """Represent an epub zip file, as described in version 2.0.1 of epub spec.
     
-    See http://idpf.org/epub/201"""
+    This class allow an access throught a low-level API to the epub real file.
+    It extends zipfile.ZipFile class and modify only a little some of its 
+    behavior.
+    
+    See http://idpf.org/epub/201 for more information about Epub 2.0.1."""
 
-    def __init__(self, zip=None):
-        self.zip = zip
+    def __init__(self, file, mode=u'r', compression=0, allowZip64=False):
+        """Open the Epub zip file with mode read "r", write "w" or append "a".
+        TODO: check if file is a real epub file if opened with "r" or "a" mode.
+        In "a" mode, an empty file is valid (as in "w" mode), but it may not 
+        be valid if not empty.
+        TODO: in "w" mode, create and add a "mimetype" file within the archive
+        TODO: in "a" mode, if zipfile is empty, act as in "w" mode
+        """
+        zipfile.ZipFile.__init__(self, file, mode, compression, allowZip64)
         self.opf_path = None
         self.opf = opf.Opf()
         self.uid = None
         self.toc = ncx.Ncx()
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, type, value, traceback):
-        self.close()
 
     #
     # Manifest, spine & guide
@@ -103,11 +108,8 @@ class EpubFile(object):
         if isinstance(item, opf.ManifestItem):
             path = item.href
         dirpath = os.path.dirname(self.opf_path)
-        return self.zip.read(os.path.join(dirpath, path))
+        return self.read_file(os.path.join(dirpath, path))
 
-    def close(self):
-        """Close the zipfile archive.
-        
-        Not very usefull yet, because zipfile is open in read-only."""
-        self.zip.close()
+    def read_file(self, path):
+        return zipfile.ZipFile.read(self, path)
 
