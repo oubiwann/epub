@@ -71,10 +71,7 @@ class EpubFile(object):
         """Get an item from manifest through its "id" attribute.
         
         Return an EpubManifestItem if found, else None."""
-        if id in self.opf.manifest:
-            return self.opf.manifest[id]
-        else:
-            return None
+        return self.opf.manifest.get(id, None)
 
     def get_item_by_href(self, href):
         """Get an item from manifest through its "href" attribute.
