@@ -14,35 +14,19 @@ from xml.dom import minidom
 
 from epub import ncx, opf
 
+
+MIMETYPE_EPUB = u'application/epub+zip'
 MIMETYPE_OPF = u'application/oebps-package+xml'
 MIMETYPE_NCX = u'application/x-dtbncx+xml'
 
-def open(filename):
-    """Open an epub file and return an EpubFile object
-    
-    File is opened read-only.
-    """
-    book = EpubFile(filename)
-    
-    # Read container.xml to get OPF xml file path
-    xmlstring = book.read_file('META-INF/container.xml')
-    container_xml = minidom.parseString(xmlstring).documentElement
-    
-    for e in container_xml.getElementsByTagName('rootfile'):
-        if e.getAttribute('media-type') == MIMETYPE_OPF:
-            book.opf_path = e.getAttribute('full-path')
-            break
-    
-    # Read OPF xml file
-    xml_string = book.read_file(book.opf_path)
-    book.opf = opf.parse_opf(xml_string)
-    book.uid = [x for x in book.opf.metadata.identifiers if x[1] == book.opf.uid_id][0]
-    item_toc = book.get_item(book.opf.spine.toc)
-    
-    # Inspect NCX toc file
-    book.toc = ncx.parse_toc(book.read(item_toc))
 
-    return book
+def open(filename, mode=u'r'):
+    """Open an epub file and return an EpubFile object"""
+    return EpubFile(filename, mode)
+
+
+class BadEpubFile(zipfile.BadZipfile):
+    pass
 
 
 class EpubFile(zipfile.ZipFile):
@@ -54,20 +38,76 @@ class EpubFile(zipfile.ZipFile):
     
     See http://idpf.org/epub/201 for more information about Epub 2.0.1."""
 
-    def __init__(self, file):
+    def __init__(self, file, mode=u'r'):
         """Open the Epub zip file with mode read "r", write "w" or append "a".
-        TODO: check if file is a real epub file if opened with "r" or "a" mode.
-        In "a" mode, an empty file is valid (as in "w" mode), but it may not 
-        be valid if not empty.
-        TODO: in "w" mode, create and add a "mimetype" file within the archive
-        TODO: in "a" mode, if zipfile is empty, act as in "w" mode
         """
-        mode = u'r'
+        
         zipfile.ZipFile.__init__(self, file, mode)
-        self.opf_path = None
+        
+        if self.mode == 'r':
+            self._init_read()
+        elif self.mode == 'w':
+            self._init_new()
+        elif self.mode == 'a':
+            if len(self.namelist()) == 0:
+                self._init_new()
+            else:
+                self._init_read()
+
+    def _init_new(self):
+        # Write mimetype file: 'application/epub+zip'
+        self.writestr('mimetype', MIMETYPE_EPUB)
+        # Default path for opf
+        self.opf_path = u'OEBPS/content.opf'
         self.opf = opf.Opf()
         self.uid = None
         self.toc = ncx.Ncx()
+
+    def _init_read(self):
+        # Read container.xml to get OPF xml file path
+        xmlstring = self.read_file('META-INF/container.xml')
+        container_xml = minidom.parseString(xmlstring).documentElement
+        
+        for e in container_xml.getElementsByTagName('rootfile'):
+            if e.getAttribute('media-type') == MIMETYPE_OPF:
+                self.opf_path = e.getAttribute('full-path')
+                break
+        
+        # Read OPF xml file
+        xml_string = self.read_file(self.opf_path)
+        self.opf = opf.parse_opf(xml_string)
+        self.uid = [x for x in self.opf.metadata.identifiers if x[1] == self.opf.uid_id][0]
+        item_toc = self.get_item(self.opf.spine.toc)
+        
+        # Inspect NCX toc file
+        self.toc = ncx.parse_toc(self.read(item_toc))
+
+    #
+    # Close & write process
+    #
+
+    def close(self):
+        if self.mode in ("w", "a"):
+            self._write_close()
+        zipfile.ZipFile.close(self)
+
+    def _write_close(self):
+        # Write META-INF/container.xml
+        self.writestr('META-INF/container.xml', self._build_container())
+        # Write OPF File
+        self.writestr(self.opf_path, self.opf.as_xml_document().toxml())
+        # Write NCX File
+        self.writestr(os.path.join(self.opf_path, self.opf.spine.toc),
+                      self.toc.as_xml_document().toxml())
+
+    def _build_container(self):
+        template = """<?xml version="1.0" encoding="UTF-8"?>
+    <container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
+        <rootfiles>
+             <rootfile full-path="%s" media-type="application/oebps-package+xml"/>
+        </rootfiles>
+    </container>"""
+        return template % self.opf_path
 
     #
     # Manifest, spine & guide
