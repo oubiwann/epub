@@ -388,9 +388,6 @@ class Manifest(dict):
         else:
             raise ValueError(u'Value does not fit the requirement (id and href attributes).')
 
-    def append(self, item):
-        self.__setitem__(item.id, item)
-
     def add_item(self, id, href, media_type=None, fallback=None, 
                  required_namespace=None, required_modules=None, 
                  fallback_style=None):
@@ -398,6 +395,9 @@ class Manifest(dict):
                                 fallback, required_namespace, required_modules,
                                 fallback_style)
         self.append(item)
+
+    def append(self, item):
+        self.__setitem__(item.id, item)
 
     def as_xml_element(self):
         """Return an xml dom Element node."""
@@ -451,11 +451,11 @@ class Spine(object):
         self.toc = None
         self.itemrefs = []
 
-    def append(self, itemref):
-        self.itemrefs.append(itemref)
-
     def add_itemref(self, idref, linear=True):
         self.append((idref, linear))
+
+    def append(self, itemref):
+        self.itemrefs.append(itemref)
 
     def as_xml_element(self):
         doc = minidom.Document()
@@ -477,11 +477,11 @@ class Guide(object):
     def __init__(self):
         self.references = []
 
-    def append(self, reference):
-        self.references.append(reference)
-
     def add_reference(self, href, type=None, title=None):
         self.append((href, type, title))
+
+    def append(self, reference):
+        self.references.append(reference)
 
     def as_xml_element(self):
         doc = minidom.Document()

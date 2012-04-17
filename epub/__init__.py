@@ -22,7 +22,7 @@ def open(filename):
     
     File is opened read-only.
     """
-    book = EpubFile(filename, mode=u'r')
+    book = EpubFile(filename)
     
     # Read container.xml to get OPF xml file path
     xmlstring = book.read_file('META-INF/container.xml')
@@ -54,7 +54,7 @@ class EpubFile(zipfile.ZipFile):
     
     See http://idpf.org/epub/201 for more information about Epub 2.0.1."""
 
-    def __init__(self, file, mode=u'r', compression=0, allowZip64=False):
+    def __init__(self, file):
         """Open the Epub zip file with mode read "r", write "w" or append "a".
         TODO: check if file is a real epub file if opened with "r" or "a" mode.
         In "a" mode, an empty file is valid (as in "w" mode), but it may not 
@@ -62,7 +62,8 @@ class EpubFile(zipfile.ZipFile):
         TODO: in "w" mode, create and add a "mimetype" file within the archive
         TODO: in "a" mode, if zipfile is empty, act as in "w" mode
         """
-        zipfile.ZipFile.__init__(self, file, mode, compression, allowZip64)
+        mode = u'r'
+        zipfile.ZipFile.__init__(self, file, mode)
         self.opf_path = None
         self.opf = opf.Opf()
         self.uid = None
@@ -96,6 +97,12 @@ class EpubFile(zipfile.ZipFile):
     #
 
     def read(self, item):
+        return self.read_item(item)
+
+    def read_file(self, path):
+        return zipfile.ZipFile.read(self, path)
+
+    def read_item(self, item):
         """Read a file from the epub zipfile container.
         
         "item" parameter can be the relative path to the opf file or an 
@@ -109,7 +116,4 @@ class EpubFile(zipfile.ZipFile):
             path = item.href
         dirpath = os.path.dirname(self.opf_path)
         return self.read_file(os.path.join(dirpath, path))
-
-    def read_file(self, path):
-        return zipfile.ZipFile.read(self, path)
 

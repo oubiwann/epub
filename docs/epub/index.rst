@@ -106,7 +106,8 @@ La fonction open
 
 .. py:function:: open(filename)
    
-   Ouvre un fichier epub, et retourne un objet :class:`epub.EpubFile`.
+   Ouvre un fichier epub, et retourne un objet :class:`epub.EpubFile`. Cette 
+   fonction ouvre le fichier uniquement en lecture seule pour le moment.
    
    Il est possible d'utiliser cette fonction avec la directive ``with`` de 
    cette façon :
@@ -122,7 +123,7 @@ La fonction open
 La classe EpubFile
 ..................
 
-.. py:class:: EpubFile([zip])
+.. py:class:: EpubFile(filename)
 
    Cette classe représente le contenu d'un fichier au format Epub. Elle permet 
    de représenter tant les meta-données (le fichier OPF) que la navigation (le 
@@ -136,17 +137,17 @@ La classe EpubFile
    l'objet Epub. Le mieux est cependant d'utiliser la fonction 
    :func:`epub.open` du module.
 
+   .. py:attribute:: EpubFile.opf
+
+      Objet de la classe :class:`Opf <epub.opf.Opf>` représentant le fichier 
+      opf.
+
    .. py:attribute:: EpubFile.opf_path
 
       Chemin d'accès interne à l'archive zip au fichier OPF.
 
       Le chemin du fichier OPF est spécifié par le fichier 
       ``META-INF/container.xml`` et ce chemin est conservé dans cet attribut.
-      
-   .. py:attribute:: EpubFile.opf
-
-      Objet de la classe :class:`Opf <epub.opf.Opf>` représentant le fichier 
-      opf.
 
    .. py:attribute:: EpubFile.toc
 
@@ -170,10 +171,9 @@ La classe EpubFile
       Cet identifiant peut être retrouvé dans la liste des identifiants via les 
       meta-données (voir aussi :attr:`epub.opf.Metadata.identifiers`).
 
-   .. py:attribute:: EpubFile.zip
-
-      Objet de la classe :class:`zipfile.ZipFile` représentant l'archive zip 
-      qui contient les données concrètes du fichier epub.
+   .. py:method:: __init__(file)
+   
+      Initialise l'objet :class:`epub.EpubFile`. 
 
    .. py:method:: EpubFile.get_item(id)
  
@@ -194,6 +194,30 @@ La classe EpubFile
 
    .. py:method:: EpubFile.read(item)
    
+      Pour des raisons de compatiblité avec une version précédente, cette 
+      méthode est un alias de la méthode 
+      :meth:`read_item() <epub.EpubFile.read_item>`. Ce comportement changera 
+      dans une version future.
+      
+      .. warning::
+      
+         Le comportement de cette méthode sera modifiée pour rester cohérent 
+         avec le fonctionnement de la classe :class:`zipfile.Zipfile`, qui 
+         dispose déjà d'une méthode `read()`.
+
+   .. py:method:: EpubFile.read_file(path)
+   
+      Lit un fichier en fournissant le chemin d'accès de celui-ci dans 
+      l'archive epub. Il s'agit d'un chemin relatif à la racine de l'archive, 
+      pour lire un fichier relatif au fichier OPF, il faut utiliser la 
+      fonction :meth:`read() <epub.EpubFile.read>`.
+      
+      Cette fonction est un alias de la méthode 
+      :meth:`zipfile.ZipFile.read` (cette méthode est donc destinée à 
+      disparaître prochainement).
+
+   .. py:method:: EpubFile.read_item(item)
+   
       Retourne le contenu d'un fichier présent dans l'archive epub.
       
       Le paramètre ``item`` peut être un objet :class:`epub.opf.ManifestItem` 
@@ -209,22 +233,11 @@ La classe EpubFile
          item_path = item.href # u'Text/chap01.xhtml'
          
          # display the same thing
-         print book.read(item)
-         print book.read(item_path)
+         print book.read_item(item)
+         print book.read_item(item_path)
          
          # but this won't work!
-         content = book.read(u'Text/chap01.xhtml#part1')
+         content = book.read_item(u'Text/chap01.xhtml#part1')
       
       :rtype: string
-
-   .. py:method:: EpubFile.close()
-   
-      Ferme l'archive epub : le fichier epub n'étant qu'une archive zip, il 
-      s'agit là de l'appel à la méthode 
-      :meth:`close() <zipfile.ZipFile.close>` de l'attribut 
-      :attr:`zip <epub.EpubFile.zip>`.
-      
-      Cette méthode n'est actuellement pas très utile, car l'archive zip est 
-      toujours ouverte en lecture seule, il n'y a donc aucun changement à 
-      valider par la fermeture de l'archive zip.
 
