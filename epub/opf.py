@@ -16,6 +16,7 @@ from xml.dom import minidom
 XMLNS_DC = u'http://purl.org/dc/elements/1.1/'
 XMLNS_OPF = u'http://www.idpf.org/2007/opf'
 
+
 def parse_opf(xml_string):
     package = minidom.parseString(xml_string).documentElement
     
@@ -51,6 +52,7 @@ def parse_opf(xml_string):
                spine=spine,
                guide=guide)
     return opf
+
 
 def _parse_xml_metadata(element):
     """Extract metadata from an xml.dom.Element object (ELEMENT_NODE)
@@ -134,6 +136,7 @@ def _parse_xml_metadata(element):
 
     return metadata
 
+
 def _parse_xml_manifest(element):
     """Inspect an xml.dom.Element <manifest> and return a list of 
     epub.EpubManifestItem object."""
@@ -149,6 +152,7 @@ def _parse_xml_manifest(element):
                           e.getAttribute('fallback-style'))
     return manifest
 
+
 def _parse_xml_spine(element):
     """Inspect an xml.dom.Element <spine> and return epub.opf.Spine object"""
 
@@ -158,6 +162,7 @@ def _parse_xml_spine(element):
         spine.add_itemref(e.getAttribute('idref'),
                           e.getAttribute('linear').lower() != 'no')
     return spine
+
 
 def _parse_xml_guide(element):
     """Inspect an xml.dom.Element <guide> and return a list of ref as tuple."""
@@ -447,9 +452,12 @@ class ManifestItem(object):
 
 class Spine(object):
 
-    def __init__(self):
-        self.toc = None
-        self.itemrefs = []
+    def __init__(self, toc=None, itemrefs=None):
+        self.toc = toc
+        if itemrefs is None:
+            self.itemrefs = []
+        else:
+            self.itemrefs = itemrefs
 
     def add_itemref(self, idref, linear=True):
         self.append((idref, linear))

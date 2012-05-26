@@ -5,7 +5,7 @@ Library to open and read files in the epub version 2.
 """
 
 __author__ = u'Florian Strzelecki <florian.strzelecki@gmail.com>'
-__version__ = u'0.3.0'
+__version__ = u'0.4.0'
 
 import os
 import zipfile
@@ -19,6 +19,8 @@ MIMETYPE_EPUB = u'application/epub+zip'
 MIMETYPE_OPF = u'application/oebps-package+xml'
 MIMETYPE_NCX = u'application/x-dtbncx+xml'
 
+DEFAULT_OPF_PATH = u'OEBPS/content.opf'
+DEFAULT_NCX_PATH= u'toc.ncx'
 
 def open(filename, mode=u'r'):
     """Open an epub file and return an EpubFile object"""
@@ -41,7 +43,6 @@ class EpubFile(zipfile.ZipFile):
     def __init__(self, file, mode=u'r'):
         """Open the Epub zip file with mode read "r", write "w" or append "a".
         """
-        
         zipfile.ZipFile.__init__(self, file, mode)
         
         if self.mode == 'r':
@@ -55,38 +56,55 @@ class EpubFile(zipfile.ZipFile):
                 self._init_read()
 
     def _init_new(self):
+        """Build an empty epub archive.
+        TODO: find a good way of making a default uid."""
         # Write mimetype file: 'application/epub+zip'
-        self.writestr('mimetype', MIMETYPE_EPUB)
+        self.writestr(u'mimetype', MIMETYPE_EPUB)
         # Default path for opf
-        self.opf_path = u'OEBPS/content.opf'
-        self.opf = opf.Opf()
-        self.uid = None
+        self.opf_path = DEFAULT_OPF_PATH
+        # Uid & Uid's id
+        uid_id = u'BookId'
+        uid = u'generate_unique_id'
+        self.uid = uid
+        # Create metadata, manifest, and spine, as minimalist as possible
+        metadata = opf.Metadata()
+        metadata.add_identifier(uid, uid_id, 'uid')
+        manifest = opf.Manifest()
+        manifest.add_item('ncx', 'toc.ncx', MIMETYPE_NCX)
+        spine = opf.Spine('ncx')
+        # Create Opf object
+        self.opf = opf.Opf(uid_id=u'BookId',
+                           metadata=metadata, manifest=manifest, spine=spine)
+        # Create Ncx object
         self.toc = ncx.Ncx()
+        self.toc.uid = uid
 
     def _init_read(self):
         # Read container.xml to get OPF xml file path
-        xmlstring = self.read_file('META-INF/container.xml')
+        xmlstring = self.read(u'META-INF/container.xml')
         container_xml = minidom.parseString(xmlstring).documentElement
         
-        for e in container_xml.getElementsByTagName('rootfile'):
-            if e.getAttribute('media-type') == MIMETYPE_OPF:
-                self.opf_path = e.getAttribute('full-path')
+        for e in container_xml.getElementsByTagName(u'rootfile'):
+            if e.getAttribute(u'media-type') == MIMETYPE_OPF:
+                self.opf_path = e.getAttribute(u'full-path')
                 break
         
         # Read OPF xml file
-        xml_string = self.read_file(self.opf_path)
+        xml_string = self.read(self.opf_path)
         self.opf = opf.parse_opf(xml_string)
         self.uid = [x for x in self.opf.metadata.identifiers if x[1] == self.opf.uid_id][0]
         item_toc = self.get_item(self.opf.spine.toc)
         
         # Inspect NCX toc file
-        self.toc = ncx.parse_toc(self.read(item_toc))
+        self.toc = ncx.parse_toc(self.read_item(item_toc))
 
     #
     # Close & write process
     #
 
     def close(self):
+        if self.fp is None:
+            return
         if self.mode in ("w", "a"):
             self._write_close()
         zipfile.ZipFile.close(self)
@@ -97,6 +115,7 @@ class EpubFile(zipfile.ZipFile):
         # Write OPF File
         self.writestr(self.opf_path, self.opf.as_xml_document().toxml())
         # Write NCX File
+        # THIS IS ABSOLUTLY FALSE!!!
         self.writestr(os.path.join(self.opf_path, self.opf.spine.toc),
                       self.toc.as_xml_document().toxml())
 
@@ -133,14 +152,10 @@ class EpubFile(zipfile.ZipFile):
             return None
 
     #
-    # Traitement et lecture des fichiers
+    # Read and file/item management
     #
 
-    def read(self, item):
-        return self.read_item(item)
-
-    def read_file(self, path):
-        return zipfile.ZipFile.read(self, path)
+    # read method is zipfile.ZipFile.read(path)
 
     def read_item(self, item):
         """Read a file from the epub zipfile container.
@@ -155,5 +170,5 @@ class EpubFile(zipfile.ZipFile):
         if isinstance(item, opf.ManifestItem):
             path = item.href
         dirpath = os.path.dirname(self.opf_path)
-        return self.read_file(os.path.join(dirpath, path))
+        return self.read(os.path.join(dirpath, path))
 

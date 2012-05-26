@@ -254,12 +254,8 @@ class TestMetadata(unittest.TestCase):
 
     def test_as_xml_element(self):
         xml_string = u"""<metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf">
-    <dc:title xml:lang="fr">
-        Le titre.
-    </dc:title>
-    <dc:title xml:lang="en">
-        The title.
-    </dc:title>
+    <dc:title xml:lang="fr">Le titre.</dc:title>
+    <dc:title xml:lang="en">The title.</dc:title>
 </metadata>"""
 
         self.maxDiff = None
@@ -350,9 +346,6 @@ class TestManifest(unittest.TestCase):
         xml_input = xml_element.toxml().strip()
         xml_output = manifest.as_xml_element().toprettyxml(u'    ').strip()
         
-        print xml_input
-        print xml_output
-        
         self.assertEqual(xml_output, xml_input)
 
 
@@ -413,18 +406,10 @@ class TestOpf(unittest.TestCase):
         xml_string = u"""<?xml version="1.0" ?>
 <package unique-identifier="BookId" version="2.0" xmlns="http://www.idpf.org/2007/opf">
     <metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf">
-        <dc:title xml:lang="en">
-            Testing Epub
-        </dc:title>
-        <dc:creator opf:role="aut">
-            Florian Strzelecki
-        </dc:creator>
-        <dc:identifier id="BookId" opf:scheme="UUID">
-            urn:uuid:477d1a82-a70d-4ee5-a0ff-0dddc60fd2bb
-        </dc:identifier>
-        <dc:language>
-            en
-        </dc:language>
+        <dc:title xml:lang="en">Testing Epub</dc:title>
+        <dc:creator opf:role="aut">Florian Strzelecki</dc:creator>
+        <dc:identifier id="BookId" opf:scheme="UUID">urn:uuid:477d1a82-a70d-4ee5-a0ff-0dddc60fd2bb</dc:identifier>
+        <dc:language>en</dc:language>
         <meta content="0.4.2" name="Sigil version"/>
     </metadata>
     <manifest>
@@ -460,7 +445,4 @@ class TestOpf(unittest.TestCase):
         xml_input = xml_string.strip()
         xml_output = opf.as_xml_document().toprettyxml(u'    ').strip()
         
-        print xml_input
-        print xml_output
-
         self.assertEqual(xml_input, xml_output)

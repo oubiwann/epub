@@ -216,7 +216,8 @@ def _create_xml_element_text(data, name=u'text'):
     
     You can use a different tag name with the name argument 
     (default is "text")."""
-    
+    if data is None:
+        data = u''
     doc = minidom.Document()
     element = doc.createElement(name)
     element.appendChild(doc.createTextNode(data))
@@ -226,7 +227,7 @@ def _create_xml_element_text(data, name=u'text'):
 class Ncx(object):
     """Represent the structured content of a NCX file."""
 
-    def __init__(self):
+    def __init__(self, nav_map=None, page_list=None):
         self.xmlns = u'http://www.daisy.org/z3986/2005/ncx/'
         self.version = u'2005-1'
         self.lang = None
@@ -237,8 +238,12 @@ class Ncx(object):
         self.generator = None 
         self.title = None
         self.authors = []
-        self.nav_map = None
-        self.page_list = None
+        if nav_map is None:
+            nav_map = NavMap()
+        self.nav_map = nav_map
+        if page_list is None:
+            page_list = PageList()
+        self.page_list = page_list
         self.nav_lists = []
 
     def add_nav_list(self, nav_list):

@@ -479,42 +479,30 @@ class TestNcx(unittest.TestCase):
         <meta content="Epub Test" name="dtb:generator"/>
     </head>
     <docTitle>
-        <text>
-            Selections from &quot;Great Pictures, As Seen and Described by Famous Writers&quot;
-        </text>
+        <text>Selections from &quot;Great Pictures, As Seen and Described by Famous Writers&quot;</text>
     </docTitle>
     <docAuthor>
-        <text>
-            Esther Singleton
-        </text>
+        <text>Esther Singleton</text>
     </docAuthor>
     <docAuthor>
-        <text>
-            Test Author
-        </text>
+        <text>Test Author</text>
     </docAuthor>
     <navMap>
         <navPoint class="h1" id="ch1">
             <navLabel>
-                <text>
-                    Chapter 1
-                </text>
+                <text>Chapter 1</text>
             </navLabel>
             <content src="content.html#ch_1"/>
             <navPoint class="h2" id="ch_1_1">
                 <navLabel>
-                    <text>
-                        Chapter 1.1
-                    </text>
+                    <text>Chapter 1.1</text>
                 </navLabel>
                 <content src="content.html#ch_1_1"/>
             </navPoint>
         </navPoint>
         <navPoint class="h1" id="ncx-2">
             <navLabel>
-                <text>
-                    Chapter 2
-                </text>
+                <text>Chapter 2</text>
             </navLabel>
             <content src="content.html#ch_2"/>
         </navPoint>
@@ -522,40 +510,30 @@ class TestNcx(unittest.TestCase):
     <pageList>
         <pageTarget id="p1" type="normal" value="1">
             <navLabel dir="ltr">
-                <text>
-                    1
-                </text>
+                <text>1</text>
             </navLabel>
             <content src="content.html#p1"/>
         </pageTarget>
         <pageTarget id="p2" type="normal" value="2">
             <navLabel>
-                <text>
-                    2
-                </text>
+                <text>2</text>
             </navLabel>
             <content src="content.html#p2"/>
         </pageTarget>
     </pageList>
     <navList>
         <navLabel>
-            <text>
-                List of Illustrations
-            </text>
+            <text>List of Illustrations</text>
         </navLabel>
         <navTarget id="ill-1">
             <navLabel>
-                <text>
-                    Portratit of Georg Gisze (Holbein)
-                </text>
+                <text>Portratit of Georg Gisze (Holbein)</text>
             </navLabel>
             <content src="content.html#ill1"/>
         </navTarget>
         <navTarget id="ill-2">
             <navLabel>
-                <text>
-                    The adoration of the lamb (Van Eyck)
-                </text>
+                <text>The adoration of the lamb (Van Eyck)</text>
             </navLabel>
             <content src="content.html#ill2"/>
         </navTarget>
@@ -571,8 +549,5 @@ class TestNcx(unittest.TestCase):
         xml_input = xml_string.strip()
         xml_output = xml_toc.strip()
         
-        print xml_input
-        print xml_output
-
         self.assertEqual(xml_output, xml_input)
 
