@@ -3,7 +3,7 @@
 """
 Python lib for reading NCX formated file for epub.
 
-There is some difference between NCX original format and one for Epub; see 
+There is some difference between NCX original format and one for Epub; see
 officiel documention for more information.1111
 
 NCX doc: http://www.niso.org/workrooms/daisy/Z39-86-2005.html#NCX
@@ -12,23 +12,24 @@ NCX Epub spec: http://idpf.org/epub/20/spec/OPF_2.0.1_draft.htm#Section2.4.1
 
 from xml.dom import minidom
 
+
 def parse_toc(xmlstring):
     """Inspect an NCX formated xml document."""
     toc = Ncx()
     toc_xml = minidom.parseString(xmlstring).documentElement
-    
+
     xmlns = toc_xml.getAttribute('xmlns')
     if xmlns:
         toc.xmlns = xmlns
-    
+
     version = toc_xml.getAttribute('version')
     if version:
         toc.version = version
-    
+
     lang = toc_xml.getAttribute('xml:lang')
     if lang:
         toc.lang = lang
-    
+
     # Inspect head > meta; unknow meta are ignored
     head = toc_xml.getElementsByTagName(u'head')[0]
     metas = {'dtb:uid': u'',
@@ -67,6 +68,7 @@ def parse_toc(xmlstring):
 
     return toc
 
+
 def _parse_xml_nav_map(element):
     """Inspect an xml.dom.Element <navMap> and return a NcxNavMap object."""
     nav_map = NavMap()
@@ -87,6 +89,7 @@ def _parse_xml_nav_map(element):
 
     return nav_map
 
+
 def _parse_xml_nav_point(element):
     """Inspect an xml.dom.Element <navPoint> and return a NcxNavPoint object."""
     nav_point = NavPoint()
@@ -106,6 +109,7 @@ def _parse_xml_nav_point(element):
             nav_point.add_point(_parse_xml_nav_point(node))
 
     return nav_point
+
 
 def _parse_xml_page_list(element):
     """Inspect an xml.dom.Element <pageList> and return a NcxPageList object."""
@@ -128,6 +132,7 @@ def _parse_xml_page_list(element):
 
     return page_list
 
+
 def _parse_xml_page_target(element):
     """Inspect an xml.dom.Element <pageTarget> and return a NcxPageTarget object."""
     page_target = PageTarget()
@@ -147,6 +152,7 @@ def _parse_xml_page_target(element):
             page_target.src = node.getAttribute('src')
 
     return page_target
+
 
 def _parse_xml_nav_list(element):
     """Inspect an xml.dom.Element <navList> and return a NcxNavList object."""
@@ -169,6 +175,7 @@ def _parse_xml_nav_list(element):
 
     return nav_list
 
+
 def _parse_xml_nav_target(element):
     """Inspect an xml.dom.Element <navTarget> and return a NcxNavTarget 
     object."""
@@ -188,6 +195,7 @@ def _parse_xml_nav_target(element):
             nav_target.src = node.getAttribute('src')
 
     return nav_target
+
 
 def _parse_for_text_tag(xml_element, name=u'text'):
     """Inspect an xml.dom.Element with a child 'name' to get its text value.
@@ -210,6 +218,7 @@ def _parse_for_text_tag(xml_element, name=u'text'):
         tag.normalize()
         text = tag.firstChild.data.strip()
     return text
+
 
 def _create_xml_element_text(data, name=u'text'):
     """Create a <text> ... </text> Element node.
