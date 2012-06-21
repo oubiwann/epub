@@ -8,6 +8,7 @@ library.
 
 OPF epub : http://idpf.org/epub/20/spec/OPF_2.0.1_draft.htm
 """
+from collections import OrderedDict
 from xml.dom import minidom
 
 
@@ -137,7 +138,7 @@ def _parse_xml_metadata(element):
 
 
 def _parse_xml_manifest(element):
-    """Inspect an xml.dom.Element <manifest> and return a list of 
+    """Inspect an xml.dom.Element <manifest> and return a list of
     epub.EpubManifestItem object."""
 
     manifest = Manifest()
@@ -196,7 +197,7 @@ class Opf(object):
         if spine is None:
             self.spine = Spine()
         else:
-            self.spine= spine
+            self.spine = spine
         if guide is None:
             self.guide = Guide()
         else:
@@ -264,7 +265,7 @@ class Metadata(object):
         self.metas.append((name, content))
 
     def get_isbn(self):
-        l = [id[0] for id in self.identifiers if id[2].lower() == u'isbn']
+        l = [x[0] for x in self.identifiers if x[2].lower() == u'isbn']
         isbn = None
         if l:
             isbn = l[0]
@@ -375,7 +376,7 @@ class Metadata(object):
         return metadata
 
 
-class Manifest(dict):
+class Manifest(OrderedDict):
 
     def __contains__(self, item):
         if hasattr(item, u'identifier'):

@@ -18,52 +18,54 @@ def parse_toc(xmlstring):
     toc = Ncx()
     toc_xml = minidom.parseString(xmlstring).documentElement
 
-    xmlns = toc_xml.getAttribute('xmlns')
+    xmlns = toc_xml.getAttribute(u'xmlns')
     if xmlns:
         toc.xmlns = xmlns
 
-    version = toc_xml.getAttribute('version')
+    version = toc_xml.getAttribute(u'version')
     if version:
         toc.version = version
 
-    lang = toc_xml.getAttribute('xml:lang')
+    lang = toc_xml.getAttribute(u'xml:lang')
     if lang:
         toc.lang = lang
 
     # Inspect head > meta; unknow meta are ignored
     head = toc_xml.getElementsByTagName(u'head')[0]
-    metas = {'dtb:uid': u'',
-             'dtb:depth': u'',
-             'dtb:totalPageCount': u'',
-             'dtb:maxPageNumber': u'',
-             'dtb:generator': u''}
+    metas = {u'dtb:uid': u'',
+             u'dtb:depth': u'',
+             u'dtb:totalPageCount': u'',
+             u'dtb:maxPageNumber': u'',
+             u'dtb:generator': u''}
 
-    for meta in head.getElementsByTagName('meta'):
-        metas[meta.getAttribute('name')] = meta.getAttribute('content')
+    for meta in head.getElementsByTagName(u'meta'):
+        metas[meta.getAttribute(u'name')] = meta.getAttribute(u'content')
 
-    toc.uid = metas['dtb:uid']
-    toc.depth = metas['dtb:depth']
-    toc.total_page_count = metas['dtb:totalPageCount']
-    toc.max_page_number = metas['dtb:maxPageNumber']
-    toc.generator = metas['dtb:generator']
+    toc.uid = metas[u'dtb:uid']
+    toc.depth = metas[u'dtb:depth']
+    toc.total_page_count = metas[u'dtb:totalPageCount']
+    toc.max_page_number = metas[u'dtb:maxPageNumber']
+    toc.generator = metas[u'dtb:generator']
 
     # Get title (one and only one <docTitle> tag is required)
-    toc.title = _parse_for_text_tag(toc_xml.getElementsByTagName('docTitle')[0])
+    doc_title_node = toc_xml.getElementsByTagName(u'docTitle')[0]
+    toc.title = _parse_for_text_tag(doc_title_node)
 
     # Get authors (<docAuthor> tags are optionnal)
-    for author in toc_xml.getElementsByTagName('docAuthor'):
+    for author in toc_xml.getElementsByTagName(u'docAuthor'):
         toc.authors.append(_parse_for_text_tag(author))
 
     # Inspect <navMap> (one is required)
-    toc.nav_map = _parse_xml_nav_map(toc_xml.getElementsByTagName('navMap')[0])
+    nav_map_node = toc_xml.getElementsByTagName(u'navMap')[0]
+    toc.nav_map = _parse_xml_nav_map(nav_map_node)
 
     # Inspect <pageList> (optionnal, only one)
-    page_lists = toc_xml.getElementsByTagName('pageList')
+    page_lists = toc_xml.getElementsByTagName(u'pageList')
     if len(page_lists) > 0:
         toc.page_list = _parse_xml_page_list(page_lists[0])
 
     # Inspect <navList> (optionnal, many are possible)
-    for nav_list in toc_xml.getElementsByTagName('navList'):
+    for nav_list in toc_xml.getElementsByTagName(u'navList'):
         toc.add_nav_list(_parse_xml_nav_list(nav_list))
 
     return toc
@@ -72,84 +74,87 @@ def parse_toc(xmlstring):
 def _parse_xml_nav_map(element):
     """Inspect an xml.dom.Element <navMap> and return a NcxNavMap object."""
     nav_map = NavMap()
-    nav_map.id = element.getAttribute('id')
+    nav_map.identifier = element.getAttribute(u'id')
 
     children = [e for e in element.childNodes if e.nodeType == e.ELEMENT_NODE]
     for node in children:
-        if node.tagName == 'navLabel':
+        if node.tagName == u'navLabel':
             nav_map.add_label(_parse_for_text_tag(node),
-                              node.getAttribute('xml:lang'),
-                              node.getAttribute('dir'))
-        elif node.tagName == 'navInfo':
+                              node.getAttribute(u'xml:lang'),
+                              node.getAttribute(u'dir'))
+        elif node.tagName == u'navInfo':
             nav_map.add_info(_parse_for_text_tag(node),
-                             node.getAttribute('xml:lang'),
-                             node.getAttribute('dir'))
-        elif node.tagName == 'navPoint':
+                             node.getAttribute(u'xml:lang'),
+                             node.getAttribute(u'dir'))
+        elif node.tagName == u'navPoint':
             nav_map.add_point(_parse_xml_nav_point(node))
 
     return nav_map
 
 
 def _parse_xml_nav_point(element):
-    """Inspect an xml.dom.Element <navPoint> and return a NcxNavPoint object."""
+    """Inspect an xml.dom.Element <navPoint> and return a NcxNavPoint object.
+    """
     nav_point = NavPoint()
-    nav_point.id = element.getAttribute('id')
-    nav_point.class_name = element.getAttribute('class')
-    nav_point.play_order = element.getAttribute('playOrder')
+    nav_point.identifier = element.getAttribute(u'id')
+    nav_point.class_name = element.getAttribute(u'class')
+    nav_point.play_order = element.getAttribute(u'playOrder')
 
     children = [e for e in element.childNodes if e.nodeType == e.ELEMENT_NODE]
     for node in children:
-        if node.tagName == 'navLabel':
+        if node.tagName == u'navLabel':
             nav_point.add_label(_parse_for_text_tag(node),
-                                node.getAttribute('xml:lang'),
-                                node.getAttribute('dir'))
-        elif node.tagName == 'content':
-            nav_point.src = node.getAttribute('src')
-        elif node.tagName == 'navPoint':
+                                node.getAttribute(u'xml:lang'),
+                                node.getAttribute(u'dir'))
+        elif node.tagName == u'content':
+            nav_point.src = node.getAttribute(u'src')
+        elif node.tagName == u'navPoint':
             nav_point.add_point(_parse_xml_nav_point(node))
 
     return nav_point
 
 
 def _parse_xml_page_list(element):
-    """Inspect an xml.dom.Element <pageList> and return a NcxPageList object."""
+    """Inspect an xml.dom.Element <pageList> and return a NcxPageList object.
+    """
     page_list = PageList()
-    page_list.id = element.getAttribute('id')
-    page_list.class_name = element.getAttribute('class')
+    page_list.identifier = element.getAttribute(u'id')
+    page_list.class_name = element.getAttribute(u'class')
 
     children = [e for e in element.childNodes if e.nodeType == e.ELEMENT_NODE]
     for node in children:
-        if node.tagName == 'navLabel':
+        if node.tagName == u'navLabel':
             page_list.add_label(_parse_for_text_tag(node),
-                                node.getAttribute('xml:lang'),
-                                node.getAttribute('dir'))
-        elif node.tagName == 'navInfo':
+                                node.getAttribute(u'xml:lang'),
+                                node.getAttribute(u'dir'))
+        elif node.tagName == u'navInfo':
             page_list.add_info(_parse_for_text_tag(node),
-                               node.getAttribute('xml:lang'),
-                               node.getAttribute('dir'))
-        elif node.tagName == 'pageTarget':
+                               node.getAttribute(u'xml:lang'),
+                               node.getAttribute(u'dir'))
+        elif node.tagName == u'pageTarget':
             page_list.add_target(_parse_xml_page_target(node))
 
     return page_list
 
 
 def _parse_xml_page_target(element):
-    """Inspect an xml.dom.Element <pageTarget> and return a NcxPageTarget object."""
+    """Inspect an xml.dom.Element <pageTarget> and return a NcxPageTarget
+    object."""
     page_target = PageTarget()
-    page_target.id = element.getAttribute('id')
-    page_target.value = element.getAttribute('value')
-    page_target.type = element.getAttribute('type')
-    page_target.class_name = element.getAttribute('class')
-    page_target.play_order = element.getAttribute('playOrder')
+    page_target.identifier = element.getAttribute(u'id')
+    page_target.value = element.getAttribute(u'value')
+    page_target.target_type = element.getAttribute(u'type')
+    page_target.class_name = element.getAttribute(u'class')
+    page_target.play_order = element.getAttribute(u'playOrder')
 
     children = [e for e in element.childNodes if e.nodeType == e.ELEMENT_NODE]
     for node in children:
-        if node.tagName == 'navLabel':
+        if node.tagName == u'navLabel':
             page_target.add_label(_parse_for_text_tag(node),
-                                  node.getAttribute('xml:lang'),
-                                  node.getAttribute('dir'))
-        elif node.tagName == 'content':
-            page_target.src = node.getAttribute('src')
+                                  node.getAttribute(u'xml:lang'),
+                                  node.getAttribute(u'dir'))
+        elif node.tagName == u'content':
+            page_target.src = node.getAttribute(u'src')
 
     return page_target
 
@@ -157,60 +162,59 @@ def _parse_xml_page_target(element):
 def _parse_xml_nav_list(element):
     """Inspect an xml.dom.Element <navList> and return a NcxNavList object."""
     nav_list = NavList()
-    nav_list.id = element.getAttribute('id')
-    nav_list.class_name = element.getAttribute('class')
+    nav_list.identifier = element.getAttribute(u'id')
+    nav_list.class_name = element.getAttribute(u'class')
 
     children = [e for e in element.childNodes if e.nodeType == e.ELEMENT_NODE]
     for node in children:
-        if node.tagName == 'navLabel':
+        if node.tagName == u'navLabel':
             nav_list.add_label(_parse_for_text_tag(node),
-                                node.getAttribute('xml:lang'),
-                                node.getAttribute('dir'))
-        elif node.tagName == 'navInfo':
+                                node.getAttribute(u'xml:lang'),
+                                node.getAttribute(u'dir'))
+        elif node.tagName == u'navInfo':
             nav_list.add_info(_parse_for_text_tag(node),
-                               node.getAttribute('xml:lang'),
-                               node.getAttribute('dir'))
-        elif node.tagName == 'navTarget':
+                               node.getAttribute(u'xml:lang'),
+                               node.getAttribute(u'dir'))
+        elif node.tagName == u'navTarget':
             nav_list.add_target(_parse_xml_nav_target(node))
 
     return nav_list
 
 
 def _parse_xml_nav_target(element):
-    """Inspect an xml.dom.Element <navTarget> and return a NcxNavTarget 
+    """Inspect an xml.dom.Element <navTarget> and return a NcxNavTarget
     object."""
     nav_target = NavTarget()
-    nav_target.id = element.getAttribute('id')
-    nav_target.value = element.getAttribute('value')
-    nav_target.class_name = element.getAttribute('class')
-    nav_target.play_order = element.getAttribute('playOrder')
+    nav_target.identifier = element.getAttribute(u'id')
+    nav_target.value = element.getAttribute(u'value')
+    nav_target.class_name = element.getAttribute(u'class')
+    nav_target.play_order = element.getAttribute(u'playOrder')
 
     children = [e for e in element.childNodes if e.nodeType == e.ELEMENT_NODE]
     for node in children:
-        if node.tagName == 'navLabel':
+        if node.tagName == u'navLabel':
             nav_target.add_label(_parse_for_text_tag(node),
-                                  node.getAttribute('xml:lang'),
-                                  node.getAttribute('dir'))
-        elif node.tagName == 'content':
-            nav_target.src = node.getAttribute('src')
+                                  node.getAttribute(u'xml:lang'),
+                                  node.getAttribute(u'dir'))
+        elif node.tagName == u'content':
+            nav_target.src = node.getAttribute(u'src')
 
     return nav_target
 
 
 def _parse_for_text_tag(xml_element, name=u'text'):
     """Inspect an xml.dom.Element with a child 'name' to get its text value.
-    
-    NCX file has many element with a child likes "navLabel" > "text" > TEXT_NODE
-    and this function allow to avoid some boilerplate code.
-    
-    First parameter must be an xml.dom.Element, having one child named by the 
-    second parameter (by default a "text" tag).
-    
-    If nothing is founded, an empty string u'' is returned.
-    
-    Whitespaces and tabulations are stripped.
-    """
 
+    NCX file has many element with a child likes
+    "navLabel" > "text" > TEXT_NODE
+    and this function allow to avoid some boilerplate code.
+
+    First parameter must be an xml.dom.Element, having one child named by the
+    second parameter (by default a "text" tag).
+
+    If nothing is founded, an empty string u'' is returned.
+
+    Whitespaces and tabulations are stripped."""
     tags = xml_element.getElementsByTagName(name)
     text = u''
     if len(tags) > 0:
@@ -220,13 +224,15 @@ def _parse_for_text_tag(xml_element, name=u'text'):
     return text
 
 
-def _create_xml_element_text(data, name=u'text'):
+def _create_xml_element_text(data, name=None):
     """Create a <text> ... </text> Element node.
-    
-    You can use a different tag name with the name argument 
+
+    You can use a different tag name with the name argument
     (default is "text")."""
     if data is None:
         data = u''
+    if name is None:
+        name = u'text'
     doc = minidom.Document()
     element = doc.createElement(name)
     element.appendChild(doc.createTextNode(data))
@@ -244,7 +250,7 @@ class Ncx(object):
         self.depth = None
         self.total_page_count = None
         self.max_page_number = None
-        self.generator = None 
+        self.generator = None
         self.title = None
         self.authors = []
         if nav_map is None:
@@ -261,33 +267,33 @@ class Ncx(object):
     def as_xml_document(self):
         """Return an xml dom Document node."""
         doc = minidom.Document()
-        ncx = doc.createElement('ncx')
-        ncx.setAttribute('xmlns', self.xmlns)
-        ncx.setAttribute('version', self.version)
+        ncx = doc.createElement(u'ncx')
+        ncx.setAttribute(u'xmlns', self.xmlns)
+        ncx.setAttribute(u'version', self.version)
         if self.lang:
-            ncx.setAttribute('xml:lang', self.lang)
+            ncx.setAttribute(u'xml:lang', self.lang)
 
         # head
         ncx.appendChild(self._head_as_xml_element())
-        
+
         # title
-        title = doc.createElement('docTitle')
+        title = doc.createElement(u'docTitle')
         title.appendChild(_create_xml_element_text(self.title))
         ncx.appendChild(title)
-        
+
         # authors
         for text in self.authors:
-            author = doc.createElement('docAuthor')
+            author = doc.createElement(u'docAuthor')
             author.appendChild(_create_xml_element_text(text))
             ncx.appendChild(author)
-        
+
         # nav_map
         ncx.appendChild(self.nav_map.as_xml_element())
-        
+
         # page_list
         if self.page_list:
             ncx.appendChild(self.page_list.as_xml_element())
-        
+
         # nav_lists
         for nav_list in self.nav_lists:
             ncx.appendChild(nav_list.as_xml_element())
@@ -298,28 +304,29 @@ class Ncx(object):
     def _head_as_xml_element(self):
         """Create an xml Element node <head> with meta-data of Ncx item."""
         doc = minidom.Document()
-        head = doc.createElement('head')
+        head = doc.createElement(u'head')
         if self.uid:
-            head.appendChild(self._meta_as_xml_element('dtb:uid', self.uid))
+            head.appendChild(self._meta_as_xml_element(u'dtb:uid', self.uid))
         if self.depth:
-            head.appendChild(self._meta_as_xml_element('dtb:depth', self.depth))
+            head.appendChild(self._meta_as_xml_element(u'dtb:depth',
+                                                       self.depth))
         if self.total_page_count:
-            head.appendChild(self._meta_as_xml_element('dtb:totalPageCount',
+            head.appendChild(self._meta_as_xml_element(u'dtb:totalPageCount',
                                                        self.total_page_count))
         if self.max_page_number:
-            head.appendChild(self._meta_as_xml_element('dtb:maxPageNumber',
+            head.appendChild(self._meta_as_xml_element(u'dtb:maxPageNumber',
                                                        self.max_page_number))
         if self.generator:
-            head.appendChild(self._meta_as_xml_element('dtb:generator',
+            head.appendChild(self._meta_as_xml_element(u'dtb:generator',
                                                        self.generator))
         return head
 
     def _meta_as_xml_element(self, name, content):
         """Create an xml Element node <meta> with attributes name & content."""
         doc = minidom.Document()
-        meta = doc.createElement('meta')
-        meta.setAttribute('name', name)
-        meta.setAttribute('content', content)
+        meta = doc.createElement(u'meta')
+        meta.setAttribute(u'name', name)
+        meta.setAttribute(u'content', content)
         return meta
 
 
@@ -327,16 +334,16 @@ class NavMap(object):
     """Represente navMap tag of an NCX file."""
 
     def __init__(self):
-        self.id = None
+        self.identifier = None
         self.labels = []
         self.infos = []
         self.nav_point = []
 
-    def add_label(self, label, lang=u'', dir=u''):
-        self.labels.append((label, lang, dir))
+    def add_label(self, label, lang=u'', direction=u''):
+        self.labels.append((label, lang, direction))
 
-    def add_info(self, label, lang=u'', dir=u''):
-        self.infos.append((label, lang, dir))
+    def add_info(self, label, lang=u'', direction=u''):
+        self.infos.append((label, lang, direction))
 
     def add_point(self, point):
         self.nav_point.append(point)
@@ -344,26 +351,29 @@ class NavMap(object):
     def as_xml_element(self):
         """Return an xml dom Element node."""
         doc = minidom.Document()
-        nav_map = doc.createElement('navMap')
-        
-        for text, lang, dir in self.labels:
-            label = doc.createElement('navLabel')
+        nav_map = doc.createElement(u'navMap')
+
+        if self.identifier:
+            nav_map.setAttribute(u'id', self.identifier)
+
+        for text, lang, direction in self.labels:
+            label = doc.createElement(u'navLabel')
             label.appendChild(_create_xml_element_text(text))
             if lang:
-                label.setAttribute('xml:lang', lang)
-            if dir:
-                label.setAttribute('dir', dir)
+                label.setAttribute(u'xml:lang', lang)
+            if direction:
+                label.setAttribute(u'dir', direction)
             nav_map.appendChild(label)
-        
-        for text, lang, dir in self.infos:
-            info = doc.createElement('navInfo')
+
+        for text, lang, direction in self.infos:
+            info = doc.createElement(u'navInfo')
             info.appendChild(_create_xml_element_text(text))
             if lang:
-                info.setAttribute('xml:lang', lang)
-            if dir:
-                info.setAttribute('dir', dir)
+                info.setAttribute(u'xml:lang', lang)
+            if direction:
+                info.setAttribute(u'dir', direction)
             nav_map.appendChild(info)
-        
+
         for nav_point in self.nav_point:
             nav_map.appendChild(nav_point.as_xml_element())
 
@@ -373,15 +383,15 @@ class NavMap(object):
 class NavPoint(object):
 
     def __init__(self):
-        self.id = None
+        self.identifier = None
         self.class_name = None
         self.play_order = None
         self.labels = []
         self.src = None
         self.nav_point = []
 
-    def add_label(self, label, lang=u'', dir=u''):
-        self.labels.append((label, lang, dir))
+    def add_label(self, label, lang=u'', direction=u''):
+        self.labels.append((label, lang, direction))
 
     def add_point(self, nav_point):
         self.nav_point.append(nav_point)
@@ -389,54 +399,54 @@ class NavPoint(object):
     def as_xml_element(self):
         """Return an xml dom Element node."""
         doc = minidom.Document()
-        nav_point = doc.createElement('navPoint')
-        
+        nav_point = doc.createElement(u'navPoint')
+
         # Attributes
-        if self.id:
-            nav_point.setAttribute('id', self.id)
-        
+        if self.identifier:
+            nav_point.setAttribute(u'id', self.identifier)
+
         if self.class_name:
-            nav_point.setAttribute('class', self.class_name)
-        
+            nav_point.setAttribute(u'class', self.class_name)
+
         if self.play_order:
-            nav_point.setAttribute('playOrder', self.play_order)
-        
+            nav_point.setAttribute(u'playOrder', self.play_order)
+
         # navLabel
-        for text, lang, dir in self.labels:
-            label = doc.createElement('navLabel')
+        for text, lang, direction in self.labels:
+            label = doc.createElement(u'navLabel')
             label.appendChild(_create_xml_element_text(text))
             if lang:
-                label.setAttribute('xml:lang', lang)
-            if dir:
-                label.setAttribute('dir', dir)
+                label.setAttribute(u'xml:lang', lang)
+            if direction:
+                label.setAttribute(u'dir', direction)
             nav_point.appendChild(label)
-        
+
         # content
-        content = doc.createElement('content')
-        content.setAttribute('src', self.src)
+        content = doc.createElement(u'content')
+        content.setAttribute(u'src', self.src)
         nav_point.appendChild(content)
-        
+
         # navPoint
         for child in self.nav_point:
             nav_point.appendChild(child.as_xml_element())
-        
+
         return nav_point
 
 
 class PageList(object):
 
     def __init__(self):
-        self.id = None
+        self.identifier = None
         self.class_name = None
         self.page_target = []
         self.labels = []
         self.infos = []
 
-    def add_label(self, label, lang=u'', dir=u''):
-        self.labels.append((label, lang, dir))
+    def add_label(self, label, lang=u'', direction=u''):
+        self.labels.append((label, lang, direction))
 
-    def add_info(self, label, lang=u'', dir=u''):
-        self.infos.append((label, lang, dir))
+    def add_info(self, label, lang=u'', direction=u''):
+        self.infos.append((label, lang, direction))
 
     def add_target(self, page_target):
         self.page_target.append(page_target)
@@ -444,109 +454,109 @@ class PageList(object):
     def as_xml_element(self):
         """Return an xml dom Element node."""
         doc = minidom.Document()
-        page_list = doc.createElement('pageList')
-        
+        page_list = doc.createElement(u'pageList')
+
         # attributes
-        if self.id:
-            page_list.setAttribute('id', self.id)
-        
+        if self.identifier:
+            page_list.setAttribute(u'id', self.identifier)
+
         if self.class_name:
-            page_list.setAttribute('class', self.class_name)
-        
+            page_list.setAttribute(u'class', self.class_name)
+
         # navLabel
-        for text, lang, dir in self.labels:
-            label = doc.createElement('navLabel')
+        for text, lang, direction in self.labels:
+            label = doc.createElement(u'navLabel')
             label.appendChild(_create_xml_element_text(text))
             if lang:
-                label.setAttribute('xml:lang', lang)
-            if dir:
-                label.setAttribute('dir', dir)
+                label.setAttribute(u'xml:lang', lang)
+            if direction:
+                label.setAttribute(u'dir', direction)
             page_list.appendChild(label)
-        
+
         # navInfo
-        for text, lang, dir in self.infos:
-            info = doc.createElement('navInfo')
+        for text, lang, direction in self.infos:
+            info = doc.createElement(u'navInfo')
             info.appendChild(_create_xml_element_text(text))
             if lang:
-                info.setAttribute('xml:lang', lang)
-            if dir:
-                info.setAttribute('dir', dir)
+                info.setAttribute(u'xml:lang', lang)
+            if direction:
+                info.setAttribute(u'dir', direction)
             page_list.appendChild(info)
-        
+
         # pageTarget
         for child in self.page_target:
             page_list.appendChild(child.as_xml_element())
-        
+
         return page_list
 
 
 class PageTarget(object):
 
     def __init__(self):
-        self.id = None
+        self.identifier = None
         self.value = None
-        self.type = None
+        self.target_type = None
         self.class_name = None
         self.play_order = None
         self.src = None
         self.labels = []
 
-    def add_label(self, label, lang=u'', dir=u''):
-        self.labels.append((label, lang, dir))
+    def add_label(self, label, lang=u'', direction=u''):
+        self.labels.append((label, lang, direction))
 
     def as_xml_element(self):
         """Return an xml dom Element node."""
         doc = minidom.Document()
-        page_target = doc.createElement('pageTarget')
-        
+        page_target = doc.createElement(u'pageTarget')
+
         # attributes
-        if self.id:
-            page_target.setAttribute('id', self.id)
-        
+        if self.identifier:
+            page_target.setAttribute(u'id', self.identifier)
+
         if self.value:
-            page_target.setAttribute('value', self.value)
-        
-        if self.type:
-            page_target.setAttribute('type', self.type)
-        
+            page_target.setAttribute(u'value', self.value)
+
+        if self.target_type:
+            page_target.setAttribute(u'type', self.target_type)
+
         if self.class_name:
-            page_target.setAttribute('class', self.class_name)
-        
+            page_target.setAttribute(u'class', self.class_name)
+
         if self.play_order:
-            page_target.setAttribute('playOrder', self.play_order)
-        
+            page_target.setAttribute(u'playOrder', self.play_order)
+
         # navLabel
-        for text, lang, dir in self.labels:
-            label = doc.createElement('navLabel')
+        for text, lang, direction in self.labels:
+            label = doc.createElement(u'navLabel')
             label.appendChild(_create_xml_element_text(text))
             if lang:
-                label.setAttribute('xml:lang', lang)
-            if dir:
-                label.setAttribute('dir', dir)
+                label.setAttribute(u'xml:lang', lang)
+            if direction:
+                label.setAttribute(u'dir', direction)
             page_target.appendChild(label)
-        
+
         # content
-        content = doc.createElement('content')
-        content.setAttribute('src', self.src)
+        content = doc.createElement(u'content')
+        content.setAttribute(u'src', self.src)
         page_target.appendChild(content)
-        
+
         return page_target
 
 
 class NavList(object):
 
     def __init__(self):
-        self.id = None
+        self.identifier = None
         self.class_name = None
         self.nav_target = []
         self.labels = []
         self.infos = []
 
-    def add_label(self, label, lang=u'', dir=u''):
-        self.labels.append((label, lang, dir))
+    def add_label(self, label, lang=u'', direction=u''):
+        self.labels.append((label, lang, direction))
 
-    def add_info(self, label, lang=u'', dir=u''):
-        self.infos.append((label, lang, dir))
+    def add_info(self, label, lang=u'', direction=u''):
+        self.infos.append((label, lang, direction))
 
     def add_target(self, nav_target):
         self.nav_target.append(nav_target)
@@ -554,87 +564,86 @@ class NavList(object):
     def as_xml_element(self):
         """Return an xml dom Element node."""
         doc = minidom.Document()
-        nav_list = doc.createElement('navList')
-        
+        nav_list = doc.createElement(u'navList')
+
         # attributes
-        if self.id:
-            nav_list.setAttribute('id', self.id)
-        
+        if self.identifier:
+            nav_list.setAttribute(u'id', self.identifier)
+
         if self.class_name:
-            nav_list.setAttribute('class', self.class_name)
-        
+            nav_list.setAttribute(u'class', self.class_name)
+
         # navLabel
-        for text, lang, dir in self.labels:
-            label = doc.createElement('navLabel')
+        for text, lang, direction in self.labels:
+            label = doc.createElement(u'navLabel')
             label.appendChild(_create_xml_element_text(text))
             if lang:
-                label.setAttribute('xml:lang', lang)
-            if dir:
-                label.setAttribute('dir', dir)
+                label.setAttribute(u'xml:lang', lang)
+            if direction:
+                label.setAttribute(u'dir', direction)
             nav_list.appendChild(label)
-        
+
         # navInfo
-        for text, lang, dir in self.infos:
-            info = doc.createElement('navInfo')
+        for text, lang, direction in self.infos:
+            info = doc.createElement(u'navInfo')
             info.appendChild(_create_xml_element_text(text))
             if lang:
-                info.setAttribute('xml:lang', lang)
-            if dir:
-                info.setAttribute('dir', dir)
+                info.setAttribute(u'xml:lang', lang)
+            if direction:
+                info.setAttribute(u'dir', direction)
             nav_list.appendChild(info)
-        
+
         # navTarget
         for nav_target in self.nav_target:
             nav_list.appendChild(nav_target.as_xml_element())
-        
+
         return nav_list
 
 
 class NavTarget(object):
 
     def __init__(self):
-        self.id = None
+        self.identifier = None
         self.class_name = None
-        self.value= None
+        self.value = None
         self.play_order = None
         self.labels = []
         self.src = None
 
-    def add_label(self, label, lang=u'', dir=u''):
-        self.labels.append((label, lang, dir))
+    def add_label(self, label, lang=u'', direction=u''):
+        self.labels.append((label, lang, direction))
 
     def as_xml_element(self):
         """Return an xml dom Element node."""
         doc = minidom.Document()
-        nav_target = doc.createElement('navTarget')
-        
+        nav_target = doc.createElement(u'navTarget')
+
         # attributes
-        if self.id:
-            nav_target.setAttribute('id', self.id)
-        
+        if self.identifier:
+            nav_target.setAttribute(u'id', self.identifier)
+
         if self.class_name:
-            nav_target.setAttribute('class', self.class_name)
-        
+            nav_target.setAttribute(u'class', self.class_name)
+
         if self.value:
-            nav_target.setAttribute('value', self.value)
-        
+            nav_target.setAttribute(u'value', self.value)
+
         if self.play_order:
-            nav_target.setAttribute('playOrder', self.play_order)
-        
+            nav_target.setAttribute(u'playOrder', self.play_order)
+
         # navLabel
-        for text, lang, dir in self.labels:
-            label = doc.createElement('navLabel')
+        for text, lang, direction in self.labels:
+            label = doc.createElement(u'navLabel')
             label.appendChild(_create_xml_element_text(text))
             if lang:
-                label.setAttribute('xml:lang', lang)
-            if dir:
-                label.setAttribute('dir', dir)
+                label.setAttribute(u'xml:lang', lang)
+            if direction:
+                label.setAttribute(u'dir', direction)
             nav_target.appendChild(label)
-        
-        # content
-        content = doc.createElement('content')
-        content.setAttribute('src', self.src)
-        nav_target.appendChild(content)
-        
-        return nav_target
 
+        # content
+        content = doc.createElement(u'content')
+        content.setAttribute(u'src', self.src)
+        nav_target.appendChild(content)
+
+        return nav_target
