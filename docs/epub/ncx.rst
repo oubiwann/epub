@@ -194,12 +194,24 @@ La classe ``Ncx``
       
       Il peut n'y avoir aucun élément dans cette liste.
 
+   .. py:method:: add_nav_list(nav_list)
+   
+      Ajoute un object :class:`NavList` à la liste des ``NavList``.
+      
+      :param epub.ncx.NavList nav_list: la liste à ajouter
+
+   .. py:method:: as_xml_document()
+   
+      Retourne l'élément XML Dom correspondant à la structure de l'objet.
+   
+      :rtype: :class:`xml.dom.Element`
+
 Les classes ``NavMap`` et ``NavPoint``
 ......................................
 
 .. py:class:: NavMap
 
-   .. py:attribute:: id
+   .. py:attribute:: identifier
 
       Identifiant de la NavMap. Chaîne de caractère (peut être vide).
 
@@ -223,9 +235,33 @@ Les classes ``NavMap`` et ``NavPoint``
       ``<navMap>`` (et pas ses petits fils). Chaque élément de cette liste est 
       un objet de la classe :class:`NavPoint`.
 
+   .. py:method:: add_label(label, lang=u'', direction=u'')
+   
+      :param string label: Texte de l'élément ``navLabel``.
+      :param string lang: Langue de l'élément.
+      :param string direction: Direction du texte ``rtl`` ou ``ltr``.
+
+   .. py:method:: add_info(label, lang=u'', direction=u'')
+   
+      :param string label: Texte de l'élément ``navInfo``.
+      :param string lang: Langue de l'élément.
+      :param string direction: Direction du texte ``rtl`` ou ``ltr``.
+
+   .. py:method:: add_point(point)
+   
+      Ajoute un objet :class:`NavPoint` à la liste des ``navPoint``.
+   
+      :param epub.ncx.NavPoint point: ajoute un ``NavPoint`` à la liste de ``navPoint``.
+
+   .. py:method:: as_xml_document()
+   
+      Retourne l'élément XML Dom correspondant à la structure de l'objet.
+   
+      :rtype: :class:`xml.dom.Element`
+
 .. py:class:: NavPoint
 
-   .. py:attribute:: id
+   .. py:attribute:: identifier
 
       Chaîne de caractère, identifiant du ``<navPoint>``.
 
@@ -258,12 +294,30 @@ Les classes ``NavMap`` et ``NavPoint``
       Liste des éléments ``<navPoint>`` fils directs. Chaque élément est un 
       objet de la classe :class:`NavPoint`.
 
+   .. py:method:: add_label(label, lang=u'', direction=u'')
+   
+      :param string label: Texte de l'élément ``navLabel``.
+      :param string lang: Langue de l'élément.
+      :param string direction: Direction du texte ``rtl`` ou ``ltr``.
+
+   .. py:method:: add_point(point)
+   
+      Ajoute un objet :class:`NavPoint` à la liste des ``navPoint``.
+   
+      :param epub.ncx.NavPoint point: ajoute un ``NavPoint`` à la liste de ``navPoint``.
+
+   .. py:method:: as_xml_document()
+   
+      Retourne l'élément XML Dom correspondant à la structure de l'objet.
+   
+      :rtype: :class:`xml.dom.Element`
+
 Les classes ``PageList`` et ``PageTarget``
 ..........................................
 
 .. py:class:: PageList
 
-   .. py:attribute:: id
+   .. py:attribute:: identifier
 
       Chaîne de caractère, identifiant du ``<pageList>``.
 
@@ -290,9 +344,33 @@ Les classes ``PageList`` et ``PageTarget``
       Liste des éléments ``<pageTarget>`` fils directs. Chaque élément est un 
       objet de la classe :class:`PageTarget`.
 
-.. py:class:: PageTaget
+   .. py:method:: add_label(label, lang=u'', direction=u'')
+   
+      :param string label: Texte de l'élément ``navLabel``.
+      :param string lang: Langue de l'élément.
+      :param string direction: Direction du texte ``rtl`` ou ``ltr``.
 
-   .. py:attribute:: id
+   .. py:method:: add_info(label, lang=u'', direction=u'')
+   
+      :param string label: Texte de l'élément ``navInfo``.
+      :param string lang: Langue de l'élément.
+      :param string direction: Direction du texte ``rtl`` ou ``ltr``.
+
+   .. py:method:: add_target(page_target)
+   
+      Ajoute un élément :class:`PageTarget` à la liste des ``pageTarget``.
+   
+      :param epub.ncx.PageTarget page_target: l'élément à ajouter
+
+   .. py:method:: as_xml_document()
+   
+      Retourne l'élément XML Dom correspondant à la structure de l'objet.
+   
+      :rtype: :class:`xml.dom.Element`
+
+.. py:class:: PageTarget
+
+   .. py:attribute:: identifier
 
       Chaîne de caractère, identifiant du ``<pageList>``.
 
@@ -306,7 +384,7 @@ Les classes ``PageList`` et ``PageTarget``
    
       Chaîne de caractères, représente l'attribut ``value`` de l'élément.
    
-   .. py:attribute:: type
+   .. py:attribute:: target_type
       
       Chaîne de caractères.
 
@@ -328,13 +406,24 @@ Les classes ``PageList`` et ``PageTarget``
       ``Text/chap1.xhtml`` et plus spéficiquement à l'emplacement du fragment 
       ``p36``.
 
+   .. py:method:: add_label(label, lang=u'', direction=u'')
+   
+      :param string label: Texte de l'élément ``navLabel``.
+      :param string lang: Langue de l'élément.
+      :param string direction: Direction du texte ``rtl`` ou ``ltr``.
+
+   .. py:method:: as_xml_document()
+   
+      Retourne l'élément XML Dom correspondant à la structure de l'objet.
+   
+      :rtype: :class:`xml.dom.Element`
 
 Les classes ``NavList`` et ``NavTarget``
 ..........................................
 
 .. py:class:: NavList
 
-   .. py:attribute:: id
+   .. py:attribute:: identifier
 
       Chaîne de caractère, identifiant du ``<navList>``.
 
@@ -361,9 +450,33 @@ Les classes ``NavList`` et ``NavTarget``
       Liste des éléments ``<navTarget>`` fils directs. Chaque élément est un 
       objet de la classe :class:`NavTarget`.
 
+   .. py:method:: add_label(label, lang=u'', direction=u'')
+   
+      :param string label: Texte de l'élément ``navLabel``.
+      :param string lang: Langue de l'élément.
+      :param string direction: Direction du texte ``rtl`` ou ``ltr``.
+
+   .. py:method:: add_info(label, lang=u'', direction=u'')
+   
+      :param string label: Texte de l'élément ``navInfo``.
+      :param string lang: Langue de l'élément.
+      :param string direction: Direction du texte ``rtl`` ou ``ltr``.
+
+   .. py:method:: add_target(nav_target)
+   
+      Ajoute un élément :class:`NavTarget` à la liste des ``navTarget``.
+   
+      :param epub.ncx.NavTarget nav_target: l'élément à ajouter
+
+   .. py:method:: as_xml_document()
+   
+      Retourne l'élément XML Dom correspondant à la structure de l'objet.
+   
+      :rtype: :class:`xml.dom.Element`
+
 .. py:class:: NavTarget
 
-   .. py:attribute:: id
+   .. py:attribute:: identifier
 
       Chaîne de caractère, identifiant du ``<pageList>``.
 
@@ -380,7 +493,7 @@ Les classes ``NavList`` et ``NavTarget``
    .. py:attribute:: class_name
    
       Chaîne de caractère, indique la classe css proposée.
-      
+
    .. py:attribute:: play_order
    
       Chaîne de caractère, indique le placement dans l'ordre de lecture de 
@@ -394,3 +507,15 @@ Les classes ``NavList`` et ``NavTarget``
       Exemple : ``Text/chap1.xhtml#p36`` indique le fichier 
       ``Text/chap1.xhtml`` et plus spéficiquement à l'emplacement du fragment 
       ``p36``.
+
+   .. py:method:: add_label(label, lang=u'', direction=u'')
+   
+      :param string label: Texte de l'élément ``navLabel``.
+      :param string lang: Langue de l'élément.
+      :param string direction: Direction du texte ``rtl`` ou ``ltr``.
+
+   .. py:method:: as_xml_document()
+   
+      Retourne l'élément XML Dom correspondant à la structure de l'objet.
+   
+      :rtype: :class:`xml.dom.Element`

@@ -270,112 +270,166 @@ La classe Metadata
 
    .. py:attribute:: titles
 
-   Liste des éléments ``<dc:title>`` des meta-données. Chaque élément de la 
-   liste est un tuple de la forme ``(title, lang)``.
+      Liste des éléments ``<dc:title>`` des meta-données. Chaque élément de la 
+      liste est un tuple de la forme ``(title, lang)``.
 
    .. py:attribute:: creators
 
-   Liste des éléments ``<dc:creator>`` des meta-données. Chaque élément de la 
-   liste est un tuple de la forme ``(name, role, file as)``.
+      Liste des éléments ``<dc:creator>`` des meta-données. Chaque élément de 
+      la liste est un tuple de la forme ``(name, role, file as)``.
 
    .. py:attribute:: subjects
 
-   Liste des éléments ``<dc:subjet>`` des meta-données. Chaque élément de la 
-   liste est une chaîne de caractère représentant la valeur du sujet.
+      Liste des éléments ``<dc:subjet>`` des meta-données. Chaque élément de la 
+      liste est une chaîne de caractère représentant la valeur du sujet.
 
    .. py:attribute:: description
 
-   L'élément ``<dc:description>``, représenté par une chaîne de caractère.
+      L'élément ``<dc:description>``, représenté par une chaîne de caractère.
 
    .. py:attribute:: publisher
 
-   L'élément ``<dc:publisher>``, représenté par une chaîne de caractère.
+      L'élément ``<dc:publisher>``, représenté par une chaîne de caractère.
 
    .. py:attribute:: contributors
 
-   Liste des éléments ``<dc:contributor>`` des meta-données. Chaque élément de 
-   la liste  est un tuple de la forme ``(name, role, file as)``.
+      Liste des éléments ``<dc:contributor>`` des meta-données. Chaque élément de 
+      la liste  est un tuple de la forme ``(name, role, file as)``.
 
    .. py:attribute:: dates
 
-   Liste des éléments ``<dc:date>`` des meta-données. Chaque élément de la 
-   liste est un tuple de la forme ``(date, event)``.
+      Liste des éléments ``<dc:date>`` des meta-données. Chaque élément de la 
+      liste est un tuple de la forme ``(date, event)``.
 
-   .. py:attribute:: type
+   .. py:attribute:: dc_type
 
-   L'élément ``<dc:type>``, représenté par une chaîne de caractère.
+      L'élément ``<dc:type>``, représenté par une chaîne de caractère.
 
    .. py:attribute:: format
 
-   L'élément ``<dc:format>``, représenté par une chaîne de caractère.
+      L'élément ``<dc:format>``, représenté par une chaîne de caractère.
 
    .. py:attribute:: identifiers
 
-   Liste des éléments ``<dc:identifier>`` des meta-données. Chaque élément de 
-   la liste est un tuple de la forme ``(uid, id, scheme)``.
-
-   La partie ``id`` est l'identifiant qui permet de référencer quel 
-   ``identifier`` doit être utilisé pour définir l'UID de fichier epub.
+      Liste des éléments ``<dc:identifier>`` des meta-données. Chaque élément 
+      de la liste est un tuple de la forme ``(uid, identifier, scheme)``.
+      
+      La partie ``identifier`` est l'identifiant qui permet de référencer quel 
+      ``identifier`` doit être utilisé pour définir l'UID de fichier epub 
+      (c'est l'identifiant référencé par l'attribut ``unique-identifier`` du 
+      fichier opf).
 
    .. py:attribute:: source
 
-   L'élément ``<dc:source>``, représenté par une chaîne de caractère.
+      L'élément ``<dc:source>``, représenté par une chaîne de caractère.
 
    .. py:attribute:: languages
 
-   Liste des éléments ``<dc:language>`` des meta-données. Chaque élément de la 
-   liste est une chaîne de caractère.
+      Liste des éléments ``<dc:language>`` des meta-données. Chaque élément de 
+      la liste est une chaîne de caractère.
 
-   Plus de précision sur la balise ``<dc:language>`` dans la `spécification 
-   epub, section "metadata : language"`__
+      Plus de précision sur la balise ``<dc:language>`` dans la `spécification 
+      epub, section "metadata : language"`__
 
-   .. __: http://idpf.org/epub/20/spec/OPF_2.0.1_draft.htm#Section2.2.12
+      .. __: http://idpf.org/epub/20/spec/OPF_2.0.1_draft.htm#Section2.2.12
 
    .. py:attribute:: Metadata.relation
 
-   L'élément ``<dc:relation>``, représenté par une chaîne de caractère.
+      L'élément ``<dc:relation>``, représenté par une chaîne de caractère.
 
    .. py:attribute:: coverage
 
-   L'élément ``<dc:coverage>``, représenté par une chaîne de caractère.
+      L'élément ``<dc:coverage>``, représenté par une chaîne de caractère.
 
    .. py:attribute:: right
 
-   L'élément ``<dc:rights>``, représenté par une chaîne de caractère.
+      L'élément ``<dc:rights>``, représenté par une chaîne de caractère.
 
    .. py:attribute:: metas
 
-   Liste des éléments ``<dc:meta>`` des meta-données. Chaque élément de la 
-   liste est un tuple de la forme ``(name, content)``.
+      Liste des éléments ``<dc:meta>`` des meta-données. Chaque élément de la 
+      liste est un tuple de la forme ``(name, content)``.
+
+   .. py:method:: add_title(title, lang='')
+   
+      :param string title:
+      :param string lang:
+
+   .. py:method:: add_creator(name, role=u'aut', file_as=u'')
+   
+      :param string name:
+      :param string role:
+      :param string file_as:
+
+   .. py:method:: add_subject(subject)
+   
+      :param string subject:
+
+   .. py:method:: add_contributor(name, role=u'oth', file_as=u'')
+   
+      :param string name:
+      :param string role:
+      :param string file_as:
+
+   .. py:method:: add_date(date, event='')
+   
+      :param string date:
+      :param string event:
+
+   .. py:method:: add_identifier(content, identifier=u'', scheme=u'')
+   
+      :param string content:
+      :param string identifier:
+      :param string scheme:
+
+   .. py:method:: add_language(lang)
+   
+      :param string lang:
+
+   .. py:method:: add_meta(name, content)
+   
+      :param string name:
+      :param string content:
+
+   .. py:method:: as_xml_element()
+   
+      Retourne un élément xml ``<manifest>`` équivalent au contenu de l'objet.
+    
+      :rtype: :class:`xml.dom.Element`
+   
+   .. py:method:: get_isbn()
+   
+      Retourne l'identifiant de type ``isbn``, qui doit être renseigné dans la 
+      liste :attr:`identifiers`.
 
 Les classes Manifest et ManifestItem
 ....................................
 
 .. py:class:: Manifest()
 
-   La classe :class:`Manifest` étend le type ``dict`` et peut donc être 
-   utilisé de la même façon. Cependant, lorsqu'un élément est inséré dans le 
-   dictionnaire, il est vérifié que l'élément en question dispose d'au moins 
-   deux attributs nécessaires : ``id`` et ``href``.
+   La classe :class:`Manifest` étend la classe :class:`collection.OrderedDict` 
+   et peut donc être utilisé de la même façon. Cependant, lorsqu'un élément est 
+   inséré dans le dictionnaire, il est vérifié que l'élément en question 
+   dispose d'au moins deux attributs nécessaires : ``identifier`` et ``href``.
    
    Il est préférable de ne stocker que des objets de la classe 
    :class:`ManifestItem`, qui correspond à un usage "normal".
    
-   La clé d'accès à chaque élément est la valeur de son attribut ``id``, ce qui 
-   permet de retrouver rapidement un objet dans le manifest, exemple :
+   La clé d'accès à chaque élément est la valeur de son attribut ``identifier``,
+   ce qui permet de retrouver rapidement un objet dans le manifest, exemple :
    
    .. code-block:: python
       
       # manifest is an epub.opf.Manifest object
       item = manifest[u'chap001']
-      print item.id # display "chap001"
+      print item.identifier # display "chap001"
       
       item in manifest # Return true
       
-      # raise a Value Error (key != item.id)
+      # raise a Value Error (key != item.identifier)
       manifest['bad_id'] = item
 
-   .. py:method:: add_item(id, href, media_type=None, fallback=None, required_namespace=None, required_modules=None, fallback_style=None)
+   .. py:method:: add_item(identifier, href, media_type=None, fallback=None, required_namespace=None, required_modules=None, fallback_style=None)
     
       Crée et ajoute un élément au manifest.
       
@@ -384,7 +438,7 @@ Les classes Manifest et ManifestItem
       epub : la classe OPF permet de gérer uniquement le fichier XML, et ne se 
       préoccupe donc pas du contenu réel du fichier epub.
     
-      :param string id: Identifiant
+      :param string identifier: Identifiant
       :param string href: Chemin d'accès du fichier, relatif à l'emplacement du fichier OPF
       :param string media_type: Le mime-type de l'élément.
       :param string fallback: Identifiant de l'élément fallback
@@ -395,9 +449,8 @@ Les classes Manifest et ManifestItem
    .. py:method:: append(item)
     
       Ajoute un élément au manifest. Cet élément doit avoir au moins deux 
-      attributs : ``id`` et ``href``. L'attribut ``id`` doit être un 
-      ``hashable``, c'est à dire un objet immuable permettant de l'utiliser 
-      comme clé d'un dictionnaire (comme une chaîne de caractères).
+      attributs : ``identifier`` et ``href``. L'attribut ``identifier`` doit 
+      être une chaîne unicode.
       
       :param epub.opf.ManifestItem item: l'élément à ajouter au manifest
 
@@ -407,7 +460,7 @@ Les classes Manifest et ManifestItem
     
       :rtype: :class:`xml.dom.Element`
 
-.. py:class:: ManifestItem(id, href, media_type=None, fallback=None, required_namespace=None, required_modules=None, fallback_style=None)
+.. py:class:: ManifestItem(identifier, href, media_type=None, fallback=None, required_namespace=None, required_modules=None, fallback_style=None)
 
    Un objet de la classe :class:`ManifestItem` représente un élément du 
    manifest du fichier epub, c'est à dire l'un des fichiers qui compose le 
@@ -424,20 +477,20 @@ Les classes Manifest et ManifestItem
       
       # equivalent metadata
       item = epub.opf.ManifestItem()
-      item.id = u'chap01'
+      item.identifier = u'chap01'
       item.href = u'Text/chap01.xhtml'
       item.media_type = u'application/xhtml+xml'
       
       # ou bien directement avec le constructeur
-      item = epub.opf.ManifestItem(id=u'chap01', href=u'Text/chap01.xhtml',
+      item = epub.opf.ManifestItem(identifier=u'chap01', href=u'Text/chap01.xhtml',
                                    media_type=u'application/xhtml+xml')
    
-   .. py:attribute:: id
+   .. py:attribute:: identifier
    
       Identifiant de l'item, qui doit être unique pour permettre de récupérer 
       chaque élément dans la liste des items du manifest.
       
-      Il s'agit d'une chaîne de caractère.
+      Il s'agit d'une chaîne unicode.
       
    .. py:attribute:: href
    
@@ -486,7 +539,7 @@ Les classes Guide et Spine
    .. py:attribute:: references
    
       Liste des références de l'élément ``<guide>``. Chaque élément de la liste 
-      est un ``tuple`` de la forme ``(href, type, title)``.
+      est un ``tuple`` de la forme ``(href, ref_type, title)``.
       
       La valeur de ``href`` est une url d'accès relative à l'emplacement du 
       fichier OPF. Cependant, cette url ne peut pas être utilisée directement 
@@ -494,7 +547,7 @@ Les classes Guide et Spine
       :meth:`epub.EpubFile.read`, car il peut comporter une ancre (le 
       caractère ``#`` suivit d'un identifiant d'ancre).
    
-   .. py:method:: add_reference(href, type=None, title=None)
+   .. py:method:: add_reference(href, ref_type=None, title=None)
    
       Ajoute une référence au guide.
     
@@ -505,7 +558,7 @@ Les classes Guide et Spine
    .. py:method:: append(reference)
     
       Ajoute une référence au guide ; elle doit être un tuple de la forme
-      ``(href, type, title)``.
+      ``(href, ref_type, title)``.
        
       :param tuple reference: la référence à ajouter.
 
@@ -532,7 +585,7 @@ Les classes Guide et Spine
    .. py:method:: append(itemref):
     
       Ajoute une référence au spine ; elle doit être un tuple de la forme
-      ``(id, linear)``. L'élément est ajouté à la suite des autres.
+      ``(identifier, linear)``. L'élément est ajouté à la suite des autres.
        
       :param tuple itemref: la référence à ajouter.
 
@@ -542,6 +595,3 @@ Les classes Guide et Spine
       
       :param string idref: l'identifiant de l'élément à ajouter
       :param bool linear: indicateur d'élément linéaire (par défaut) ou non
-
-
-

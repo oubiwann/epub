@@ -51,11 +51,11 @@ class EpubFile(zipfile.ZipFile):
         """
         zipfile.ZipFile.__init__(self, filename, mode)
 
-        if self.mode == 'r':
+        if self.mode == u'r':
             self._init_read()
-        elif self.mode == 'w':
+        elif self.mode == u'w':
             self._init_new()
-        elif self.mode == 'a':
+        elif self.mode == u'a':
             if len(self.namelist()) == 0:
                 self._init_new()
             else:
@@ -70,7 +70,7 @@ class EpubFile(zipfile.ZipFile):
         # Uid & Uid's id
         uid_id = u'BookId'
         uid = uuid.uuid4()
-        self.uid = uid
+        self.uid = u'%s' % uid
         # Create metadata, manifest, and spine, as minimalist as possible
         metadata = opf.Metadata()
         metadata.add_identifier(uid, uid_id, u'uid')
@@ -91,6 +91,7 @@ class EpubFile(zipfile.ZipFile):
 
         for e in container_xml.getElementsByTagName(u'rootfile'):
             if e.getAttribute(u'media-type') == MIMETYPE_OPF:
+                # Only take the first full-path available
                 self.opf_path = e.getAttribute(u'full-path')
                 break
 
@@ -106,18 +107,19 @@ class EpubFile(zipfile.ZipFile):
     def close(self):
         if self.fp is None:
             return
-        if self.mode in ("w", "a"):
+        if self.mode in (u'w', u'a'):
             self._write_close()
         zipfile.ZipFile.close(self)
 
     def _write_close(self):
         # Write META-INF/container.xml
-        self.writestr('META-INF/container.xml', self._build_container())
+        self.writestr(u'META-INF/container.xml', self._build_container())
         # Write OPF File
         self.writestr(self.opf_path, self.opf.as_xml_document().toxml())
         # Write NCX File
-        # THIS IS ABSOLUTLY FALSE!!!
-        self.writestr(os.path.join(self.opf_path, self.opf.spine.toc),
+        item_toc = self.get_item(self.opf.spine.toc)
+        dirpath = os.path.dirname(self.opf_path)
+        self.writestr(os.path.join(dirpath, item_toc.href),
                       self.toc.as_xml_document().toxml())
 
     def _build_container(self):

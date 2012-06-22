@@ -72,7 +72,7 @@ Par exemple pour accéder à l'ensemble des items du fichier :
 
    book = epub.open(u'book.epub')
    
-   for id, item in book.opf.manifest.iteritems():
+   for item in book.opf.manifest.values():
        # read the content
        data = book.read(item)
 
@@ -96,7 +96,8 @@ l'objet de la classe :attr:`opf.Spine` disponible de cette façon :
 Quant au fichier de navigation NCX, il est accessible via l'attribut 
 :attr:`EpubFile.toc`. Cet attribut est de la classe :class:`ncx.Ncx` et 
 représente le fichier de navigation du livre numérique, et propose une 
-structure logique de lecture des fichiers.
+structure logique de lecture des fichiers (mais cela demande une connaissance 
+plus approfondie de la structure d'un fichier epub).
 
 API du module
 -------------
@@ -133,9 +134,8 @@ La classe EpubFile
    faut passer par les attributs :attr:`opf <epub.EpubFile.opf>` et 
    :attr:`toc <epub.EpubFile.toc>`.
    
-   Il est possible de fournir l'archive zip directement à l'instanciation de 
-   l'objet Epub. Le mieux est cependant d'utiliser la fonction 
-   :func:`epub.open` du module.
+   Il est préférable d'utiliser la fonction :func:`epub.open` plutôt 
+   qu'instancier directement un objet EpubFile.
 
    .. py:attribute:: EpubFile.opf
 
@@ -147,7 +147,9 @@ La classe EpubFile
       Chemin d'accès interne à l'archive zip au fichier OPF.
 
       Le chemin du fichier OPF est spécifié par le fichier 
-      ``META-INF/container.xml`` et ce chemin est conservé dans cet attribut.
+      ``META-INF/container.xml`` et ce chemin est conservé dans cet attribut. 
+      L'emplacement sert de référence à l'emplacement des autres fichiers du 
+      livre (html, styles, images, etc.).
 
    .. py:attribute:: EpubFile.toc
 
@@ -175,46 +177,23 @@ La classe EpubFile
    
       Initialise l'objet :class:`epub.EpubFile`. 
 
-   .. py:method:: EpubFile.get_item(id)
+   .. py:method:: EpubFile.get_item(identifier)
  
       Cette fonction permet de récupérer un "item" du manifest. Le fichier opf 
       décrit, via son "manifest", une liste des fichiers composant le livre 
       numérique : chacun de ces éléments est un "item", qui représente l'un des 
       fichier de l'epub.
       
-      :param string id: Identifiant de l'item recherché.
+      :param string identifier: Identifiant de l'item recherché.
       :rtype: :class:`epub.opf.ManifestItem` ou ``None`` s'il n'existe pas.
 
    .. py:method:: EpubFile.get_item_by_href(href)
 
-      Fonctionne de la même façon que :meth:`get_item <EpubFile.get_item>`
+      Fonctionne de la même façon que :meth:`get_item <EpubFile.get_item>` en 
+      utilisant la valeur de l'attribut `href` des items du manifest.
    
       :param string href: Chemin d'accès (relatif au fichier opf) de l'item recherché.
       :rtype: :class:`epub.opf.ManifestItem` ou ``None`` s'il n'existe pas.
-
-   .. py:method:: EpubFile.read(item)
-   
-      Pour des raisons de compatiblité avec une version précédente, cette 
-      méthode est un alias de la méthode 
-      :meth:`read_item() <epub.EpubFile.read_item>`. Ce comportement changera 
-      dans une version future.
-      
-      .. warning::
-      
-         Le comportement de cette méthode sera modifiée pour rester cohérent 
-         avec le fonctionnement de la classe :class:`zipfile.Zipfile`, qui 
-         dispose déjà d'une méthode `read()`.
-
-   .. py:method:: EpubFile.read_file(path)
-   
-      Lit un fichier en fournissant le chemin d'accès de celui-ci dans 
-      l'archive epub. Il s'agit d'un chemin relatif à la racine de l'archive, 
-      pour lire un fichier relatif au fichier OPF, il faut utiliser la 
-      fonction :meth:`read() <epub.EpubFile.read>`.
-      
-      Cette fonction est un alias de la méthode 
-      :meth:`zipfile.ZipFile.read` (cette méthode est donc destinée à 
-      disparaître prochainement).
 
    .. py:method:: EpubFile.read_item(item)
    
@@ -223,6 +202,8 @@ La classe EpubFile
       Le paramètre ``item`` peut être un objet :class:`epub.opf.ManifestItem` 
       ou un chemin d'accès du fichier, chemin relatif à l'emplacement du 
       fichier OPF.
+      
+      Ce chemin ne doit pas contenir de fragment d'url (commençant pas `#`).
 
       .. code-block:: python
       

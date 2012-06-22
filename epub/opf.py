@@ -230,7 +230,7 @@ class Metadata(object):
         self.publisher = None
         self.contributors = []
         self.dates = []
-        self.type = None
+        self.dc_type = None
         self.format = None
         self.identifiers = []
         self.source = None
@@ -240,7 +240,7 @@ class Metadata(object):
         self.right = None
         self.metas = []
 
-    def add_title(self, title, lang=''):
+    def add_title(self, title, lang=u''):
         self.titles.append((title, lang))
 
     def add_creator(self, name, role=u'aut', file_as=u''):
@@ -252,7 +252,7 @@ class Metadata(object):
     def add_contributor(self, name, role=u'oth', file_as=u''):
         self.contributors.append((name, role, file_as))
 
-    def add_date(self, date, event=''):
+    def add_date(self, date, event=u''):
         self.dates.append((date, event))
 
     def add_identifier(self, content, identifier=u'', scheme=u''):
@@ -323,9 +323,9 @@ class Metadata(object):
             date.appendChild(doc.createTextNode(text))
             metadata.appendChild(date)
 
-        if self.type:
+        if self.dc_type:
             dc_type = doc.createElement(u'dc:type')
-            dc_type.appendChild(doc.createTextNode(self.type))
+            dc_type.appendChild(doc.createTextNode(self.dc_type))
             metadata.appendChild(dc_type)
 
         if self.format:
