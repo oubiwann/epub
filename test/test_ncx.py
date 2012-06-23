@@ -344,12 +344,20 @@ class TestFunction(unittest.TestCase):
         self.assertEqual(len(nav_map.nav_point[1].nav_point), 2)
 
     def test_create_xml_element_text(self):
-        xml_string = """<text>Some text</text>"""
+        xml_string = u"""<text>Some text</text>"""
         xml_element = epub.ncx._create_xml_element_text(u'Some text')
         self.assertEqual(xml_element.toxml(), xml_string)
         
-        xml_string = """<otherText>Some text</otherText>"""
+        xml_string = u"""<otherText>Some text</otherText>"""
         xml_element = epub.ncx._create_xml_element_text(u'Some text', u'otherText')
+        self.assertEqual(xml_element.toxml(), xml_string)
+
+        xml_string = u"""<emptyText/>"""
+        xml_element = epub.ncx._create_xml_element_text(None, u'emptyText')
+        self.assertEqual(xml_element.toxml(), xml_string)
+
+        xml_string = u"""<emptyText/>"""
+        xml_element = epub.ncx._create_xml_element_text(u'', u'emptyText')
         self.assertEqual(xml_element.toxml(), xml_string)
 
 

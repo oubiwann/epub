@@ -229,14 +229,16 @@ def _create_xml_element_text(data, name=None):
     """Create a <text> ... </text> Element node.
 
     You can use a different tag name with the name argument
-    (default is "text")."""
-    if data is None:
-        data = u''
+    (default is "text").
+    
+    If data is None or empty, it will create an empty element tag, eg. :
+    <emptyTag/> instead of <emptyTag></emptyTag>"""
     if name is None:
         name = u'text'
     doc = minidom.Document()
     element = doc.createElement(name)
-    element.appendChild(doc.createTextNode(data))
+    if data:
+        element.appendChild(doc.createTextNode(data))
     return element
 
 
