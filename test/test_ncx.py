@@ -388,7 +388,7 @@ class TestNavPoint(unittest.TestCase):
 class TestNavMap(unittest.TestCase):
     
     def test_as_xml_element(self):
-        xml_string = u"""<navMap>""" + \
+        xml_string = u"""<navMap id="someId">""" + \
             """<navLabel xml:lang="fr" dir="ltr"><text>Label fr</text></navLabel>""" + \
             """<navLabel xml:lang="en" dir="ltr"><text>Label en</text></navLabel>""" + \
             """<navInfo xml:lang="fr" dir="ltr"><text>Label fr</text></navInfo>""" + \

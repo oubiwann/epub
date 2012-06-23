@@ -98,7 +98,7 @@ def _parse_xml_metadata(element):
 
     for node in element.getElementsByTagName(u'dc:type'):
         node.normalize()
-        metadata.type = node.firstChild.data.strip()
+        metadata.dc_type = node.firstChild.data.strip()
 
     for node in element.getElementsByTagName(u'dc:format'):
         node.normalize()
@@ -287,7 +287,8 @@ class Metadata(object):
 
         for name, role, file_as in self.creators:
             creator = doc.createElement(u'dc:creator')
-            creator.setAttribute(u'opf:role', role)
+            if role:
+                creator.setAttribute(u'opf:role', role)
             if file_as:
                 creator.setAttribute(u'opf:file-as', file_as)
             creator.appendChild(doc.createTextNode(name))
@@ -309,8 +310,9 @@ class Metadata(object):
             metadata.appendChild(publisher)
 
         for name, role, file_as in self.contributors:
-            contributor = doc.createElement(u'dc:creator')
-            contributor.setAttribute(u'opf:role', role)
+            contributor = doc.createElement(u'dc:contributor')
+            if role:
+                contributor.setAttribute(u'opf:role', role)
             if file_as:
                 contributor.setAttribute(u'opf:file-as', file_as)
             contributor.appendChild(doc.createTextNode(name))

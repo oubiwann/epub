@@ -57,7 +57,7 @@ class TestFunction(unittest.TestCase):
 
     def test_parse_xml_metadata(self):
         """Test _parse_xml_metadata."""
-        
+
         xml_string = u"""
         <metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf">
             <dc:identifier opf:scheme="epub_test" id="epub_id">
@@ -129,68 +129,68 @@ class TestFunction(unittest.TestCase):
         """
         element = minidom.parseString(xml_string.encode(u'utf-8')).documentElement
         metadata = epub.opf._parse_xml_metadata(element)
-        
+
         # dc:identifier
         self.assertEqual(metadata.identifiers,
                          [(u'1', u'epub_id', u'epub_test'),
                           (u'18430f16-c687-400b-9b9c-54a9c8b0646c', u'uuid_id', u'uuid')])
-        
+
         # dc:title
         self.assertEqual(metadata.titles,
                          [(u'Metadata for testing purpose', ''),
                           (u'Metadonnée pour les tests.', u'fr')])
-        
+
         # dc:creator
         self.assertEqual(metadata.creators,
-                         [(u'John Doe', u'aut', u'Doe, Jhon'),])
-        
+                         [(u'John Doe', u'aut', u'Doe, Jhon'), ])
+
         # dc:subject
         self.assertEqual(metadata.subjects,
                          [u'This is an arbitrary subjet.',
                           u'Another usefull subject.'])
-        
+
         # dc:description
         self.assertEqual(metadata.description,
                          u"""A long description. There is not any information about how a 
                 description must be. Long, short, etc.
                 
                 We just don't know anything about this.""")
-        
+
         # dc:contributor
         self.assertEqual(metadata.contributors,
                          [(u'Python unittest', u'other.test', u'Python, unittest'),
                           (u'Python nosetests', u'other.test', u'Python, nosetests')])
-        
+
         # dc:date
         self.assertEqual(metadata.dates,
                          [(u'2012-01-05T16:18:00+00:00', u'creation'),
                           (u'2012-01-09T13:37:00+00:00', u'publication')])
-        
+
         # dc:type
-        self.assertEqual(metadata.type, u'Is this a type?')
-        
+        self.assertEqual(metadata.dc_type, u'Is this a type?')
+
         # dc:format
         self.assertEqual(metadata.format, u'Well formated, sir!')
-        
+
         # dc:publisher
         self.assertEqual(metadata.publisher, u'Exirel')
-        
+
         # dc:language
         self.assertEqual(metadata.languages,
-                         [u'en',])
-        
+                         [u'en'])
+
         # dc:source
         self.assertEqual(metadata.source,
                          u'From the far old west (Brittany, France).')
-        
+
         # dc:relation
         self.assertEqual(metadata.relation,
                          u'It\'s complicated...')
-        
+
         # dc:coverage
         self.assertEqual(metadata.coverage,
                          u'An art of cover.')
-        
+
         # dc:rights
         self.assertEqual(metadata.right,
                          u'To the left!')
@@ -265,6 +265,194 @@ class TestMetadata(unittest.TestCase):
         self.maxDiff = None
         doc = minidom.parseString(xml_string)
         xml_element = doc.documentElement
+
+        metadata = epub.opf._parse_xml_metadata(xml_element)
+
+        self.assertEqual(metadata.as_xml_element().toprettyxml(u'    ').strip(),
+                         xml_element.toxml().strip())
+
+    def test_as_xml_element_creators(self):
+        xml_string = u"""<metadata xmlns:dc="%s" xmlns:opf="%s">
+    <dc:creator>First Creator of the Book</dc:creator>
+    <dc:creator opf:file-as="aut">Second Creator with File-as attribute</dc:creator>
+    <dc:creator opf:role="translator">Third Creator with role</dc:creator>
+    <dc:creator opf:role="translator" opf:file-as="aut">Last creator with All</dc:creator>
+</metadata>""" % (epub.opf.XMLNS_DC, epub.opf.XMLNS_OPF)
+
+        self.maxDiff = None
+        doc = minidom.parseString(xml_string)
+        xml_element = doc.documentElement
+        xml_element.normalize()
+
+        metadata = epub.opf._parse_xml_metadata(xml_element)
+
+        self.assertEqual(metadata.as_xml_element().toprettyxml(u'    ').strip(),
+                         xml_element.toxml().strip())
+
+    def test_as_xml_element_subjects(self):
+        xml_string = u"""<metadata xmlns:dc="%s" xmlns:opf="%s">
+    <dc:subject>Subject One</dc:subject>
+    <dc:subject>Subject Two</dc:subject>
+</metadata>""" % (epub.opf.XMLNS_DC, epub.opf.XMLNS_OPF)
+
+        self.maxDiff = None
+        doc = minidom.parseString(xml_string)
+        xml_element = doc.documentElement
+        xml_element.normalize()
+
+        metadata = epub.opf._parse_xml_metadata(xml_element)
+
+        self.assertEqual(metadata.as_xml_element().toprettyxml(u'    ').strip(),
+                         xml_element.toxml().strip())
+
+    def test_as_xml_element_description(self):
+        xml_string = u"""<metadata xmlns:dc="%s" xmlns:opf="%s">
+    <dc:description>This is a very long description. I don't know how you could use it, but...</dc:description>
+</metadata>""" % (epub.opf.XMLNS_DC, epub.opf.XMLNS_OPF)
+
+        self.maxDiff = None
+        doc = minidom.parseString(xml_string)
+        xml_element = doc.documentElement
+        xml_element.normalize()
+
+        metadata = epub.opf._parse_xml_metadata(xml_element)
+
+        self.assertEqual(metadata.as_xml_element().toprettyxml(u'    ').strip(),
+                         xml_element.toxml().strip())
+
+    def test_as_xml_element_publisher(self):
+        xml_string = u"""<metadata xmlns:dc="%s" xmlns:opf="%s">
+    <dc:publisher>Exirel Python Epub</dc:publisher>
+</metadata>""" % (epub.opf.XMLNS_DC, epub.opf.XMLNS_OPF)
+
+        self.maxDiff = None
+        doc = minidom.parseString(xml_string)
+        xml_element = doc.documentElement
+        xml_element.normalize()
+
+        metadata = epub.opf._parse_xml_metadata(xml_element)
+
+        self.assertEqual(metadata.as_xml_element().toprettyxml(u'    ').strip(),
+                         xml_element.toxml().strip())
+
+    def test_as_xml_element_contributors(self):
+        xml_string = u"""<metadata xmlns:dc="%s" xmlns:opf="%s">
+    <dc:contributor>First Contributor of the Book</dc:contributor>
+    <dc:contributor opf:file-as="aut">Second Contributor with File-as attribute</dc:contributor>
+    <dc:contributor opf:role="translator">Third Contributor with role</dc:contributor>
+    <dc:contributor opf:role="translator" opf:file-as="aut">Last Contributor with All</dc:contributor>
+</metadata>""" % (epub.opf.XMLNS_DC, epub.opf.XMLNS_OPF)
+
+        self.maxDiff = None
+        doc = minidom.parseString(xml_string)
+        xml_element = doc.documentElement
+        xml_element.normalize()
+
+        metadata = epub.opf._parse_xml_metadata(xml_element)
+
+        self.assertEqual(metadata.as_xml_element().toprettyxml(u'    ').strip(),
+                         xml_element.toxml().strip())
+
+    def test_as_xml_element_date(self):
+        xml_string = u"""<metadata xmlns:dc="%s" xmlns:opf="%s">
+    <dc:date opf:event="php_end">2008-08-08</dc:date>
+    <dc:date>2009-09-09</dc:date>
+</metadata>""" % (epub.opf.XMLNS_DC, epub.opf.XMLNS_OPF)
+
+        self.maxDiff = None
+        doc = minidom.parseString(xml_string)
+        xml_element = doc.documentElement
+        xml_element.normalize()
+
+        metadata = epub.opf._parse_xml_metadata(xml_element)
+
+        self.assertEqual(metadata.as_xml_element().toprettyxml(u'    ').strip(),
+                         xml_element.toxml().strip())
+
+    def test_as_xml_element_type(self):
+        xml_string = u"""<metadata xmlns:dc="%s" xmlns:opf="%s">
+    <dc:type>Epub Type</dc:type>
+</metadata>""" % (epub.opf.XMLNS_DC, epub.opf.XMLNS_OPF)
+
+        self.maxDiff = None
+        doc = minidom.parseString(xml_string)
+        xml_element = doc.documentElement
+        xml_element.normalize()
+
+        metadata = epub.opf._parse_xml_metadata(xml_element)
+
+        self.assertEqual(metadata.as_xml_element().toprettyxml(u'    ').strip(),
+                         xml_element.toxml().strip())
+
+    def test_as_xml_element_format(self):
+        xml_string = u"""<metadata xmlns:dc="%s" xmlns:opf="%s">
+    <dc:format>Epub Format</dc:format>
+</metadata>""" % (epub.opf.XMLNS_DC, epub.opf.XMLNS_OPF)
+
+        self.maxDiff = None
+        doc = minidom.parseString(xml_string)
+        xml_element = doc.documentElement
+        xml_element.normalize()
+
+        metadata = epub.opf._parse_xml_metadata(xml_element)
+
+        self.assertEqual(metadata.as_xml_element().toprettyxml(u'    ').strip(),
+                         xml_element.toxml().strip())
+
+    def test_as_xml_element_source(self):
+        xml_string = u"""<metadata xmlns:dc="%s" xmlns:opf="%s">
+    <dc:source>Epub Format</dc:source>
+</metadata>""" % (epub.opf.XMLNS_DC, epub.opf.XMLNS_OPF)
+
+        self.maxDiff = None
+        doc = minidom.parseString(xml_string)
+        xml_element = doc.documentElement
+        xml_element.normalize()
+
+        metadata = epub.opf._parse_xml_metadata(xml_element)
+
+        self.assertEqual(metadata.as_xml_element().toprettyxml(u'    ').strip(),
+                         xml_element.toxml().strip())
+
+    def test_as_xml_element_relation(self):
+        xml_string = u"""<metadata xmlns:dc="%s" xmlns:opf="%s">
+    <dc:relation>Epub Relation</dc:relation>
+</metadata>""" % (epub.opf.XMLNS_DC, epub.opf.XMLNS_OPF)
+
+        self.maxDiff = None
+        doc = minidom.parseString(xml_string)
+        xml_element = doc.documentElement
+        xml_element.normalize()
+
+        metadata = epub.opf._parse_xml_metadata(xml_element)
+
+        self.assertEqual(metadata.as_xml_element().toprettyxml(u'    ').strip(),
+                         xml_element.toxml().strip())
+
+    def test_as_xml_element_coverage(self):
+        xml_string = u"""<metadata xmlns:dc="%s" xmlns:opf="%s">
+    <dc:coverage>Epub Coverage</dc:coverage>
+</metadata>""" % (epub.opf.XMLNS_DC, epub.opf.XMLNS_OPF)
+
+        self.maxDiff = None
+        doc = minidom.parseString(xml_string)
+        xml_element = doc.documentElement
+        xml_element.normalize()
+
+        metadata = epub.opf._parse_xml_metadata(xml_element)
+
+        self.assertEqual(metadata.as_xml_element().toprettyxml(u'    ').strip(),
+                         xml_element.toxml().strip())
+
+    def test_as_xml_element_right(self):
+        xml_string = u"""<metadata xmlns:dc="%s" xmlns:opf="%s">
+    <dc:rights>Epub Rights</dc:rights>
+</metadata>""" % (epub.opf.XMLNS_DC, epub.opf.XMLNS_OPF)
+
+        self.maxDiff = None
+        doc = minidom.parseString(xml_string)
+        xml_element = doc.documentElement
+        xml_element.normalize()
 
         metadata = epub.opf._parse_xml_metadata(xml_element)
 
@@ -354,7 +542,7 @@ class TestManifest(unittest.TestCase):
 
 
 class TestGuide(unittest.TestCase):
-    
+
     def test_as_xml_element(self):
         xml_string = u"""<guide>
     <reference type="toc" title="Table of Contents" href="toc.html" />
@@ -373,7 +561,45 @@ class TestGuide(unittest.TestCase):
 
 
 class TestSpine(unittest.TestCase):
-    
+
+    def test_init(self):
+        sp = epub.opf.Spine()
+        self.assertIsNone(sp.toc)
+        self.assertEquals(sp.itemrefs, [])
+
+        sp = epub.opf.Spine(u'ncx_file_id')
+        self.assertEquals(sp.toc, u'ncx_file_id')
+        self.assertEquals(sp.itemrefs, [])
+
+        itemrefs = [(u'text0001', True), (u'text0002', False)]
+        sp = epub.opf.Spine(u'ncx_file_id', itemrefs)
+        self.assertEquals(sp.toc, u'ncx_file_id')
+        self.assertEquals(sp.itemrefs, itemrefs)
+
+    def test_add_itemref(self):
+        sp = epub.opf.Spine()
+        sp.add_itemref(u'text0001')
+        self.assertEquals(sp.itemrefs, [(u'text0001', True)])
+
+        sp.add_itemref(u'text0002', True)
+        self.assertEquals(sp.itemrefs,
+                          [(u'text0001', True), (u'text0002', True)])
+
+        sp.add_itemref(u'text0003', False)
+        self.assertEquals(sp.itemrefs,
+                          [(u'text0001', True),
+                           (u'text0002', True),
+                           (u'text0003', False)])
+
+    def test_append(self):
+        sp = epub.opf.Spine()
+        sp.append((u'text0001', True))
+        self.assertEquals(sp.itemrefs, [(u'text0001', True)])
+
+        sp.append((u'text0002', False))
+        self.assertEquals(sp.itemrefs,
+                          [(u'text0001', True), (u'text0002', False)])
+
     def test_as_xml_element(self):
         xml_string = u"""<spine toc="ncx">
     <itemref idref="intro" />
@@ -389,18 +615,18 @@ class TestSpine(unittest.TestCase):
         self.maxDiff = None
         doc = minidom.parseString(xml_string)
         xml_element = doc.documentElement
-        
+
         spine = epub.opf._parse_xml_spine(xml_element)
-        
+
         self.assertEqual(spine.as_xml_element().toprettyxml(u'    ').strip(),
                          xml_element.toxml().strip())
 
 
 class TestOpf(unittest.TestCase):
-    
+
     def test_init(self):
         opf = epub.opf.Opf()
-        
+
         self.assertIsInstance(opf.metadata, epub.opf.Metadata)
         self.assertIsInstance(opf.manifest, epub.opf.Manifest)
         self.assertIsInstance(opf.spine, epub.opf.Spine)
@@ -445,8 +671,8 @@ class TestOpf(unittest.TestCase):
 """
         self.maxDiff = None
         opf = epub.opf.parse_opf(xml_string)
-        
+
         xml_input = xml_string.strip()
         xml_output = opf.as_xml_document().toprettyxml(u'    ').strip()
-        
+
         self.assertEqual(xml_input, xml_output)

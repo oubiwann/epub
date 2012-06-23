@@ -7,7 +7,7 @@ Library to open and read files in the epub version 2.
 
 __author__ = u'Florian Strzelecki <florian.strzelecki@gmail.com>'
 __version__ = u'0.4.0'
-
+__all__ = ['opf', 'ncx']
 
 import os
 import uuid

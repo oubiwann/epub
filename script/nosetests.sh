@@ -1,4 +1,4 @@
 #!/bin/bash
 
 cd ../
-nosetests --with-coverage --cover-html --cover-html-dir=test/_cover/ --cover-erase
+nosetests --with-coverage --cover-html --cover-html-dir=test/_cover/ --cover-erase --cover-package=epub
