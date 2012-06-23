@@ -110,6 +110,15 @@ class TestFunction(unittest.TestCase):
         self.assertEqual(text, u'Du texte avec espace et retour à la ligne.',
                          u'Il ne devrait pas y avoir de différence !')
 
+        xml_string = u"""
+        <someTag>
+            <emptyText />
+        </someTag>
+        """
+        xml_element = minidom.parseString(xml_string.encode(u'utf-8')).documentElement
+        text = epub.ncx._parse_for_text_tag(xml_element, u'emptyText')
+        self.assertEqual(text, u'')
+
     def test_parse_xml_nav_target(self):
         """Test function "_parse_xml_nav_target"."""
 

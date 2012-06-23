@@ -69,11 +69,10 @@ class EpubFile(zipfile.ZipFile):
         self.opf_path = DEFAULT_OPF_PATH
         # Uid & Uid's id
         uid_id = u'BookId'
-        uid = uuid.uuid4()
-        self.uid = u'%s' % uid
+        self.uid = u'%s' % uuid.uuid4()
         # Create metadata, manifest, and spine, as minimalist as possible
         metadata = opf.Metadata()
-        metadata.add_identifier(uid, uid_id, u'uid')
+        metadata.add_identifier(self.uid, uid_id, u'uid')
         manifest = opf.Manifest()
         manifest.add_item(u'ncx', u'toc.ncx', MIMETYPE_NCX)
         spine = opf.Spine(u'ncx')
@@ -82,7 +81,7 @@ class EpubFile(zipfile.ZipFile):
                            metadata=metadata, manifest=manifest, spine=spine)
         # Create Ncx object
         self.toc = ncx.Ncx()
-        self.toc.uid = uid
+        self.toc.uid = self.uid
 
     def _init_read(self):
         # Read container.xml to get OPF xml file path
@@ -112,6 +111,9 @@ class EpubFile(zipfile.ZipFile):
         zipfile.ZipFile.close(self)
 
     def _write_close(self):
+        """Handle writes when closing epub. Both new file mode (w) and append
+        file mode (a), some files must be generated: container, OPF, and NCX.
+        """
         # Write META-INF/container.xml
         self.writestr(u'META-INF/container.xml', self._build_container())
         # Write OPF File

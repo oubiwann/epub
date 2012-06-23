@@ -215,12 +215,13 @@ def _parse_for_text_tag(xml_element, name=u'text'):
     If nothing is founded, an empty string u'' is returned.
 
     Whitespaces and tabulations are stripped."""
-    tags = xml_element.getElementsByTagName(name)
+    tags = [e for e in xml_element.childNodes if e.nodeType == e.ELEMENT_NODE and e.tagName == name]
     text = u''
     if len(tags) > 0:
         tag = tags[0]
-        tag.normalize()
-        text = tag.firstChild.data.strip()
+        if tag.firstChild:
+            tag.normalize()
+            text = tag.firstChild.data.strip()
     return text
 
 
