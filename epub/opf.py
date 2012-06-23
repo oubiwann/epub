@@ -406,7 +406,13 @@ class Manifest(OrderedDict):
         self.append(item)
 
     def append(self, item):
-        self.__setitem__(item.identifier, item)
+        if hasattr(item, u'identifier') and \
+           hasattr(item, u'href') and \
+           hasattr(item, u'as_xml_element'):
+            self.__setitem__(item.identifier, item)
+        else:
+            raise ValueError(u'Manifest item must have [identifier, href, ' + \
+                             u'as_xml_element()] attributes and method.')
 
     def as_xml_element(self):
         """Return an xml dom Element node."""

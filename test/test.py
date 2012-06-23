@@ -13,6 +13,8 @@ class TestFunction(unittest.TestCase):
         test_path = os.path.join(os.path.dirname(__file__), self.epub_path)
         book = epub.open(test_path)
 
+        self.assertEqual(book.opf_path, u'OEBPS/content.opf')
+        self.assertEqual(book.content_path, u'OEBPS')
         self.assertEqual(book.opf.metadata.languages, [u'en'])
         self.assertEqual(book.opf.metadata.titles, [(u'Testing Epub', '')])
         self.assertEqual(len(book.opf.manifest), 7)

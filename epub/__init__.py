@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 """
 Library to open and read files in the epub version 2.
 """
@@ -8,6 +7,7 @@ Library to open and read files in the epub version 2.
 __author__ = u'Florian Strzelecki <florian.strzelecki@gmail.com>'
 __version__ = u'0.4.0'
 __all__ = ['opf', 'ncx']
+
 
 import os
 import uuid
@@ -46,6 +46,15 @@ class EpubFile(zipfile.ZipFile):
 
     See http://idpf.org/epub/201 for more information about Epub 2.0.1."""
 
+    @property
+    def content_path(self):
+        """Return the content path, ie, the path relative to OPF file.
+
+        If OPF file is located in `OEBPS/content.opf`, then `content_path` is
+        equal to `OEBPS`.
+        """
+        return os.path.dirname(self.opf_path)
+
     def __init__(self, filename, mode=u'r'):
         """Open the Epub zip file with mode read "r", write "w" or append "a".
         """
@@ -77,7 +86,7 @@ class EpubFile(zipfile.ZipFile):
         manifest.add_item(u'ncx', u'toc.ncx', MIMETYPE_NCX)
         spine = opf.Spine(u'ncx')
         # Create Opf object
-        self.opf = opf.Opf(uid_id=u'BookId',
+        self.opf = opf.Opf(uid_id=uid_id,
                            metadata=metadata, manifest=manifest, spine=spine)
         # Create Ncx object
         self.toc = ncx.Ncx()
@@ -120,8 +129,7 @@ class EpubFile(zipfile.ZipFile):
         self.writestr(self.opf_path, self.opf.as_xml_document().toxml())
         # Write NCX File
         item_toc = self.get_item(self.opf.spine.toc)
-        dirpath = os.path.dirname(self.opf_path)
-        self.writestr(os.path.join(dirpath, item_toc.href),
+        self.writestr(os.path.join(self.content_path, item_toc.href),
                       self.toc.as_xml_document().toxml())
 
     def _build_container(self):
@@ -134,6 +142,24 @@ class EpubFile(zipfile.ZipFile):
         </rootfiles>
     </container>"""
         return template % self.opf_path
+
+    def add_item(self, filename, manifest_item):
+        """
+        identifier, href, media_type=None, fallback=None,
+                 required_namespace=None, required_modules=None,
+                 fallback_style=None
+        """
+        if not self.fp:
+            raise RuntimeError(
+                  u'Attempt to write to EPUB file that was already closed')
+
+        if self.mode == u'r':
+            raise IOError(
+                  u'Attempt to write to EPUB file that was open as read-only.')
+
+        self.opf.manifest.append(manifest_item)
+        self.write(filename, os.path.join(self.content_path,
+                                          manifest_item.href))
 
     def get_item(self, identifier):
         """Get an item from manifest through its "id" attribute.
