@@ -124,16 +124,18 @@ class EpubFile(zipfile.ZipFile):
         file mode (a), some files must be generated: container, OPF, and NCX.
         """
         # Write META-INF/container.xml
-        self.writestr(u'META-INF/container.xml', self._build_container())
+        self.writestr(u'META-INF/container.xml',
+                      self._build_container().encode(u'utf-8'))
         # Write OPF File
-        self.writestr(self.opf_path, self.opf.as_xml_document().toxml())
+        self.writestr(self.opf_path,
+                      self.opf.as_xml_document().toxml().encode(u'utf-8'))
         # Write NCX File
         item_toc = self.get_item(self.opf.spine.toc)
         self.writestr(os.path.join(self.content_path, item_toc.href),
-                      self.toc.as_xml_document().toxml())
+                      self.toc.as_xml_document().toxml().encode(u'utf-8'))
 
     def _build_container(self):
-        template = """<?xml version="1.0" encoding="UTF-8"?>
+        template = u"""<?xml version="1.0" encoding="UTF-8"?>
     <container version="1.0"
                xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
         <rootfiles>
