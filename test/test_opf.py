@@ -151,15 +151,17 @@ class TestFunction(unittest.TestCase):
 
         # dc:description
         self.assertEqual(metadata.description,
-                         u"""A long description. There is not any information about how a 
+            u"""A long description. There is not any information about how a 
                 description must be. Long, short, etc.
                 
                 We just don't know anything about this.""")
 
         # dc:contributor
         self.assertEqual(metadata.contributors,
-                         [(u'Python unittest', u'other.test', u'Python, unittest'),
-                          (u'Python nosetests', u'other.test', u'Python, nosetests')])
+                         [(u'Python unittest', u'other.test',
+                           u'Python, unittest'),
+                          (u'Python nosetests', u'other.test',
+                           u'Python, nosetests')])
 
         # dc:date
         self.assertEqual(metadata.dates,

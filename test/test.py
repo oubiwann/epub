@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
-
 import os
 import unittest
 import epub
 
-from xml.dom import minidom
 
 class TestFunction(unittest.TestCase):
     epub_path = u'_data/test.epub'
@@ -24,8 +22,9 @@ class TestFunction(unittest.TestCase):
             self.assertIsInstance(item, epub.opf.ManifestItem)
 
         with epub.open(test_path) as with_book:
-            self.assertEqual(with_book.opf.metadata.languages, [u'en',])
-            self.assertEqual(with_book.opf.metadata.titles, [(u'Testing Epub', ''),])
+            self.assertEqual(with_book.opf.metadata.languages, [u'en'])
+            self.assertEqual(with_book.opf.metadata.titles,
+                             [(u'Testing Epub', '')])
             self.assertEqual(len(with_book.opf.manifest), 7)
             for key, item in with_book.opf.manifest.iteritems():
                 self.assertEqual(item.identifier, key)
