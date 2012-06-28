@@ -99,16 +99,42 @@ représente le fichier de navigation du livre numérique, et propose une
 structure logique de lecture des fichiers (mais cela demande une connaissance 
 plus approfondie de la structure d'un fichier epub).
 
+Écrire dans un fichier epub
+---------------------------
+
+Nouveauté de la version 0.4.0, vous pouvez aussi ouvrir un fichier epub en mode
+écriture. Le mode `w` permet d'ouvrir un fichier epub vierge, et le mode `a`
+d'ajouter du contenu à un fichier epub existant.
+
+Pour le moment, vous ne pouvez qu'ajouter du contenu à un fichier epub, et pas
+en retirer.
+
+.. code-block:: python
+
+   book = epub.open(u'book.epub', u'w')
+   filename = u'path/to/file/to/add.xhtml'
+   manifest_item = epub.opf.ManifestItem(identifier=u'IdFile',
+                                         href=u'path/into/epub/add.xhtml',
+                                         media_type=u'application/xhtml+xml')
+   book.add_item(filename, manifest_item)
+   book.close()
+
+Ce petit exemple vous montre le fonctionnement, qui reste très basique.
+
+Le contenu du fichier epub est réellement sauvegardé lorsqu'il est fermé, c'est
+à dire à l'appel de la méthode :meth:`epub.EpubFile.close`.
+
 API du module
 -------------
 
 La fonction open
 ................
 
-.. py:function:: open(filename)
+.. py:function:: open(filename, mode=u'r')
    
-   Ouvre un fichier epub, et retourne un objet :class:`epub.EpubFile`. Cette 
-   fonction ouvre le fichier uniquement en lecture seule pour le moment.
+   Ouvre un fichier epub, et retourne un objet :class:`epub.EpubFile`. Vous
+   pouvez ouvrir le fichier en lecture seule (mode `r` par défaut) ou en
+   écriture (mode `w` ou mode `a`).
    
    Il est possible d'utiliser cette fonction avec la directive ``with`` de 
    cette façon :
@@ -118,6 +144,13 @@ La fonction open
       with epub.open(u'path/to/my.epub') as book:
           # do thing with book, for exemple:
           print book.read(u'Text/cover.xhtml')
+   
+   Le mode d'écriture `w` ouvre le fichier epub en écriture et considère un
+   fichier vierge. Si le fichier existe déjà il est remplacé.
+   
+   Le mode d'écriture `a` ouvre le fichier epub en écriture et permet de
+   modifier un fichier déjà existant. Si le fichier n'existe pas, il est créé
+   et traité de la même façon qu'avec le mode `w`.
    
    :param string filename: chemin d'accès au fichier epub
 
@@ -176,6 +209,34 @@ La classe EpubFile
    .. py:method:: __init__(file)
    
       Initialise l'objet :class:`epub.EpubFile`. 
+
+   .. py:method:: add_item(filename, manifest_item)
+   
+      Permet d'ajouter un fichier au livre numérique. 
+      
+      Le premier paramètre indique le fichier source (le contenu), et le second
+      indique les meta-données à ajouter au fichier OPF, dont l'emplacement 
+      dans l'archive epub.
+      
+      L'attribut `id` du `manifest_item` ne doit pas déjà exister dans le
+      fichier epub.
+      
+      L'attribut `href` du `manifest_item` doit être un chemin d'accès relatif
+      à l'emplacement du fichier OPF.
+   
+      :param string filename: Le chemin d'accès au fichier à ajouter.
+      :param epub.opf.ManifestItem manifest_item: l'item décrivrant le fichier
+       à ajouter pour le fichier OPF.
+      :raise RuntimeError: Si le fichier est déjà clos.
+      :raise IOError: Si le fichier n'est pas ouvert en écriture.
+
+   .. py:method:: close()
+   
+      Ferme le fichier epub. S'il était ouvert en mode écriture (`w` ou `a`),
+      alors le fichier OPF et le fichier NCX sont générés en XML et modifié
+      dans l'archive epub avant la fermeture.
+      
+      L'appel à cette méthode assure la sauvegarde des modifications effectuées.
 
    .. py:method:: EpubFile.get_item(identifier)
  

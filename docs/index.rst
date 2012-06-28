@@ -7,6 +7,7 @@ Python-Epub
    epub/index
    epub/opf
    epub/ncx
+   changelog
 
 Introduction
 ------------
