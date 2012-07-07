@@ -5,7 +5,7 @@ Library to open and read files in the epub version 2.
 
 
 __author__ = u'Florian Strzelecki <florian.strzelecki@gmail.com>'
-__version__ = u'0.4.0'
+__version__ = u'0.5.0'
 __all__ = ['opf', 'ncx']
 
 
@@ -145,11 +145,16 @@ class EpubFile(zipfile.ZipFile):
     </container>"""
         return template % self.opf_path
 
-    def add_item(self, filename, manifest_item):
+    def add_item(self, filename, manifest_item,
+                 append_to_spine=False, is_linear=True):
         """
-        identifier, href, media_type=None, fallback=None,
-                 required_namespace=None, required_modules=None,
-                 fallback_style=None
+        Add a file to epub. A manifest item must be provide to describe it.
+        This function will raise a RuntimeError if epub is already closed. It
+        will raise an IOError if epub is open in read-only (`r` mode).
+
+        Optional: you can use `append_to_spine` flag (default=False) to append
+        item to spine, and use `is_linear` (default=True) to specify if it is 
+        linear or not.
         """
         if not self.fp:
             raise RuntimeError(
@@ -162,6 +167,8 @@ class EpubFile(zipfile.ZipFile):
         self.opf.manifest.append(manifest_item)
         self.write(filename, os.path.join(self.content_path,
                                           manifest_item.href))
+        if append_to_spine:
+            self.opf.spine.add_itemref(manifest_item.identifier, is_linear)
 
     def get_item(self, identifier):
         """Get an item from manifest through its "id" attribute.

@@ -9,9 +9,6 @@ import epub
 
 class TestFunction(unittest.TestCase):
 
-    def test_version(self):
-        self.assertEqual(epub.__version__, u'0.4.0')
-
     def test_parse_opf(self):
         xml_string = u"""<?xml version="1.0" ?>
 <package unique-identifier="BookId" version="2.0" xmlns="http://www.idpf.org/2007/opf">

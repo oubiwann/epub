@@ -10,6 +10,9 @@ TEST_XHTML_MIMETYPE = u'application/xhtml+xml'
 class TestFunction(unittest.TestCase):
     epub_path = u'_data/test.epub'
 
+    def test_version(self):
+        self.assertEqual(epub.__version__, u'0.5.0')
+
     def test_open(self):
         test_path = os.path.join(os.path.dirname(__file__), self.epub_path)
         book = epub.open(test_path)
@@ -53,7 +56,7 @@ class TestFunctionWriteMode(unittest.TestCase):
         manifest_item = epub.opf.ManifestItem(identifier=u'AddItem0001',
                                               href=u'Text/add_item.xhtml',
                                               media_type=TEST_XHTML_MIMETYPE)
-        book.add_item(filename, manifest_item)
+        book.add_item(filename, manifest_item, True)
 
         with open(filename, u'r') as f:
             expected_data = f.read().decode(u'utf-8')
@@ -61,6 +64,8 @@ class TestFunctionWriteMode(unittest.TestCase):
 
         self.assertIn(manifest_item, book.opf.manifest)
         self.assertEqual(result_data, expected_data)
+        self.assertIn((manifest_item.identifier, True),
+                      book.opf.spine.itemrefs)
 
 
 class TestFunctionWriteModeNew(TestFunctionWriteMode):
