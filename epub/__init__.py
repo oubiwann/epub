@@ -153,8 +153,23 @@ class EpubFile(zipfile.ZipFile):
         will raise an IOError if epub is open in read-only (`r` mode).
 
         Optional: you can use `append_to_spine` flag (default=False) to append
-        item to spine, and use `is_linear` (default=True) to specify if it is 
+        item to spine, and use `is_linear` (default=True) to specify if it is
         linear or not.
+        """
+        self.check_mode_write()
+        self.opf.manifest.append(manifest_item)
+        self.write(filename, os.path.join(self.content_path,
+                                          manifest_item.href))
+        if append_to_spine:
+            self.opf.spine.add_itemref(manifest_item.identifier, is_linear)
+
+    def check_mode_write(self):
+        """
+        Raise error if epub file is not writable.
+
+        Raise RuntimeError if file is already closed.
+
+        Raise IOError if file is opened read-only.
         """
         if not self.fp:
             raise RuntimeError(
@@ -163,12 +178,6 @@ class EpubFile(zipfile.ZipFile):
         if self.mode == u'r':
             raise IOError(
                   u'Attempt to write to EPUB file that was open as read-only.')
-
-        self.opf.manifest.append(manifest_item)
-        self.write(filename, os.path.join(self.content_path,
-                                          manifest_item.href))
-        if append_to_spine:
-            self.opf.spine.add_itemref(manifest_item.identifier, is_linear)
 
     def get_item(self, identifier):
         """Get an item from manifest through its "id" attribute.
@@ -203,5 +212,4 @@ class EpubFile(zipfile.ZipFile):
         path = item
         if hasattr(item, u'href'):
             path = item.href
-        dirpath = os.path.dirname(self.opf_path)
-        return self.read(os.path.join(dirpath, path))
+        return self.read(os.path.join(self.content_path, path))
