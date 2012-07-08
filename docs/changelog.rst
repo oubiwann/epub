@@ -4,6 +4,14 @@ Changelog
 .. toctree::
    :maxdepth: 2
 
+Version 0.5.0
+-------------
+
+Encore de nouvelles améliorations.
+
+* Ajout de la méthode :meth:`epub.EpubFile.check_mode_write` qui lève une
+  exception si le fichier n'est pas ouvert en écriture.
+
 Version 0.4.0
 -------------
 

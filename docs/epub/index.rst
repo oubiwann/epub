@@ -230,6 +230,14 @@ La classe EpubFile
       :raise RuntimeError: Si le fichier est déjà clos.
       :raise IOError: Si le fichier n'est pas ouvert en écriture.
 
+   .. py:method:: check_mode_write()
+   
+      Lève une exception si le fichier n'est pas ouvert en mode écriture (`w`
+      ou `a`), ou si le fichier est déjà clos et qu'il ne peut être modifié.
+
+      :raise RuntimeError: Si le fichier est déjà clos.
+      :raise IOError: Si le fichier n'est pas ouvert en écriture.
+
    .. py:method:: close()
    
       Ferme le fichier epub. S'il était ouvert en mode écriture (`w` ou `a`),
