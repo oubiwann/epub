@@ -8,8 +8,19 @@ library.
 
 OPF epub : http://idpf.org/epub/20/spec/OPF_2.0.1_draft.htm
 """
-from collections import OrderedDict
 from xml.dom import minidom
+
+
+try:
+    # Only for Python 2.7
+    from collections import OrderedDict
+except ImportError:
+    try:
+        # For Python 2.4 to 2.6
+        from ordereddict import OrderedDict
+    except ImportError:
+        raise ImportError(
+            u'You should use Python 2.7 or install `ordereddict` from pypi.')
 
 
 XMLNS_DC = u'http://purl.org/dc/elements/1.1/'
