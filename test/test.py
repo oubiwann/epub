@@ -226,3 +226,18 @@ class TestEpubFile(unittest.TestCase):
                                                   href=u'Text/add_item.xhtml',
                                                   media_type=TEST_XHTML_MIMETYPE)
             self.epub_file.add_item(filename, manifest_item)
+
+
+class TestBook(unittest.TestCase):
+
+    epub_path = u'_data/test.epub'
+
+    def setUp(self):
+        test_path = os.path.join(os.path.dirname(__file__), self.epub_path)
+        self.epub_file = epub.open(test_path)
+
+    def test_chapters(self):
+        book = epub.Book(self.epub_file)
+
+        for chapter in book.chapters:
+            print chapter

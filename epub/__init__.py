@@ -288,3 +288,8 @@ class Book(object):
     @property
     def titles(self):
         return self.epub_file.opf.metadata.titles
+
+    @property
+    def chapters(self):
+        for identifier, linear in self.epub_file.opf.spine.itemrefs:
+            yield self.epub_file.read_item(self.epub_file.get_item(identifier))
