@@ -11,6 +11,10 @@ Encore de nouvelles améliorations.
 
 * Ajout de la méthode :meth:`epub.EpubFile.check_mode_write` qui lève une
   exception si le fichier n'est pas ouvert en écriture.
+* Support de python 2.6 avec l'emploi du module `ordereddict` disponible sur
+  pypi (http://pypi.python.org/pypi/ordereddict).
+* Nouvelle classe `epub.Book` servant de proxy pour simplifier et abstraire
+  la manipulation du format epub.
 
 Version 0.4.0
 -------------

@@ -40,7 +40,8 @@ class BadEpubFile(zipfile.BadZipfile):
 class EpubFile(zipfile.ZipFile):
     """Represent an epub zip file, as described in version 2.0.1 of epub spec.
 
-    This class allow an access throught a low-level API to the epub real file.
+    This class 
+19 aventurier(s), 14 monstre(s), 1 lieu, allow an access throught a low-level API to the epub real file.
     It extends zipfile.ZipFile class and modify only a little some of its
     behavior.
 
@@ -213,3 +214,77 @@ class EpubFile(zipfile.ZipFile):
         if hasattr(item, u'href'):
             path = item.href
         return self.read(os.path.join(self.content_path, path))
+
+
+class Book(object):
+
+    def __init__(self, epub_file):
+        self.epub_file = epub_file
+
+    @property
+    def creators(self):
+        return self.epub_file.opf.metadata.creators
+
+    @property
+    def description(self):
+        return self.epub.opf.metadata.description
+
+    @property
+    def isbn(self):
+        return self.epub_file.opf.metadata.get_isbn()
+
+    @property
+    def publisher(self):
+        return self.epub.opf.metadata.publisher
+
+    @property
+    def contributors(self):
+        return self.epub_file.opf.metadata.contributors
+
+    @property
+    def dates(self):
+        return self.epub_file.opf.metadata.dates
+
+    @property
+    def dc_type(self):
+        return self.epub_file.opf.metadata.dc_type
+
+    @property
+    def format(self):
+        return self.epub_file.opf.metadata.format
+
+    @property
+    def identifiers(self):
+        return self.epub_file.opf.metadata.identifiers
+
+    @property
+    def source(self):
+        return self.epub_file.opf.metadata.source
+
+    @property
+    def languages(self):
+        return self.epub_file.opf.metadata.languages
+
+    @property
+    def relation(self):
+        return self.epub_file.opf.metadata.relation
+
+    @property
+    def coverage(self):
+        return self.epub_file.opf.metadata.coverage
+
+    @property
+    def right(self):
+        return self.epub_file.opf.metadata.right
+
+    @property
+    def metas(self):
+        return self.epub_file.opf.metadata.metas
+
+    @property
+    def subjects(self):
+        return self.epub_file.opf.metadata.subjects
+
+    @property
+    def titles(self):
+        return self.epub_file.opf.metadata.titles
