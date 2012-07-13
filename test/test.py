@@ -239,5 +239,6 @@ class TestBook(unittest.TestCase):
     def test_chapters(self):
         book = epub.Book(self.epub_file)
 
-        for chapter in book.chapters:
-            print chapter
+        chapters = list(book.chapters)
+        print chapters[1].read()
+        self.assertTrue(False)
