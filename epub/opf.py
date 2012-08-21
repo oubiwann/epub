@@ -430,7 +430,7 @@ class Manifest(OrderedDict):
         doc = minidom.Document()
         manifest = doc.createElement('manifest')
 
-        for item in self.itervalues():
+        for item in self.values():
             manifest.appendChild(item.as_xml_element())
 
         return manifest

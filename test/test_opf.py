@@ -217,7 +217,7 @@ class TestFunction(unittest.TestCase):
         self.assertEqual(len(manifest), 4)
 
         for item in manifest.values():
-            print item
+            print(item)
             self.assertIsInstance(item, epub.opf.ManifestItem)
 
         self.assertEqual(manifest['toc'].identifier, 'toc')

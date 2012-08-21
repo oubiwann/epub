@@ -5,6 +5,7 @@ from __future__ import unicode_literals
 import os
 import unittest
 import epub
+from shutil import copy
 
 
 TEST_XHTML_MIMETYPE = 'application/xhtml+xml'
@@ -26,7 +27,7 @@ class TestFunction(unittest.TestCase):
         self.assertEqual(book.opf.metadata.titles, [('Testing Epub', '')])
         self.assertEqual(len(book.opf.manifest), 7)
 
-        for key, item in book.opf.manifest.iteritems():
+        for key, item in book.opf.manifest.items():
             self.assertEqual(item.identifier, key)
             self.assertIsInstance(item, epub.opf.ManifestItem)
 
@@ -35,7 +36,7 @@ class TestFunction(unittest.TestCase):
             self.assertEqual(with_book.opf.metadata.titles,
                              [('Testing Epub', '')])
             self.assertEqual(len(with_book.opf.manifest), 7)
-            for key, item in with_book.opf.manifest.iteritems():
+            for key, item in with_book.opf.manifest.items():
                 self.assertEqual(item.identifier, key)
                 self.assertIsInstance(item, epub.opf.ManifestItem)
 
@@ -62,7 +63,7 @@ class TestFunctionWriteMode(unittest.TestCase):
         book.add_item(filename, manifest_item, True)
 
         with open(filename, 'r') as f:
-            expected_data = f.read().decode('utf-8')
+            expected_data = f.read()
         result_data = book.read_item(manifest_item).decode('utf-8')
 
         self.assertIn(manifest_item, book.opf.manifest)
@@ -114,9 +115,7 @@ class TestFunctionWriteModeAppend(TestFunctionWriteMode):
                                        self.epub_source)
         working_copy_filename = os.path.join(os.path.dirname(__file__),
                                              self.epub_path)
-        with open(source_filename) as source:
-            with open(working_copy_filename, 'w') as working_copy:
-                working_copy.write(source.read())
+        copy(source_filename, working_copy_filename)
 
         self._clean_files()
 
@@ -243,4 +242,4 @@ class TestBook(unittest.TestCase):
         book = epub.Book(self.epub_file)
 
         for chapter in book.chapters:
-            print chapter
+            print(chapter)
