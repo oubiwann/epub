@@ -1,26 +1,29 @@
 # -*- coding: utf-8 -*-
+
+from __future__ import unicode_literals
+
 import os
 import unittest
 import epub
 
 
-TEST_XHTML_MIMETYPE = u'application/xhtml+xml'
+TEST_XHTML_MIMETYPE = 'application/xhtml+xml'
 
 
 class TestFunction(unittest.TestCase):
-    epub_path = u'_data/test.epub'
+    epub_path = '_data/test.epub'
 
     def test_version(self):
-        self.assertEqual(epub.__version__, u'0.5.0')
+        self.assertEqual(epub.__version__, '0.5.0')
 
     def test_open(self):
         test_path = os.path.join(os.path.dirname(__file__), self.epub_path)
         book = epub.open(test_path)
 
-        self.assertEqual(book.opf_path, u'OEBPS/content.opf')
-        self.assertEqual(book.content_path, u'OEBPS')
-        self.assertEqual(book.opf.metadata.languages, [u'en'])
-        self.assertEqual(book.opf.metadata.titles, [(u'Testing Epub', '')])
+        self.assertEqual(book.opf_path, 'OEBPS/content.opf')
+        self.assertEqual(book.content_path, 'OEBPS')
+        self.assertEqual(book.opf.metadata.languages, ['en'])
+        self.assertEqual(book.opf.metadata.titles, [('Testing Epub', '')])
         self.assertEqual(len(book.opf.manifest), 7)
 
         for key, item in book.opf.manifest.iteritems():
@@ -28,9 +31,9 @@ class TestFunction(unittest.TestCase):
             self.assertIsInstance(item, epub.opf.ManifestItem)
 
         with epub.open(test_path) as with_book:
-            self.assertEqual(with_book.opf.metadata.languages, [u'en'])
+            self.assertEqual(with_book.opf.metadata.languages, ['en'])
             self.assertEqual(with_book.opf.metadata.titles,
-                             [(u'Testing Epub', '')])
+                             [('Testing Epub', '')])
             self.assertEqual(len(with_book.opf.manifest), 7)
             for key, item in with_book.opf.manifest.iteritems():
                 self.assertEqual(item.identifier, key)
@@ -39,8 +42,8 @@ class TestFunction(unittest.TestCase):
 
 class TestFunctionWriteMode(unittest.TestCase):
 
-    epub_path = u'_data/write/test.epub'
-    xhtml_item_path = u'_data/write/add_item.xhtml'
+    epub_path = '_data/write/test.epub'
+    xhtml_item_path = '_data/write/add_item.xhtml'
 
     def _subtest_add_item(self, book):
         """Test very basic add_item feature.
@@ -49,18 +52,18 @@ class TestFunctionWriteMode(unittest.TestCase):
         that are common to both [w]rite and [a]ppend mode.
         """
         # Test if we realy are in write/append mode
-        self.assertIn(book.mode, [u'a', u'w'])
+        self.assertIn(book.mode, ['a', 'w'])
 
         filename = os.path.join(os.path.dirname(__file__),
                                 self.xhtml_item_path)
-        manifest_item = epub.opf.ManifestItem(identifier=u'AddItem0001',
-                                              href=u'Text/add_item.xhtml',
+        manifest_item = epub.opf.ManifestItem(identifier='AddItem0001',
+                                              href='Text/add_item.xhtml',
                                               media_type=TEST_XHTML_MIMETYPE)
         book.add_item(filename, manifest_item, True)
 
-        with open(filename, u'r') as f:
-            expected_data = f.read().decode(u'utf-8')
-        result_data = book.read_item(manifest_item).decode(u'utf-8')
+        with open(filename, 'r') as f:
+            expected_data = f.read().decode('utf-8')
+        result_data = book.read_item(manifest_item).decode('utf-8')
 
         self.assertIn(manifest_item, book.opf.manifest)
         self.assertEqual(result_data, expected_data)
@@ -86,9 +89,9 @@ class TestFunctionWriteModeNew(TestFunctionWriteMode):
                                              self.epub_path)
 
         # test that the file is correctly open in [a]ppend mode.
-        book = epub.open(working_copy_filename, u'w')
-        self.assertEqual(book.opf_path, u'OEBPS/content.opf')
-        self.assertEqual(book.content_path, u'OEBPS')
+        book = epub.open(working_copy_filename, 'w')
+        self.assertEqual(book.opf_path, 'OEBPS/content.opf')
+        self.assertEqual(book.content_path, 'OEBPS')
         self.assertEqual(book.opf.metadata.languages, [])
         self.assertEqual(book.opf.metadata.titles, [])
         self.assertEqual(len(book.opf.manifest), 1)
@@ -102,8 +105,8 @@ class TestFunctionWriteModeNew(TestFunctionWriteMode):
 
 class TestFunctionWriteModeAppend(TestFunctionWriteMode):
 
-    epub_source = u'_data/write/source.epub'
-    epub_empty = u'_data/write/test_empty.epub'
+    epub_source = '_data/write/source.epub'
+    epub_empty = '_data/write/test_empty.epub'
 
     def setUp(self):
         """Create a copy of source epub."""
@@ -112,7 +115,7 @@ class TestFunctionWriteModeAppend(TestFunctionWriteMode):
         working_copy_filename = os.path.join(os.path.dirname(__file__),
                                              self.epub_path)
         with open(source_filename) as source:
-            with open(working_copy_filename, u'w') as working_copy:
+            with open(working_copy_filename, 'w') as working_copy:
                 working_copy.write(source.read())
 
         self._clean_files()
@@ -137,11 +140,11 @@ class TestFunctionWriteModeAppend(TestFunctionWriteMode):
                                              self.epub_path)
 
         # test that the file is correctly open in [a]ppend mode.
-        book = epub.open(working_copy_filename, u'a')
-        self.assertEqual(book.opf_path, u'OEBPS/content.opf')
-        self.assertEqual(book.content_path, u'OEBPS')
-        self.assertEqual(book.opf.metadata.languages, [u'fr'])
-        self.assertEqual(book.opf.metadata.titles, [(u'Il était une fois...', '')])
+        book = epub.open(working_copy_filename, 'a')
+        self.assertEqual(book.opf_path, 'OEBPS/content.opf')
+        self.assertEqual(book.content_path, 'OEBPS')
+        self.assertEqual(book.opf.metadata.languages, ['fr'])
+        self.assertEqual(book.opf.metadata.titles, [('Il était une fois...', '')])
         self.assertEqual(len(book.opf.manifest), 2)
         # 4 meta files: mimetype, container.xml, content.opf, toc.ncx,
         # 1 content file: Section0001.xhtml
@@ -155,9 +158,9 @@ class TestFunctionWriteModeAppend(TestFunctionWriteMode):
                                              self.epub_empty)
 
         # test that the file is correctly open in [a]ppend mode.
-        book = epub.open(working_copy_filename, u'a')
-        self.assertEqual(book.opf_path, u'OEBPS/content.opf')
-        self.assertEqual(book.content_path, u'OEBPS')
+        book = epub.open(working_copy_filename, 'a')
+        self.assertEqual(book.opf_path, 'OEBPS/content.opf')
+        self.assertEqual(book.content_path, 'OEBPS')
         self.assertEqual(book.opf.metadata.languages, [])
         self.assertEqual(book.opf.metadata.titles, [])
         self.assertEqual(len(book.opf.manifest), 1)
@@ -172,7 +175,7 @@ class TestFunctionWriteModeAppend(TestFunctionWriteMode):
 class TestEpubFile(unittest.TestCase):
     """Test class for epub.EpubFile class"""
 
-    epub_path = u'_data/test.epub'
+    epub_path = '_data/test.epub'
 
     def setUp(self):
         test_path = os.path.join(os.path.dirname(__file__), self.epub_path)
@@ -185,26 +188,26 @@ class TestEpubFile(unittest.TestCase):
         """Check EpubFile.get_item() return an EpubManifestItem by its id"""
         item = self.epub_file.get_item('Section0002.xhtml')
         self.assertIsInstance(item, epub.opf.ManifestItem,
-                              u'L\'item retourné doit être un objet de type <epub.opf.ManifestItem>')
-        self.assertEqual(item.identifier, u'Section0002.xhtml', u'id attendu incorrect.')
-        self.assertEqual(item.href, u'Text/Section0002.xhtml',
-                         u'href attendu incorrect.')
+                              'L\'item retourné doit être un objet de type <epub.opf.ManifestItem>')
+        self.assertEqual(item.identifier, 'Section0002.xhtml', 'id attendu incorrect.')
+        self.assertEqual(item.href, 'Text/Section0002.xhtml',
+                         'href attendu incorrect.')
 
-        self.assertEqual(self.epub_file.get_item(u'BadId'), None)
+        self.assertEqual(self.epub_file.get_item('BadId'), None)
 
     def test_get_item_by_ref(self):
         """Check EpubFile.get_item() return an EpubManifestItem by its href"""
-        item = self.epub_file.get_item_by_href(u'Text/Section0002.xhtml')
+        item = self.epub_file.get_item_by_href('Text/Section0002.xhtml')
         self.assertIsInstance(item, epub.opf.ManifestItem,
-                              u'L\'item retourné doit être un objet de type <epub.opf.ManifestItem>')
-        self.assertEqual(item.identifier, u'Section0002.xhtml', u'id attendu incorrect.')
-        self.assertEqual(item.href, u'Text/Section0002.xhtml',
-                         u'href attendu incorrect.')
+                              'L\'item retourné doit être un objet de type <epub.opf.ManifestItem>')
+        self.assertEqual(item.identifier, 'Section0002.xhtml', 'id attendu incorrect.')
+        self.assertEqual(item.href, 'Text/Section0002.xhtml',
+                         'href attendu incorrect.')
 
-        self.assertEqual(self.epub_file.get_item_by_href(u'BadHref'), None)
+        self.assertEqual(self.epub_file.get_item_by_href('BadHref'), None)
 
         # Change only Id, so there is 2 item with the same href attribute
-        item.identifier = u'CopyOfSection0002.xhtml'
+        item.identifier = 'CopyOfSection0002.xhtml'
         self.epub_file.opf.manifest.append(item)
 
         with self.assertRaises(LookupError):
@@ -213,24 +216,24 @@ class TestEpubFile(unittest.TestCase):
     def test_add_item_fail(self):
         """When open in read-only mode, add_item must fail."""
         with self.assertRaises(IOError):
-            filename = u'_data/write/add_item.xhtml'
-            manifest_item = epub.opf.ManifestItem(identifier=u'AddItem0001',
-                                                  href=u'Text/add_item.xhtml',
+            filename = '_data/write/add_item.xhtml'
+            manifest_item = epub.opf.ManifestItem(identifier='AddItem0001',
+                                                  href='Text/add_item.xhtml',
                                                   media_type=TEST_XHTML_MIMETYPE)
             self.epub_file.add_item(filename, manifest_item)
 
         self.epub_file.close()
         with self.assertRaises(RuntimeError):
-            filename = u'_data/write/add_item.xhtml'
-            manifest_item = epub.opf.ManifestItem(identifier=u'AddItem0001',
-                                                  href=u'Text/add_item.xhtml',
+            filename = '_data/write/add_item.xhtml'
+            manifest_item = epub.opf.ManifestItem(identifier='AddItem0001',
+                                                  href='Text/add_item.xhtml',
                                                   media_type=TEST_XHTML_MIMETYPE)
             self.epub_file.add_item(filename, manifest_item)
 
 
 class TestBook(unittest.TestCase):
 
-    epub_path = u'_data/test.epub'
+    epub_path = '_data/test.epub'
 
     def setUp(self):
         test_path = os.path.join(os.path.dirname(__file__), self.epub_path)

@@ -20,42 +20,42 @@ except ImportError:
         from ordereddict import OrderedDict
     except ImportError:
         raise ImportError(
-            u'You should use Python 2.7 or install `ordereddict` from pypi.')
+            'You should use Python 2.7 or install `ordereddict` from pypi.')
 
 
-XMLNS_DC = u'http://purl.org/dc/elements/1.1/'
-XMLNS_OPF = u'http://www.idpf.org/2007/opf'
+XMLNS_DC = 'http://purl.org/dc/elements/1.1/'
+XMLNS_OPF = 'http://www.idpf.org/2007/opf'
 
 
 def parse_opf(xml_string):
     package = minidom.parseString(xml_string).documentElement
 
     # Get Uid
-    uid_id = package.getAttribute(u'unique-identifier')
+    uid_id = package.getAttribute('unique-identifier')
 
     # Store each child nodes into a dict (metadata, manifest, spine, guide)
-    data = {u'metadata': None,
-            u'manifest': None,
-            u'spine': None,
-            u'guide': None}
+    data = {'metadata': None,
+            'manifest': None,
+            'spine': None,
+            'guide': None}
     elements = [e for e in package.childNodes if e.nodeType == e.ELEMENT_NODE]
     for node in elements:
         data[node.tagName.lower()] = node
 
     # Inspect metadata
-    metadata = _parse_xml_metadata(data[u'metadata'])
+    metadata = _parse_xml_metadata(data['metadata'])
 
     # Inspect manifest
-    manifest = _parse_xml_manifest(data[u'manifest'])
+    manifest = _parse_xml_manifest(data['manifest'])
 
     # Inspect spine
-    spine = _parse_xml_spine(data[u'spine'])
+    spine = _parse_xml_spine(data['spine'])
 
     # Inspect guide if exist
-    if data[u'guide'] is None:
+    if data['guide'] is None:
         guide = None
     else:
-        guide = _parse_xml_guide(data[u'guide'])
+        guide = _parse_xml_guide(data['guide'])
 
     opf = Opf(uid_id=uid_id,
               metadata=metadata,
@@ -73,77 +73,77 @@ def _parse_xml_metadata(element):
     """
     metadata = Metadata()
 
-    for node in element.getElementsByTagName(u'dc:title'):
+    for node in element.getElementsByTagName('dc:title'):
         node.normalize()
         metadata.add_title(node.firstChild.data.strip(),
-                           node.getAttribute(u'xml:lang'))
+                           node.getAttribute('xml:lang'))
 
-    for node in element.getElementsByTagName(u'dc:creator'):
+    for node in element.getElementsByTagName('dc:creator'):
         node.normalize()
         metadata.add_creator(node.firstChild.data.strip(),
-                         node.getAttribute(u'opf:role'),
-                         node.getAttribute(u'opf:file-as'))
+                         node.getAttribute('opf:role'),
+                         node.getAttribute('opf:file-as'))
 
-    for node in element.getElementsByTagName(u'dc:subject'):
+    for node in element.getElementsByTagName('dc:subject'):
         node.normalize()
         metadata.add_subject(node.firstChild.data.strip())
 
-    for node in element.getElementsByTagName(u'dc:description'):
+    for node in element.getElementsByTagName('dc:description'):
         node.normalize()
         metadata.description = node.firstChild.data.strip()
 
-    for node in element.getElementsByTagName(u'dc:publisher'):
+    for node in element.getElementsByTagName('dc:publisher'):
         node.normalize()
         metadata.publisher = node.firstChild.data.strip()
 
-    for node in element.getElementsByTagName(u'dc:contributor'):
+    for node in element.getElementsByTagName('dc:contributor'):
         node.normalize()
         metadata.add_contributor(node.firstChild.data.strip(),
-                             node.getAttribute(u'opf:role'),
-                             node.getAttribute(u'opf:file-as'))
+                             node.getAttribute('opf:role'),
+                             node.getAttribute('opf:file-as'))
 
-    for node in element.getElementsByTagName(u'dc:date'):
+    for node in element.getElementsByTagName('dc:date'):
         node.normalize()
         metadata.add_date(node.firstChild.data.strip(),
-                          node.getAttribute(u'opf:event'))
+                          node.getAttribute('opf:event'))
 
-    for node in element.getElementsByTagName(u'dc:type'):
+    for node in element.getElementsByTagName('dc:type'):
         node.normalize()
         metadata.dc_type = node.firstChild.data.strip()
 
-    for node in element.getElementsByTagName(u'dc:format'):
+    for node in element.getElementsByTagName('dc:format'):
         node.normalize()
         metadata.format = node.firstChild.data.strip()
 
-    for node in element.getElementsByTagName(u'dc:identifier'):
+    for node in element.getElementsByTagName('dc:identifier'):
         node.normalize()
         metadata.add_identifier(node.firstChild.data.strip(),
-                            node.getAttribute(u'id'),
-                            node.getAttribute(u'opf:scheme'))
+                            node.getAttribute('id'),
+                            node.getAttribute('opf:scheme'))
 
-    for node in element.getElementsByTagName(u'dc:source'):
+    for node in element.getElementsByTagName('dc:source'):
         node.normalize()
         metadata.source = node.firstChild.data.strip()
 
-    for node in element.getElementsByTagName(u'dc:language'):
+    for node in element.getElementsByTagName('dc:language'):
         node.normalize()
         metadata.add_language(node.firstChild.data.strip())
 
-    for node in element.getElementsByTagName(u'dc:relation'):
+    for node in element.getElementsByTagName('dc:relation'):
         node.normalize()
         metadata.relation = node.firstChild.data.strip()
 
-    for node in element.getElementsByTagName(u'dc:coverage'):
+    for node in element.getElementsByTagName('dc:coverage'):
         node.normalize()
         metadata.coverage = node.firstChild.data.strip()
 
-    for node in element.getElementsByTagName(u'dc:rights'):
+    for node in element.getElementsByTagName('dc:rights'):
         node.normalize()
         metadata.right = node.firstChild.data.strip()
 
-    for node in element.getElementsByTagName(u'meta'):
-        metadata.add_meta(node.getAttribute(u'name'),
-                      node.getAttribute(u'content'))
+    for node in element.getElementsByTagName('meta'):
+        metadata.add_meta(node.getAttribute('name'),
+                      node.getAttribute('content'))
 
     return metadata
 
@@ -153,14 +153,14 @@ def _parse_xml_manifest(element):
     epub.EpubManifestItem object."""
 
     manifest = Manifest()
-    for e in element.getElementsByTagName(u'item'):
-        manifest.add_item(e.getAttribute(u'id'),
-                          e.getAttribute(u'href'),
-                          e.getAttribute(u'media-type'),
-                          e.getAttribute(u'fallback'),
-                          e.getAttribute(u'required-namespace'),
-                          e.getAttribute(u'required-modules'),
-                          e.getAttribute(u'fallback-style'))
+    for e in element.getElementsByTagName('item'):
+        manifest.add_item(e.getAttribute('id'),
+                          e.getAttribute('href'),
+                          e.getAttribute('media-type'),
+                          e.getAttribute('fallback'),
+                          e.getAttribute('required-namespace'),
+                          e.getAttribute('required-modules'),
+                          e.getAttribute('fallback-style'))
     return manifest
 
 
@@ -168,10 +168,10 @@ def _parse_xml_spine(element):
     """Inspect an xml.dom.Element <spine> and return epub.opf.Spine object"""
 
     spine = Spine()
-    spine.toc = element.getAttribute(u'toc')
-    for e in element.getElementsByTagName(u'itemref'):
-        spine.add_itemref(e.getAttribute(u'idref'),
-                          e.getAttribute(u'linear').lower() != u'no')
+    spine.toc = element.getAttribute('toc')
+    for e in element.getElementsByTagName('itemref'):
+        spine.add_itemref(e.getAttribute('idref'),
+                          e.getAttribute('linear').lower() != 'no')
     return spine
 
 
@@ -179,10 +179,10 @@ def _parse_xml_guide(element):
     """Inspect an xml.dom.Element <guide> and return a list of ref as tuple."""
 
     guide = Guide()
-    for e in element.getElementsByTagName(u'reference'):
-        guide.add_reference(e.getAttribute(u'href'),
-                            e.getAttribute(u'type'),
-                            e.getAttribute(u'title'))
+    for e in element.getElementsByTagName('reference'):
+        guide.add_reference(e.getAttribute('href'),
+                            e.getAttribute('type'),
+                            e.getAttribute('title'))
     return guide
 
 
@@ -191,7 +191,7 @@ class Opf(object):
 
     OPF is an xml formated file, used in the epub spec."""
 
-    def __init__(self, uid_id=None, version=u'2.0', xmlns=XMLNS_OPF,
+    def __init__(self, uid_id=None, version='2.0', xmlns=XMLNS_OPF,
                  metadata=None, manifest=None, spine=None, guide=None):
         self.uid_id = uid_id
         self.version = version
@@ -216,10 +216,10 @@ class Opf(object):
 
     def as_xml_document(self):
         doc = minidom.Document()
-        package = doc.createElement(u'package')
-        package.setAttribute(u'version', self.version)
-        package.setAttribute(u'unique-identifier', self.uid_id)
-        package.setAttribute(u'xmlns', self.xmlns)
+        package = doc.createElement('package')
+        package.setAttribute('version', self.version)
+        package.setAttribute('unique-identifier', self.uid_id)
+        package.setAttribute('xmlns', self.xmlns)
         package.appendChild(self.metadata.as_xml_element())
         package.appendChild(self.manifest.as_xml_element())
         package.appendChild(self.spine.as_xml_element())
@@ -251,22 +251,22 @@ class Metadata(object):
         self.right = None
         self.metas = []
 
-    def add_title(self, title, lang=u''):
+    def add_title(self, title, lang=''):
         self.titles.append((title, lang))
 
-    def add_creator(self, name, role=u'aut', file_as=u''):
+    def add_creator(self, name, role='aut', file_as=''):
         self.creators.append((name, role, file_as))
 
     def add_subject(self, subject):
         self.subjects.append(subject)
 
-    def add_contributor(self, name, role=u'oth', file_as=u''):
+    def add_contributor(self, name, role='oth', file_as=''):
         self.contributors.append((name, role, file_as))
 
-    def add_date(self, date, event=u''):
+    def add_date(self, date, event=''):
         self.dates.append((date, event))
 
-    def add_identifier(self, content, identifier=u'', scheme=u''):
+    def add_identifier(self, content, identifier='', scheme=''):
         self.identifiers.append((content, identifier, scheme))
 
     def add_language(self, lang):
@@ -276,7 +276,7 @@ class Metadata(object):
         self.metas.append((name, content))
 
     def get_isbn(self):
-        l = [x[0] for x in self.identifiers if x[2].lower() == u'isbn']
+        l = [x[0] for x in self.identifiers if x[2].lower() == 'isbn']
         isbn = None
         if l:
             isbn = l[0]
@@ -285,105 +285,105 @@ class Metadata(object):
     def as_xml_element(self):
         """Return an xml dom Element node."""
         doc = minidom.Document()
-        metadata = doc.createElement(u'metadata')
-        metadata.setAttribute(u'xmlns:dc', XMLNS_DC)
-        metadata.setAttribute(u'xmlns:opf', XMLNS_OPF)
+        metadata = doc.createElement('metadata')
+        metadata.setAttribute('xmlns:dc', XMLNS_DC)
+        metadata.setAttribute('xmlns:opf', XMLNS_OPF)
 
         for text, lang in self.titles:
-            title = doc.createElement(u'dc:title')
+            title = doc.createElement('dc:title')
             if lang:
-                title.setAttribute(u'xml:lang', lang)
+                title.setAttribute('xml:lang', lang)
             title.appendChild(doc.createTextNode(text))
             metadata.appendChild(title)
 
         for name, role, file_as in self.creators:
-            creator = doc.createElement(u'dc:creator')
+            creator = doc.createElement('dc:creator')
             if role:
-                creator.setAttribute(u'opf:role', role)
+                creator.setAttribute('opf:role', role)
             if file_as:
-                creator.setAttribute(u'opf:file-as', file_as)
+                creator.setAttribute('opf:file-as', file_as)
             creator.appendChild(doc.createTextNode(name))
             metadata.appendChild(creator)
 
         for text in self.subjects:
-            subject = doc.createElement(u'dc:subject')
+            subject = doc.createElement('dc:subject')
             subject.appendChild(doc.createTextNode(text))
             metadata.appendChild(subject)
 
         if self.description:
-            description = doc.createElement(u'dc:description')
+            description = doc.createElement('dc:description')
             description.appendChild(doc.createTextNode(self.description))
             metadata.appendChild(description)
 
         if self.publisher:
-            publisher = doc.createElement(u'dc:publisher')
+            publisher = doc.createElement('dc:publisher')
             publisher.appendChild(doc.createTextNode(self.publisher))
             metadata.appendChild(publisher)
 
         for name, role, file_as in self.contributors:
-            contributor = doc.createElement(u'dc:contributor')
+            contributor = doc.createElement('dc:contributor')
             if role:
-                contributor.setAttribute(u'opf:role', role)
+                contributor.setAttribute('opf:role', role)
             if file_as:
-                contributor.setAttribute(u'opf:file-as', file_as)
+                contributor.setAttribute('opf:file-as', file_as)
             contributor.appendChild(doc.createTextNode(name))
             metadata.appendChild(contributor)
 
         for text, event in self.dates:
-            date = doc.createElement(u'dc:date')
+            date = doc.createElement('dc:date')
             if event:
-                date.setAttribute(u'opf:event', event)
+                date.setAttribute('opf:event', event)
             date.appendChild(doc.createTextNode(text))
             metadata.appendChild(date)
 
         if self.dc_type:
-            dc_type = doc.createElement(u'dc:type')
+            dc_type = doc.createElement('dc:type')
             dc_type.appendChild(doc.createTextNode(self.dc_type))
             metadata.appendChild(dc_type)
 
         if self.format:
-            dc_format = doc.createElement(u'dc:format')
+            dc_format = doc.createElement('dc:format')
             dc_format.appendChild(doc.createTextNode(self.format))
             metadata.appendChild(dc_format)
 
         for text, identifier, scheme in self.identifiers:
-            dc_identifier = doc.createElement(u'dc:identifier')
+            dc_identifier = doc.createElement('dc:identifier')
             if identifier:
-                dc_identifier.setAttribute(u'id', identifier)
+                dc_identifier.setAttribute('id', identifier)
             if scheme:
-                dc_identifier.setAttribute(u'opf:scheme', scheme)
+                dc_identifier.setAttribute('opf:scheme', scheme)
             dc_identifier.appendChild(doc.createTextNode(text))
             metadata.appendChild(dc_identifier)
 
         if self.source:
-            source = doc.createElement(u'dc:source')
+            source = doc.createElement('dc:source')
             source.appendChild(doc.createTextNode(self.source))
             metadata.appendChild(source)
 
         for text in self.languages:
-            language = doc.createElement(u'dc:language')
+            language = doc.createElement('dc:language')
             language.appendChild(doc.createTextNode(text))
             metadata.appendChild(language)
 
         if self.relation:
-            relation = doc.createElement(u'dc:relation')
+            relation = doc.createElement('dc:relation')
             relation.appendChild(doc.createTextNode(self.relation))
             metadata.appendChild(relation)
 
         if self.coverage:
-            coverage = doc.createElement(u'dc:coverage')
+            coverage = doc.createElement('dc:coverage')
             coverage.appendChild(doc.createTextNode(self.coverage))
             metadata.appendChild(coverage)
 
         if self.right:
-            right = doc.createElement(u'dc:rights')
+            right = doc.createElement('dc:rights')
             right.appendChild(doc.createTextNode(self.right))
             metadata.appendChild(right)
 
         for name, content in self.metas:
-            meta = doc.createElement(u'meta')
-            meta.setAttribute(u'name', name)
-            meta.setAttribute(u'content', content)
+            meta = doc.createElement('meta')
+            meta.setAttribute('name', name)
+            meta.setAttribute('content', content)
             metadata.appendChild(meta)
 
         return metadata
@@ -392,20 +392,20 @@ class Metadata(object):
 class Manifest(OrderedDict):
 
     def __contains__(self, item):
-        if hasattr(item, u'identifier'):
+        if hasattr(item, 'identifier'):
             return super(Manifest, self).__contains__(item.identifier)
         else:
             return super(Manifest, self).__contains__(item)
 
     def __setitem__(self, key, value):
-        if hasattr(value, u'identifier') and hasattr(value, u'href'):
+        if hasattr(value, 'identifier') and hasattr(value, 'href'):
             if value.identifier == key:
                 super(Manifest, self).__setitem__(key, value)
             else:
-                raise ValueError(u'Value\'s id is different from insert key.')
+                raise ValueError('Value\'s id is different from insert key.')
         else:
-            requierements = u'id and href attributes'
-            msg = u'Value does not fit the requirement (%s).' % requierements
+            requierements = 'id and href attributes'
+            msg = 'Value does not fit the requirement (%s).' % requierements
             raise ValueError(msg)
 
     def add_item(self, identifier, href, media_type=None, fallback=None,
@@ -417,18 +417,18 @@ class Manifest(OrderedDict):
         self.append(item)
 
     def append(self, item):
-        if hasattr(item, u'identifier') and \
-           hasattr(item, u'href') and \
-           hasattr(item, u'as_xml_element'):
+        if hasattr(item, 'identifier') and \
+           hasattr(item, 'href') and \
+           hasattr(item, 'as_xml_element'):
             self.__setitem__(item.identifier, item)
         else:
-            raise ValueError(u'Manifest item must have [identifier, href, ' + \
-                             u'as_xml_element()] attributes and method.')
+            raise ValueError('Manifest item must have [identifier, href, ' + \
+                             'as_xml_element()] attributes and method.')
 
     def as_xml_element(self):
         """Return an xml dom Element node."""
         doc = minidom.Document()
-        manifest = doc.createElement(u'manifest')
+        manifest = doc.createElement('manifest')
 
         for item in self.itervalues():
             manifest.appendChild(item.as_xml_element())
@@ -453,20 +453,20 @@ class ManifestItem(object):
     def as_xml_element(self):
         """Return an xml dom Element node."""
 
-        item = minidom.Document().createElement(u"item")
+        item = minidom.Document().createElement("item")
 
-        item.setAttribute(u'id', self.identifier)
-        item.setAttribute(u'href', self.href)
+        item.setAttribute('id', self.identifier)
+        item.setAttribute('href', self.href)
         if self.media_type:
-            item.setAttribute(u'media-type', self.media_type)
+            item.setAttribute('media-type', self.media_type)
         if self.fallback:
-            item.setAttribute(u'fallback', self.fallback)
+            item.setAttribute('fallback', self.fallback)
         if self.required_namespace:
-            item.setAttribute(u'required-namespace', self.required_namespace)
+            item.setAttribute('required-namespace', self.required_namespace)
         if self.required_modules:
-            item.setAttribute(u'required-modules', self.required_modules)
+            item.setAttribute('required-modules', self.required_modules)
         if self.fallback_style:
-            item.setAttribute(u'fallback-style', self.fallback_style)
+            item.setAttribute('fallback-style', self.fallback_style)
 
         return item
 
@@ -488,14 +488,14 @@ class Spine(object):
 
     def as_xml_element(self):
         doc = minidom.Document()
-        spine = doc.createElement(u'spine')
-        spine.setAttribute(u'toc', self.toc)
+        spine = doc.createElement('spine')
+        spine.setAttribute('toc', self.toc)
 
         for idref, linear in self.itemrefs:
-            itemref = doc.createElement(u'itemref')
-            itemref.setAttribute(u'idref', idref)
+            itemref = doc.createElement('itemref')
+            itemref.setAttribute('idref', idref)
             if not linear:
-                itemref.setAttribute(u'linear', u'no')
+                itemref.setAttribute('linear', 'no')
             spine.appendChild(itemref)
 
         return spine
@@ -514,16 +514,16 @@ class Guide(object):
 
     def as_xml_element(self):
         doc = minidom.Document()
-        guide = doc.createElement(u'guide')
+        guide = doc.createElement('guide')
 
         for href, ref_type, title in self.references:
-            reference = doc.createElement(u'reference')
+            reference = doc.createElement('reference')
             if type:
-                reference.setAttribute(u'type', ref_type)
+                reference.setAttribute('type', ref_type)
             if title:
-                reference.setAttribute(u'title', title)
+                reference.setAttribute('title', title)
             if href:
-                reference.setAttribute(u'href', href)
+                reference.setAttribute('href', href)
             guide.appendChild(reference)
 
         return guide
