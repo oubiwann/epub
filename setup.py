@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 from distutils.core import setup
 
 
@@ -14,9 +15,10 @@ setup(name='epub',
       author_email='florian.strzelecki@gmail.com',
       license='LGPL',
       url='http://epub.exirel.me',
-      packages=['epub',],
+      packages=['epub'],
       classifiers=['Development Status :: 4 - Beta',
-                  'Intended Audience :: Developers',
-                  'License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)',
-                  'Programming Language :: Python :: 2.7',
-                  'Topic :: Software Development :: Libraries :: Python Modules'])
+                   'Intended Audience :: Developers',
+                   'License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)',
+                   'Programming Language :: Python :: 2.7',
+                   'Programming Language :: Python :: 3.2',
+                   'Topic :: Software Development :: Libraries :: Python Modules'])

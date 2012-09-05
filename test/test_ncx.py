@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import unicode_literals
+
 import os
 import unittest
 
@@ -13,7 +15,7 @@ import epub
 class TestFunction(unittest.TestCase):
     """Test case for all the _parse_* function."""
 
-    ncx_path = u'_data/test.ncx'
+    ncx_path = '_data/test.ncx'
 
     def test_parse_toc(self):
         test_path = os.path.join(os.path.dirname(__file__), self.ncx_path)
@@ -22,107 +24,107 @@ class TestFunction(unittest.TestCase):
         toc = epub.ncx.parse_toc(xml_string)
 
         self.assertEqual(toc.xmlns,
-                         u'http://www.daisy.org/z3986/2005/ncx/')
+                         'http://www.daisy.org/z3986/2005/ncx/')
         self.assertEqual(toc.version,
-                         u'2005-1')
-        self.assertEqual(toc.lang, u'en-US')
+                         '2005-1')
+        self.assertEqual(toc.lang, 'en-US')
         self.assertEqual(toc.title,
-                         u'Selections from "Great Pictures, As Seen and Described by Famous Writers"')
+                         'Selections from "Great Pictures, As Seen and Described by Famous Writers"')
         self.assertEqual(toc.authors,
-                         [u'Esther Singleton',
-                          u'Test Author'])
+                         ['Esther Singleton',
+                          'Test Author'])
         self.assertEqual(toc.uid,
-                         u'org-example-5059463624137734586')
+                         'org-example-5059463624137734586')
         # nav map
         self.assertIsInstance(toc.nav_map, epub.ncx.NavMap)
         self.assertEqual(len(toc.nav_map.nav_point), 2,
-                         u'Il manque des nav_point !')
+                         'Il manque des nav_point !')
         # page list
         self.assertIsInstance(toc.page_list, epub.ncx.PageList)
         self.assertEqual(len(toc.page_list.page_target), 2,
-                         u'Il manque des page_target !')
+                         'Il manque des page_target !')
         # nav list
         self.assertEqual(len(toc.nav_lists), 1,
-                         u'Il manque des nav_list !')
+                         'Il manque des nav_list !')
         self.assertIsInstance(toc.nav_lists[0], epub.ncx.NavList)
         self.assertEqual(len(toc.nav_lists[0].nav_target), 2,
-                         u'Il manque des page_target !')
+                         'Il manque des page_target !')
 
     def test_parse_for_text_tag(self):
         """Test function "_parse_for_text_tag"."""
 
-        xml_string = u"""
+        xml_string = """
         <someTag>
             <text>La balise "text" par défaut.</text>
         </someTag>
         """
-        xml_element = minidom.parseString(xml_string.encode(u'utf-8')).documentElement
+        xml_element = minidom.parseString(xml_string.encode('utf-8')).documentElement
         text = epub.ncx._parse_for_text_tag(xml_element)
-        self.assertEqual(text, u'La balise "text" par défaut.')
+        self.assertEqual(text, 'La balise "text" par défaut.')
 
-        xml_string = u"""
+        xml_string = """
         <someTag>
             <otherTag>La balise "otherTag" par le paramètre "name".</otherTag>
         </someTag>
         """
-        xml_element = minidom.parseString(xml_string.encode(u'utf-8')).documentElement
-        text = epub.ncx._parse_for_text_tag(xml_element, u'otherTag')
-        self.assertEqual(text, u'La balise "otherTag" par le paramètre "name".')
+        xml_element = minidom.parseString(xml_string.encode('utf-8')).documentElement
+        text = epub.ncx._parse_for_text_tag(xml_element, 'otherTag')
+        self.assertEqual(text, 'La balise "otherTag" par le paramètre "name".')
 
-        xml_string = u"""
+        xml_string = """
         <someTag>
             <text>Mauvaise balise !</text>
             <textOk>Bonne balise !</textOk>
         </someTag>
         """
-        xml_element = minidom.parseString(xml_string.encode(u'utf-8')).documentElement
-        text = epub.ncx._parse_for_text_tag(xml_element, u'textOk')
-        self.assertEqual(text, u'Bonne balise !')
+        xml_element = minidom.parseString(xml_string.encode('utf-8')).documentElement
+        text = epub.ncx._parse_for_text_tag(xml_element, 'textOk')
+        self.assertEqual(text, 'Bonne balise !')
 
-        xml_string = u"""
+        xml_string = """
         <someTag>
             <text>Première balise uniquement...</text>
             <text>Pas la seconde !</text>
         </someTag>
         """
-        xml_element = minidom.parseString(xml_string.encode(u'utf-8')).documentElement
+        xml_element = minidom.parseString(xml_string.encode('utf-8')).documentElement
         text = epub.ncx._parse_for_text_tag(xml_element)
-        self.assertEqual(text, u'Première balise uniquement...')
+        self.assertEqual(text, 'Première balise uniquement...')
 
-        xml_string = u"""
+        xml_string = """
         <someTag>
             <text>Je ne cherche pas "text" !</text>
         </someTag>
         """
-        xml_element = minidom.parseString(xml_string.encode(u'utf-8')).documentElement
-        text = epub.ncx._parse_for_text_tag(xml_element, u'noText')
-        self.assertEqual(text, u'', u'Il ne devrait pas y avoir de résultat !')
+        xml_element = minidom.parseString(xml_string.encode('utf-8')).documentElement
+        text = epub.ncx._parse_for_text_tag(xml_element, 'noText')
+        self.assertEqual(text, '', 'Il ne devrait pas y avoir de résultat !')
 
-        xml_string = u"""
+        xml_string = """
         <someTag>
             <text>
                 Du texte avec espace et retour à la ligne.
             </text>
         </someTag>
         """
-        xml_element = minidom.parseString(xml_string.encode(u'utf-8')).documentElement
+        xml_element = minidom.parseString(xml_string.encode('utf-8')).documentElement
         text = epub.ncx._parse_for_text_tag(xml_element)
-        self.assertEqual(text, u'Du texte avec espace et retour à la ligne.',
-                         u'Il ne devrait pas y avoir de différence !')
+        self.assertEqual(text, 'Du texte avec espace et retour à la ligne.',
+                         'Il ne devrait pas y avoir de différence !')
 
-        xml_string = u"""
+        xml_string = """
         <someTag>
             <emptyText />
         </someTag>
         """
-        xml_element = minidom.parseString(xml_string.encode(u'utf-8')).documentElement
-        text = epub.ncx._parse_for_text_tag(xml_element, u'emptyText')
-        self.assertEqual(text, u'')
+        xml_element = minidom.parseString(xml_string.encode('utf-8')).documentElement
+        text = epub.ncx._parse_for_text_tag(xml_element, 'emptyText')
+        self.assertEqual(text, '')
 
     def test_parse_xml_nav_target(self):
         """Test function "_parse_xml_nav_target"."""
 
-        xml_string = u"""
+        xml_string = """
         <navTarget playOrder="5"
                    id="part1_target-fragment"
                    value="5"
@@ -131,32 +133,32 @@ class TestFunction(unittest.TestCase):
             <content src="Text/part1.xhtml#target-fragment" />
         </navTarget>
         """
-        xml_element = minidom.parseString(xml_string.encode(u'utf-8')).documentElement
+        xml_element = minidom.parseString(xml_string.encode('utf-8')).documentElement
         nav_target = epub.ncx._parse_xml_nav_target(xml_element)
         self.assertIsInstance(nav_target, epub.ncx.NavTarget)
-        self.assertEqual(nav_target.identifier, u'part1_target-fragment')
-        self.assertEqual(nav_target.value, u'5')
-        self.assertEqual(nav_target.class_name, u'some_class')
-        self.assertEqual(nav_target.play_order, u'5')
-        self.assertEqual(nav_target.labels, [(u'Label de la Target', u'', u''),])
-        self.assertEqual(nav_target.src, u'Text/part1.xhtml#target-fragment')
+        self.assertEqual(nav_target.identifier, 'part1_target-fragment')
+        self.assertEqual(nav_target.value, '5')
+        self.assertEqual(nav_target.class_name, 'some_class')
+        self.assertEqual(nav_target.play_order, '5')
+        self.assertEqual(nav_target.labels, [('Label de la Target', '', ''),])
+        self.assertEqual(nav_target.src, 'Text/part1.xhtml#target-fragment')
 
-        xml_string = u"""
+        xml_string = """
         <navTarget>
             <navLabel xml:lang="fr"><text>Label français</text></navLabel>
             <navLabel xml:lang="en"><text>English label</text></navLabel>
             <content src="Text/part1.xhtml#target-fragment" />
         </navTarget>
         """
-        xml_element = minidom.parseString(xml_string.encode(u'utf-8')).documentElement
+        xml_element = minidom.parseString(xml_string.encode('utf-8')).documentElement
         nav_target = epub.ncx._parse_xml_nav_target(xml_element)
-        self.assertEqual(nav_target.labels, [(u'Label français', u'fr', u''),
-                                             (u'English label', u'en', u''),])
+        self.assertEqual(nav_target.labels, [('Label français', 'fr', ''),
+                                             ('English label', 'en', ''),])
 
     def test_parse_xml_nav_list(self):
         """Test function "_parse_xml_nav_list"."""
 
-        xml_string = u"""
+        xml_string = """
         <navList id="navlist-1" class="list_class">
             <navLabel xml:lang="fr"><text>Label français</text></navLabel>
             <navLabel xml:lang="en"><text>English label</text></navLabel>
@@ -178,27 +180,27 @@ class TestFunction(unittest.TestCase):
             </navTarget>
         </navList>
         """
-        xml_element = minidom.parseString(xml_string.encode(u'utf-8')).documentElement
+        xml_element = minidom.parseString(xml_string.encode('utf-8')).documentElement
         nav_list = epub.ncx._parse_xml_nav_list(xml_element)
         self.assertIsInstance(nav_list, epub.ncx.NavList)
-        self.assertEqual(nav_list.identifier, u'navlist-1')
-        self.assertEqual(nav_list.class_name, u'list_class')
-        self.assertEqual(nav_list.labels, [(u'Label français', u'fr', u''),
-                                             (u'English label', u'en', u''),])
-        self.assertEqual(nav_list.infos, [(u'Info de navigation', u'fr', u''),
-                                             (u'Navigation\'s info', u'en', u''),])
+        self.assertEqual(nav_list.identifier, 'navlist-1')
+        self.assertEqual(nav_list.class_name, 'list_class')
+        self.assertEqual(nav_list.labels, [('Label français', 'fr', ''),
+                                             ('English label', 'en', ''),])
+        self.assertEqual(nav_list.infos, [('Info de navigation', 'fr', ''),
+                                             ('Navigation\'s info', 'en', ''),])
         self.assertEqual(len(nav_list.nav_target), 2)
 
         for nav_target in nav_list.nav_target:
             self.assertIsInstance(nav_target, epub.ncx.NavTarget)
-            test_label = u'Label de la Target %s' % nav_target.play_order
+            test_label = 'Label de la Target %s' % nav_target.play_order
             self.assertEqual(nav_target.labels[0],
-                             (test_label, u'', u''))
+                             (test_label, '', ''))
 
     def test_parse_xml_page_target(self):
         """Test function "_parse_xml_page_target"."""
 
-        xml_string = u"""
+        xml_string = """
         <pageTarget playOrder="5"
                    id="part1_target-fragment"
                    value="Some Value"
@@ -208,33 +210,33 @@ class TestFunction(unittest.TestCase):
             <content src="Text/part1.xhtml#target-fragment" />
         </pageTarget>
         """
-        xml_element = minidom.parseString(xml_string.encode(u'utf-8')).documentElement
+        xml_element = minidom.parseString(xml_string.encode('utf-8')).documentElement
         page_target = epub.ncx._parse_xml_page_target(xml_element)
         self.assertIsInstance(page_target, epub.ncx.PageTarget)
-        self.assertEqual(page_target.identifier, u'part1_target-fragment')
-        self.assertEqual(page_target.value, u'Some Value')
-        self.assertEqual(page_target.target_type, u'page_type')
-        self.assertEqual(page_target.class_name, u'some_class')
-        self.assertEqual(page_target.play_order, u'5')
-        self.assertEqual(page_target.labels, [(u'Label de la Target', u'', u''),])
-        self.assertEqual(page_target.src, u'Text/part1.xhtml#target-fragment')
+        self.assertEqual(page_target.identifier, 'part1_target-fragment')
+        self.assertEqual(page_target.value, 'Some Value')
+        self.assertEqual(page_target.target_type, 'page_type')
+        self.assertEqual(page_target.class_name, 'some_class')
+        self.assertEqual(page_target.play_order, '5')
+        self.assertEqual(page_target.labels, [('Label de la Target', '', ''),])
+        self.assertEqual(page_target.src, 'Text/part1.xhtml#target-fragment')
 
-        xml_string = u"""
+        xml_string = """
         <pageTarget>
             <navLabel xml:lang="fr"><text>Label français</text></navLabel>
             <navLabel xml:lang="en"><text>English label</text></navLabel>
             <content src="Text/part1.xhtml#target-fragment" />
         </pageTarget>
         """
-        xml_element = minidom.parseString(xml_string.encode(u'utf-8')).documentElement
+        xml_element = minidom.parseString(xml_string.encode('utf-8')).documentElement
         nav_target = epub.ncx._parse_xml_page_target(xml_element)
-        self.assertEqual(nav_target.labels, [(u'Label français', 'fr', ''),
-                                             (u'English label', 'en', ''),])
+        self.assertEqual(nav_target.labels, [('Label français', 'fr', ''),
+                                             ('English label', 'en', ''),])
 
     def test_parse_xml_page_list(self):
         """Test function "_parse_xml_page_list"."""
         
-        xml_string = u"""
+        xml_string = """
         <pageList id="pagelist-1"
                  class="page_class">
             <navLabel xml:lang="fr"><text>Label français</text></navLabel>
@@ -259,27 +261,27 @@ class TestFunction(unittest.TestCase):
             </pageTarget>
         </pageList>
         """
-        xml_element = minidom.parseString(xml_string.encode(u'utf-8')).documentElement
+        xml_element = minidom.parseString(xml_string.encode('utf-8')).documentElement
         page_list = epub.ncx._parse_xml_page_list(xml_element)
         self.assertIsInstance(page_list, epub.ncx.PageList)
-        self.assertEqual(page_list.identifier, u'pagelist-1')
-        self.assertEqual(page_list.class_name, u'page_class')
-        self.assertEqual(page_list.labels, [(u'Label français', u'fr', u''),
-                                             (u'English label', u'en', u''),])
-        self.assertEqual(page_list.infos, [(u'Info de navigation', u'fr', u''),
-                                             (u'Navigation\'s info', u'en', u''),])
+        self.assertEqual(page_list.identifier, 'pagelist-1')
+        self.assertEqual(page_list.class_name, 'page_class')
+        self.assertEqual(page_list.labels, [('Label français', 'fr', ''),
+                                             ('English label', 'en', ''),])
+        self.assertEqual(page_list.infos, [('Info de navigation', 'fr', ''),
+                                             ('Navigation\'s info', 'en', ''),])
         self.assertEqual(len(page_list.page_target), 2)
 
         for page_target in page_list.page_target:
             self.assertIsInstance(page_target, epub.ncx.PageTarget)
-            test_label = u'Label français %s' % page_target.play_order
+            test_label = 'Label français %s' % page_target.play_order
             self.assertEqual(page_target.labels,
-                             [(test_label, u'fr', u''),])
+                             [(test_label, 'fr', ''),])
 
     def test_parse_xml_nav_point(self):
         """Test function "_parse_xml_nav_point"."""
         
-        xml_string = u"""
+        xml_string = """
         <navPoint playOrder="5"
                    id="point5"
                    class="some_class">
@@ -296,23 +298,23 @@ class TestFunction(unittest.TestCase):
             </navPoint>
         </navPoint>
         """
-        xml_element = minidom.parseString(xml_string.encode(u'utf-8')).documentElement
+        xml_element = minidom.parseString(xml_string.encode('utf-8')).documentElement
         nav_point = epub.ncx._parse_xml_nav_point(xml_element)
         self.assertIsInstance(nav_point, epub.ncx.NavPoint)
-        self.assertEqual(nav_point.identifier, u'point5')
-        self.assertEqual(nav_point.class_name, u'some_class')
-        self.assertEqual(nav_point.labels, [(u'Label fr', 'fr', ''),
-                                             (u'Label en', 'en', ''),])
-        self.assertEqual(nav_point.src, u'Text/Point1.xhtml#fragment5')
+        self.assertEqual(nav_point.identifier, 'point5')
+        self.assertEqual(nav_point.class_name, 'some_class')
+        self.assertEqual(nav_point.labels, [('Label fr', 'fr', ''),
+                                             ('Label en', 'en', ''),])
+        self.assertEqual(nav_point.src, 'Text/Point1.xhtml#fragment5')
         self.assertEqual(len(nav_point.nav_point), 2)
         for child_nav_point in nav_point.nav_point:
             self.assertIsInstance(child_nav_point, epub.ncx.NavPoint)
-            test_label = u'Sous-Label %s' % child_nav_point.play_order
+            test_label = 'Sous-Label %s' % child_nav_point.play_order
             self.assertEqual(child_nav_point.labels,
-                             [(test_label, u'fr', u''),])
+                             [(test_label, 'fr', ''),])
 
     def test_parse_xml_nav_map(self):
-        xml_string = u"""
+        xml_string = """
         <navMap id="the_only_one_map">
             <navPoint playOrder="1">
                 <navLabel><text>Introduction</text></navLabel>
@@ -335,36 +337,36 @@ class TestFunction(unittest.TestCase):
             </navPoint>
         </navMap>
         """
-        xml_element = minidom.parseString(xml_string.encode(u'utf-8')).documentElement
+        xml_element = minidom.parseString(xml_string.encode('utf-8')).documentElement
         nav_map = epub.ncx._parse_xml_nav_map(xml_element)
         self.assertIsInstance(nav_map, epub.ncx.NavMap)
-        self.assertEqual(nav_map.identifier, u'the_only_one_map')
+        self.assertEqual(nav_map.identifier, 'the_only_one_map')
         self.assertEqual(len(nav_map.nav_point), 2)
         self.assertEqual(len(nav_map.nav_point[0].nav_point), 0)
         self.assertEqual(len(nav_map.nav_point[1].nav_point), 2)
 
     def test_create_xml_element_text(self):
-        xml_string = u"""<text>Some text</text>"""
-        xml_element = epub.ncx._create_xml_element_text(u'Some text')
+        xml_string = """<text>Some text</text>"""
+        xml_element = epub.ncx._create_xml_element_text('Some text')
         self.assertEqual(xml_element.toxml(), xml_string)
         
-        xml_string = u"""<otherText>Some text</otherText>"""
-        xml_element = epub.ncx._create_xml_element_text(u'Some text', u'otherText')
+        xml_string = """<otherText>Some text</otherText>"""
+        xml_element = epub.ncx._create_xml_element_text('Some text', 'otherText')
         self.assertEqual(xml_element.toxml(), xml_string)
 
-        xml_string = u"""<emptyText/>"""
-        xml_element = epub.ncx._create_xml_element_text(None, u'emptyText')
+        xml_string = """<emptyText/>"""
+        xml_element = epub.ncx._create_xml_element_text(None, 'emptyText')
         self.assertEqual(xml_element.toxml(), xml_string)
 
-        xml_string = u"""<emptyText/>"""
-        xml_element = epub.ncx._create_xml_element_text(u'', u'emptyText')
+        xml_string = """<emptyText/>"""
+        xml_element = epub.ncx._create_xml_element_text('', 'emptyText')
         self.assertEqual(xml_element.toxml(), xml_string)
 
 
 class TestNavPoint(unittest.TestCase):
     
     def test_as_xml_element(self):
-        xml_string = u"""<navPoint class="some_class" id="point5" playOrder="5">""" + \
+        xml_string = """<navPoint class="some_class" id="point5" playOrder="5">""" + \
             """<navLabel xml:lang="fr" dir="ltr"><text>Label fr</text></navLabel>""" + \
             """<navLabel xml:lang="en" dir="ltr"><text>Label en</text></navLabel>""" + \
             """<content src="Text/Point1.xhtml#fragment5"/>""" + \
@@ -378,7 +380,7 @@ class TestNavPoint(unittest.TestCase):
             """</navPoint>""" + \
         """</navPoint>"""
 
-        xml_element = minidom.parseString(xml_string.encode(u'utf-8')).documentElement
+        xml_element = minidom.parseString(xml_string.encode('utf-8')).documentElement
         nav_point = epub.ncx._parse_xml_nav_point(xml_element)
 
         self.assertEqual(nav_point.as_xml_element().toxml(),
@@ -388,7 +390,7 @@ class TestNavPoint(unittest.TestCase):
 class TestNavMap(unittest.TestCase):
     
     def test_as_xml_element(self):
-        xml_string = u"""<navMap id="someId">""" + \
+        xml_string = """<navMap id="someId">""" + \
             """<navLabel xml:lang="fr" dir="ltr"><text>Label fr</text></navLabel>""" + \
             """<navLabel xml:lang="en" dir="ltr"><text>Label en</text></navLabel>""" + \
             """<navInfo xml:lang="fr" dir="ltr"><text>Label fr</text></navInfo>""" + \
@@ -399,7 +401,7 @@ class TestNavMap(unittest.TestCase):
             """</navPoint>""" + \
         """</navMap>"""
 
-        xml_element = minidom.parseString(xml_string.encode(u'utf-8')).documentElement
+        xml_element = minidom.parseString(xml_string.encode('utf-8')).documentElement
         nav_map = epub.ncx._parse_xml_nav_map(xml_element)
 
         self.assertEqual(nav_map.as_xml_element().toxml(),
@@ -409,13 +411,13 @@ class TestNavMap(unittest.TestCase):
 class TestPageTarget(unittest.TestCase):
 
     def test_as_xml_element(self):
-        xml_string = u"""<pageTarget class="some_class" id="testid" playOrder="5" type="page_type" value="Some Value">""" + \
+        xml_string = """<pageTarget class="some_class" id="testid" playOrder="5" type="page_type" value="Some Value">""" + \
             """<navLabel xml:lang="fr" dir="ltr"><text>Label fr</text></navLabel>""" + \
             """<navLabel xml:lang="en" dir="ltr"><text>Label en</text></navLabel>""" + \
             """<content src="Text/Point1.xhtml#fragment5_2"/>""" + \
         """</pageTarget>"""
 
-        xml_element = minidom.parseString(xml_string.encode(u'utf-8')).documentElement
+        xml_element = minidom.parseString(xml_string.encode('utf-8')).documentElement
         page_target = epub.ncx._parse_xml_page_target(xml_element)
 
         self.assertEqual(page_target.as_xml_element().toxml(),
@@ -425,7 +427,7 @@ class TestPageTarget(unittest.TestCase):
 class TestPageList(unittest.TestCase):
 
     def test_as_xml_element(self):
-        xml_string = u"""<pageList id="pagelist-1" class="page_class">""" + \
+        xml_string = """<pageList id="pagelist-1" class="page_class">""" + \
             """<navLabel xml:lang="fr" dir="ltr"><text>Label fr</text></navLabel>""" + \
             """<navLabel xml:lang="en" dir="ltr"><text>Label en</text></navLabel>""" + \
             """<navInfo xml:lang="fr" dir="ltr"><text>Info de navigation</text></navInfo>""" + \
@@ -437,7 +439,7 @@ class TestPageList(unittest.TestCase):
             """</pageTarget>""" + \
         """</pageList>"""
 
-        xml_element = minidom.parseString(xml_string.encode(u'utf-8')).documentElement
+        xml_element = minidom.parseString(xml_string.encode('utf-8')).documentElement
         page_list = epub.ncx._parse_xml_page_list(xml_element)
 
         self.assertEqual(page_list.as_xml_element().toxml(),
@@ -447,13 +449,13 @@ class TestPageList(unittest.TestCase):
 class TestNavTarget(unittest.TestCase):
 
     def test_as_xml_element(self):
-        xml_string = u"""<navTarget class="some_class" id="testid" playOrder="5" value="5">""" + \
+        xml_string = """<navTarget class="some_class" id="testid" playOrder="5" value="5">""" + \
             """<navLabel xml:lang="fr" dir="ltr"><text>Label fr</text></navLabel>""" + \
             """<navLabel xml:lang="en" dir="ltr"><text>Label en</text></navLabel>""" + \
             """<content src="Text/Point1.xhtml#fragment5_2"/>""" + \
         """</navTarget>"""
 
-        xml_element = minidom.parseString(xml_string.encode(u'utf-8')).documentElement
+        xml_element = minidom.parseString(xml_string.encode('utf-8')).documentElement
         nav_target = epub.ncx._parse_xml_nav_target(xml_element)
 
         self.assertEqual(nav_target.as_xml_element().toxml(),
@@ -463,7 +465,7 @@ class TestNavTarget(unittest.TestCase):
 class TestNavList(unittest.TestCase):
 
     def test_as_xml_element(self):
-        xml_string = u"""<navList class="some_class" id="testid">""" + \
+        xml_string = """<navList class="some_class" id="testid">""" + \
             """<navLabel xml:lang="fr" dir="ltr"><text>Label fr</text></navLabel>""" + \
             """<navLabel xml:lang="en" dir="ltr"><text>Label en</text></navLabel>""" + \
             """<navInfo xml:lang="fr" dir="ltr"><text>Info de navigation</text></navInfo>""" + \
@@ -475,7 +477,7 @@ class TestNavList(unittest.TestCase):
             """</navTarget>""" + \
         """</navList>"""
 
-        xml_element = minidom.parseString(xml_string.encode(u'utf-8')).documentElement
+        xml_element = minidom.parseString(xml_string.encode('utf-8')).documentElement
         nav_list = epub.ncx._parse_xml_nav_list(xml_element)
 
         self.assertEqual(nav_list.as_xml_element().toxml(),
@@ -489,7 +491,7 @@ class TestNcx(unittest.TestCase):
         
         ... And yeah, I hate XML with unit testing :("""
         
-        xml_string = u"""<?xml version="1.0" ?>
+        xml_string = """<?xml version="1.0" ?>
 <ncx version="2005-1" xml:lang="en-US" xmlns="http://www.daisy.org/z3986/2005/ncx/">
     <head>
         <meta content="org-example-5059463624137734586" name="dtb:uid"/>
@@ -564,7 +566,7 @@ class TestNcx(unittest.TestCase):
         self.maxDiff = None
 
         toc = epub.ncx.parse_toc(xml_string)
-        xml_toc = toc.as_xml_document().toprettyxml(u'    ')
+        xml_toc = toc.as_xml_document().toprettyxml('    ')
 
         xml_input = xml_string.strip()
         xml_output = xml_toc.strip()

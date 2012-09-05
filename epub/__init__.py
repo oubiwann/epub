@@ -4,8 +4,8 @@ Library to open and read files in the epub version 2.
 """
 
 
-__author__ = u'Florian Strzelecki <florian.strzelecki@gmail.com>'
-__version__ = u'0.5.0'
+__author__ = 'Florian Strzelecki <florian.strzelecki@gmail.com>'
+__version__ = '0.5.0'
 __all__ = ['opf', 'ncx']
 
 
@@ -20,15 +20,15 @@ from xml.dom import minidom
 from epub import ncx, opf
 
 
-MIMETYPE_EPUB = u'application/epub+zip'
-MIMETYPE_OPF = u'application/oebps-package+xml'
-MIMETYPE_NCX = u'application/x-dtbncx+xml'
+MIMETYPE_EPUB = 'application/epub+zip'
+MIMETYPE_OPF = 'application/oebps-package+xml'
+MIMETYPE_NCX = 'application/x-dtbncx+xml'
 
-DEFAULT_OPF_PATH = u'OEBPS/content.opf'
-DEFAULT_NCX_PATH = u'toc.ncx'
+DEFAULT_OPF_PATH = 'OEBPS/content.opf'
+DEFAULT_NCX_PATH = 'toc.ncx'
 
 
-def open(filename, mode=u'r'):
+def open(filename, mode='r'):
     """Open an epub file and return an EpubFile object"""
     return EpubFile(filename, mode)
 
@@ -56,16 +56,16 @@ class EpubFile(zipfile.ZipFile):
         """
         return os.path.dirname(self.opf_path)
 
-    def __init__(self, filename, mode=u'r'):
+    def __init__(self, filename, mode='r'):
         """Open the Epub zip file with mode read "r", write "w" or append "a".
         """
         zipfile.ZipFile.__init__(self, filename, mode)
 
-        if self.mode == u'r':
+        if self.mode == 'r':
             self._init_read()
-        elif self.mode == u'w':
+        elif self.mode == 'w':
             self._init_new()
-        elif self.mode == u'a':
+        elif self.mode == 'a':
             if len(self.namelist()) == 0:
                 self._init_new()
             else:
@@ -74,18 +74,18 @@ class EpubFile(zipfile.ZipFile):
     def _init_new(self):
         """Build an empty epub archive."""
         # Write mimetype file: 'application/epub+zip'
-        self.writestr(u'mimetype', MIMETYPE_EPUB)
+        self.writestr('mimetype', MIMETYPE_EPUB)
         # Default path for opf
         self.opf_path = DEFAULT_OPF_PATH
         # Uid & Uid's id
-        uid_id = u'BookId'
-        self.uid = u'%s' % uuid.uuid4()
+        uid_id = 'BookId'
+        self.uid = '%s' % uuid.uuid4()
         # Create metadata, manifest, and spine, as minimalist as possible
         metadata = opf.Metadata()
-        metadata.add_identifier(self.uid, uid_id, u'uid')
+        metadata.add_identifier(self.uid, uid_id, 'uid')
         manifest = opf.Manifest()
-        manifest.add_item(u'ncx', u'toc.ncx', MIMETYPE_NCX)
-        spine = opf.Spine(u'ncx')
+        manifest.add_item('ncx', 'toc.ncx', MIMETYPE_NCX)
+        spine = opf.Spine('ncx')
         # Create Opf object
         self.opf = opf.Opf(uid_id=uid_id,
                            metadata=metadata, manifest=manifest, spine=spine)
@@ -95,13 +95,13 @@ class EpubFile(zipfile.ZipFile):
 
     def _init_read(self):
         # Read container.xml to get OPF xml file path
-        xmlstring = self.read(u'META-INF/container.xml')
+        xmlstring = self.read('META-INF/container.xml')
         container_xml = minidom.parseString(xmlstring).documentElement
 
-        for e in container_xml.getElementsByTagName(u'rootfile'):
-            if e.getAttribute(u'media-type') == MIMETYPE_OPF:
+        for e in container_xml.getElementsByTagName('rootfile'):
+            if e.getAttribute('media-type') == MIMETYPE_OPF:
                 # Only take the first full-path available
-                self.opf_path = e.getAttribute(u'full-path')
+                self.opf_path = e.getAttribute('full-path')
                 break
 
         # Read OPF xml file
@@ -116,7 +116,7 @@ class EpubFile(zipfile.ZipFile):
     def close(self):
         if self.fp is None:
             return
-        if self.mode in (u'w', u'a'):
+        if self.mode in ('w', 'a'):
             self._write_close()
         zipfile.ZipFile.close(self)
 
@@ -125,18 +125,18 @@ class EpubFile(zipfile.ZipFile):
         file mode (a), some files must be generated: container, OPF, and NCX.
         """
         # Write META-INF/container.xml
-        self.writestr(u'META-INF/container.xml',
-                      self._build_container().encode(u'utf-8'))
+        self.writestr('META-INF/container.xml',
+                      self._build_container().encode('utf-8'))
         # Write OPF File
         self.writestr(self.opf_path,
-                      self.opf.as_xml_document().toxml().encode(u'utf-8'))
+                      self.opf.as_xml_document().toxml().encode('utf-8'))
         # Write NCX File
         item_toc = self.get_item(self.opf.spine.toc)
         self.writestr(os.path.join(self.content_path, item_toc.href),
-                      self.toc.as_xml_document().toxml().encode(u'utf-8'))
+                      self.toc.as_xml_document().toxml().encode('utf-8'))
 
     def _build_container(self):
-        template = u"""<?xml version="1.0" encoding="UTF-8"?>
+        template = """<?xml version="1.0" encoding="UTF-8"?>
     <container version="1.0"
                xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
         <rootfiles>
@@ -174,11 +174,11 @@ class EpubFile(zipfile.ZipFile):
         """
         if not self.fp:
             raise RuntimeError(
-                  u'Attempt to write to EPUB file that was already closed')
+                  'Attempt to write to EPUB file that was already closed')
 
-        if self.mode == u'r':
+        if self.mode == 'r':
             raise IOError(
-                  u'Attempt to write to EPUB file that was open as read-only.')
+                  'Attempt to write to EPUB file that was open as read-only.')
 
     def get_item(self, identifier):
         """Get an item from manifest through its "id" attribute.
@@ -195,7 +195,7 @@ class EpubFile(zipfile.ZipFile):
         if size == 1:
             return l[0]
         elif size > 1:
-            raise LookupError(u'Multiple items are found with this href.')
+            raise LookupError('Multiple items are found with this href.')
         else:
             return None
 
@@ -211,7 +211,7 @@ class EpubFile(zipfile.ZipFile):
         as indicated in the opf file.
         """
         path = item
-        if hasattr(item, u'href'):
+        if hasattr(item, 'href'):
             path = item.href
         return self.read(os.path.join(self.content_path, path))
 
@@ -291,42 +291,5 @@ class Book(object):
 
     @property
     def chapters(self):
-        """
-        Return a list of linear chapter from spine.
-        """
-        for identifier in [x for x, y in self.epub_file.opf.spine.itemrefs \
-                            if y]:
-            yield BookChapter(self, identifier)
-
-    @property
-    def extra_chapters(self):
-        """
-        Return a list of non-linear chapter from spine.
-        """
-        for identifier in [x for x, y in self.epub_file.opf.spine.itemrefs \
-                            if not y]:
-            yield BookChapter(self, identifier)
-
-    def _get_urlpath_part(self, urlpath):
-        href = u''
-        fragment = None
-        return (href, fragment)
-
-    def get_index_table(self, index_type=u'toc'):
-        for urlpath in [x for x, y, z in self.epub_file.opf.guide.references \
-                            if y == index_type]:
-            href, fragment = self._get_urlpath_part(urlpath)
-            manifest_item = self.epub_file.get_item_by_href(href)
-            yield BookChapter(self, manifest_item.identifier, fragment)
-
-
-class BookChapter(object):
-
-    def __init__(self, book, identifier, fragment=None):
-        self._book = book
-        self._manifest_item = self._book.epub_file.get_item(identifier)
-        self._fragment = fragment
-
-    def read(self):
-        return self._book.epub_file.read_item(self._manifest_item)
-
+        for identifier, linear in self.epub_file.opf.spine.itemrefs:
+            yield self.epub_file.read_item(self.epub_file.get_item(identifier))
