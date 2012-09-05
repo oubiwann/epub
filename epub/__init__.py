@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
+
 """
 Library to open and read files in the epub version 2.
 """

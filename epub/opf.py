@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
 
 """
 Python lib for reading OPF formated file for epub.
@@ -8,6 +10,8 @@ library.
 
 OPF epub : http://idpf.org/epub/20/spec/OPF_2.0.1_draft.htm
 """
+
+
 from xml.dom import minidom
 
 

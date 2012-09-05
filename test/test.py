@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
-
 from __future__ import unicode_literals
+
 
 import os
 import unittest
 import epub
+
+
 from shutil import copy
 
 
@@ -242,4 +244,4 @@ class TestBook(unittest.TestCase):
         book = epub.Book(self.epub_file)
 
         for chapter in book.chapters:
-            print(chapter)
+            self.assertIsNotNone(chapter)

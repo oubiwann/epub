@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
-
 from __future__ import unicode_literals
+
 
 import unittest
 
+
 from xml.dom import minidom
+
 
 import epub
 
@@ -217,7 +219,6 @@ class TestFunction(unittest.TestCase):
         self.assertEqual(len(manifest), 4)
 
         for item in manifest.values():
-            print(item)
             self.assertIsInstance(item, epub.opf.ManifestItem)
 
         self.assertEqual(manifest['toc'].identifier, 'toc')

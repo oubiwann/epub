@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
 
 """
 Python lib for reading NCX formated file for epub.
@@ -9,6 +11,7 @@ officiel documention for more information.1111
 NCX doc: http://www.niso.org/workrooms/daisy/Z39-86-2005.html#NCX
 NCX Epub spec: http://idpf.org/epub/20/spec/OPF_2.0.1_draft.htm#Section2.4.1
 """
+
 
 from xml.dom import minidom
 
