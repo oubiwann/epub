@@ -294,5 +294,48 @@ class Book(object):
 
     @property
     def chapters(self):
-        for identifier, linear in self.epub_file.opf.spine.itemrefs:
-            yield self.epub_file.read_item(self.epub_file.get_item(identifier))
+        """
+        Return a list of linear chapter from spine.
+        """
+        for identifier in [identifier for identifier, linear \
+                           in self.epub_file.opf.spine.itemrefs \
+                           if linear]:
+            yield BookChapter(self, identifier)
+
+    @property
+    def extra_chapters(self):
+        """
+        Return a list of non-linear chapter from spine.
+        """
+        for identifier in [identifier for identifier, linear \
+                           in self.epub_file.opf.spine.itemrefs \
+                           if not linear]:
+            yield BookChapter(self, identifier)
+
+    def _get_urlpath_part(self, urlpath):
+        """
+        This is not functionnal AT ALL.
+        DO NOT USE.
+        """
+        href = ''
+        fragment = None
+        return (href, fragment)
+
+    def get_index_table(self, index_type=None):
+        index_type = 'toc' if index_type is None else index_type
+        for urlpath in [x for x, y, z in self.epub_file.opf.guide.references \
+                            if y == index_type]:
+            href, fragment = self._get_urlpath_part(urlpath)
+            manifest_item = self.epub_file.get_item_by_href(href)
+            yield BookChapter(self, manifest_item.identifier, fragment)
+
+
+class BookChapter(object):
+
+    def __init__(self, book, identifier, fragment=None):
+        self._book = book
+        self._manifest_item = self._book.epub_file.get_item(identifier)
+        self._fragment = fragment
+
+    def read(self):
+        return self._book.epub_file.read_item(self._manifest_item)
