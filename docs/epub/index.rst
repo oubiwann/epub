@@ -246,13 +246,34 @@ La classe EpubFile
       
       L'appel à cette méthode assure la sauvegarde des modifications effectuées.
 
+   .. py:method:: extract_item(item[, to_path=None])
+
+      Extrait le contenu d'un fichier présent dans l'archive epub à
+      l'emplacement indiqué par `to_path`. Si `to_path` vaut `None` alors le
+      fichier est extrait à l'emplacement de travail courrant.
+
+      Le paramètre ``item`` peut être un objet :class:`epub.opf.ManifestItem` 
+      ou un chemin d'accès du fichier, chemin relatif à l'emplacement du 
+      fichier OPF.
+
+      Ce chemin ne doit pas contenir de fragment d'url (commençant pas `#`).
+
+      Voir aussi la méthode :meth:`zipfile.ZipFile.Extract` sur laquelle
+      repose le comportement de cette méthode.
+ 
+      http://docs.python.org/library/zipfile.html#zipfile.ZipFile.extract
+
+      :param mixed item: Le chemin ou le Manifest Item.
+      :param string to_path: Le chemin où extraire le fichier (par défaut il
+          s'agit du répertoire de travail courrant).
+
    .. py:method:: EpubFile.get_item(identifier)
  
       Cette fonction permet de récupérer un "item" du manifest. Le fichier opf 
       décrit, via son "manifest", une liste des fichiers composant le livre 
       numérique : chacun de ces éléments est un "item", qui représente l'un des 
       fichier de l'epub.
-      
+
       :param string identifier: Identifiant de l'item recherché.
       :rtype: :class:`epub.opf.ManifestItem` ou ``None`` s'il n'existe pas.
 
@@ -260,12 +281,12 @@ La classe EpubFile
 
       Fonctionne de la même façon que :meth:`get_item <EpubFile.get_item>` en 
       utilisant la valeur de l'attribut `href` des items du manifest.
-   
+
       :param string href: Chemin d'accès (relatif au fichier opf) de l'item recherché.
       :rtype: :class:`epub.opf.ManifestItem` ou ``None`` s'il n'existe pas.
 
    .. py:method:: EpubFile.read_item(item)
-   
+
       Retourne le contenu d'un fichier présent dans l'archive epub.
       
       Le paramètre ``item`` peut être un objet :class:`epub.opf.ManifestItem` 
@@ -273,6 +294,10 @@ La classe EpubFile
       fichier OPF.
       
       Ce chemin ne doit pas contenir de fragment d'url (commençant pas `#`).
+
+      Voir aussi la méthode :meth:`zipfile.ZipFile.read`.
+
+      http://docs.python.org/library/zipfile.html#zipfile.ZipFile.read
 
       .. code-block:: python
       
@@ -289,5 +314,5 @@ La classe EpubFile
          # but this won't work!
          content = book.read_item(u'Text/chap01.xhtml#part1')
       
+      :param mixed item: Le chemin ou le Manifest Item.
       :rtype: string
-
