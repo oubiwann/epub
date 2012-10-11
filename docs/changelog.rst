@@ -35,8 +35,13 @@ Les bugs suivants ont été résolus :
 * `Issue #2`__ : *"Documentation pub on tutorial page."*
   La documentation ne fait plus de références à la méthode `read` dans ses
   exemples.
+* `Issue #3`__ : *"_parse_xml_metadata should not choke on absent firstChild"*
+  Une fonction a été ajoutée pour traiter la récupération de texte dans un
+  noeud xml, et cette fonction est suffisament intelligente pour ne pas
+  planter au premier texte manquant.
 
 .. __: https://bitbucket.org/exirel/epub/issue/2/documentation-pub-on-tutorial-page
+.. __: https://bitbucket.org/exirel/epub/issue/3/_parse_xml_metadata-should-not-choke-on
 
 
 Version 0.4.0

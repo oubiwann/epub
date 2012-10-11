@@ -16,15 +16,18 @@ from xml.dom import minidom
 
 
 try:
-    # Only for Python 2.7
+    # Only for Python 2.7+
     from collections import OrderedDict
 except ImportError:
     try:
-        # For Python 2.4 to 2.6
+        # For Python 2.6
         from ordereddict import OrderedDict
     except ImportError:
         raise ImportError(
             'You should use Python 2.7 or install `ordereddict` from pypi.')
+
+
+from epub.utils import get_node_text
 
 
 XMLNS_DC = 'http://purl.org/dc/elements/1.1/'
@@ -78,76 +81,61 @@ def _parse_xml_metadata(element):
     metadata = Metadata()
 
     for node in element.getElementsByTagName('dc:title'):
-        node.normalize()
-        metadata.add_title(node.firstChild.data.strip(),
+        metadata.add_title(get_node_text(node),
                            node.getAttribute('xml:lang'))
 
     for node in element.getElementsByTagName('dc:creator'):
-        node.normalize()
-        metadata.add_creator(node.firstChild.data.strip(),
-                         node.getAttribute('opf:role'),
-                         node.getAttribute('opf:file-as'))
-
-    for node in element.getElementsByTagName('dc:subject'):
-        node.normalize()
-        metadata.add_subject(node.firstChild.data.strip())
-
-    for node in element.getElementsByTagName('dc:description'):
-        node.normalize()
-        metadata.description = node.firstChild.data.strip()
-
-    for node in element.getElementsByTagName('dc:publisher'):
-        node.normalize()
-        metadata.publisher = node.firstChild.data.strip()
-
-    for node in element.getElementsByTagName('dc:contributor'):
-        node.normalize()
-        metadata.add_contributor(node.firstChild.data.strip(),
+        metadata.add_creator(get_node_text(node),
                              node.getAttribute('opf:role'),
                              node.getAttribute('opf:file-as'))
 
+    for node in element.getElementsByTagName('dc:subject'):
+        metadata.add_subject(get_node_text(node))
+
+    for node in element.getElementsByTagName('dc:description'):
+        metadata.description = get_node_text(node)
+
+    for node in element.getElementsByTagName('dc:publisher'):
+        metadata.publisher = get_node_text(node)
+
+    for node in element.getElementsByTagName('dc:contributor'):
+        metadata.add_contributor(get_node_text(node),
+                                 node.getAttribute('opf:role'),
+                                 node.getAttribute('opf:file-as'))
+
     for node in element.getElementsByTagName('dc:date'):
-        node.normalize()
-        metadata.add_date(node.firstChild.data.strip(),
+        metadata.add_date(get_node_text(node),
                           node.getAttribute('opf:event'))
 
     for node in element.getElementsByTagName('dc:type'):
-        node.normalize()
-        metadata.dc_type = node.firstChild.data.strip()
+        metadata.dc_type = get_node_text(node)
 
     for node in element.getElementsByTagName('dc:format'):
-        node.normalize()
-        metadata.format = node.firstChild.data.strip()
+        metadata.format = get_node_text(node)
 
     for node in element.getElementsByTagName('dc:identifier'):
-        node.normalize()
-        metadata.add_identifier(node.firstChild.data.strip(),
+        metadata.add_identifier(get_node_text(node),
                             node.getAttribute('id'),
                             node.getAttribute('opf:scheme'))
 
     for node in element.getElementsByTagName('dc:source'):
-        node.normalize()
-        metadata.source = node.firstChild.data.strip()
+        metadata.source = get_node_text(node)
 
     for node in element.getElementsByTagName('dc:language'):
-        node.normalize()
-        metadata.add_language(node.firstChild.data.strip())
+        metadata.add_language(get_node_text(node))
 
     for node in element.getElementsByTagName('dc:relation'):
-        node.normalize()
-        metadata.relation = node.firstChild.data.strip()
+        metadata.relation = get_node_text(node)
 
     for node in element.getElementsByTagName('dc:coverage'):
-        node.normalize()
-        metadata.coverage = node.firstChild.data.strip()
+        metadata.coverage = get_node_text(node)
 
     for node in element.getElementsByTagName('dc:rights'):
-        node.normalize()
-        metadata.right = node.firstChild.data.strip()
+        metadata.right = get_node_text(node)
 
     for node in element.getElementsByTagName('meta'):
         metadata.add_meta(node.getAttribute('name'),
-                      node.getAttribute('content'))
+                          node.getAttribute('content'))
 
     return metadata
 
@@ -195,11 +183,11 @@ class Opf(object):
 
     OPF is an xml formated file, used in the epub spec."""
 
-    def __init__(self, uid_id=None, version='2.0', xmlns=XMLNS_OPF,
+    def __init__(self, uid_id=None, version=None, xmlns=None,
                  metadata=None, manifest=None, spine=None, guide=None):
         self.uid_id = uid_id
-        self.version = version
-        self.xmlns = xmlns
+        self.version = version if version else '2.0'
+        self.xmlns = xmlns if xmlns else XMLNS_OPF
 
         if metadata is None:
             self.metadata = Metadata()
