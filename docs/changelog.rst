@@ -12,9 +12,32 @@ Encore de nouvelles améliorations.
 * Ajout de la méthode :meth:`epub.EpubFile.check_mode_write` qui lève une
   exception si le fichier n'est pas ouvert en écriture.
 * Support de python 2.6 avec l'emploi du module `ordereddict` disponible sur
-  pypi (http://pypi.python.org/pypi/ordereddict).
+  pypi (http://pypi.python.org/pypi/ordereddict) (il manque des tests pour
+  être certain du bon fonctionnement avec Python 2.6).
 * Nouvelle classe `epub.Book` servant de proxy pour simplifier et abstraire
   la manipulation du format epub.
+* Ajout de la méthode :meth:`epub.EpubFile.extract_item` qui reprend le même
+  principe que :meth:`~epub.EpubFile.read_item` en l'appliquant à l'exctraction
+  de fichiers.
+* Ajout de la fonction :func:`epub.get_urlpath_part` permettant d'obtenir les
+  deux parties des chemins des fichiers utilisés (entre autre) dans le fichier
+  NCX.
+* Support de Python 3.2, avec des test-unitaires passant avec Python 2.7 et
+  Python 3.2.
+* Retrait de la notation des chaînes unicodes (le `u` devant les chaînes de
+  caractères est retiré) dans la documentation.
+
+Bug fix
+.......
+
+Les bugs suivants ont été résolus :
+
+* `Issue #2`__ : *"Documentation pub on tutorial page."*
+  La documentation ne fait plus de références à la méthode `read` dans ses
+  exemples.
+
+.. __: https://bitbucket.org/exirel/epub/issue/2/documentation-pub-on-tutorial-page
+
 
 Version 0.4.0
 -------------

@@ -52,8 +52,8 @@ pouvez utiliser la fonction :func:`open` avec l'instruction ``with`` :
 
 .. code-block:: python
 
-   with epub.open(u'path/to/my_book.epub') as book:
-       print u'Vous pouvez lire votre livre !'
+   with epub.open('path/to/my_book.epub') as book:
+       print 'Vous pouvez lire votre livre !'
 
 Lire le contenu du fichier
 --------------------------
@@ -70,28 +70,28 @@ Par exemple pour accéder à l'ensemble des items du fichier :
 
 .. code-block:: python
 
-   book = epub.open(u'book.epub')
+   book = epub.open('book.epub')
    
    for item in book.opf.manifest.values():
        # read the content
-       data = book.read(item)
+       data = book.read_item(item)
 
 Il est possible d'accéder à l'ordre linéaire des éléments en utilisant 
 l'objet de la classe :attr:`opf.Spine` disponible de cette façon :
 
 .. code-block:: python
 
-   book = epub.open(u'book.epub')
+   book = epub.open('book.epub')
    
    for item_id, linear in book.opf.spine.itemrefs:
        item = book.get_item(item_id)
        # Check if linear or not
        if linear:
-           print u'Linear item "%s"' % item.href
+           print 'Linear item "%s"' % item.href
        else:
-           print u'Non-linear item "%s"' % item.href
+           print 'Non-linear item "%s"' % item.href
        # read the content
-       data = book.read(item)
+       data = book.read_item(item)
 
 Quant au fichier de navigation NCX, il est accessible via l'attribut 
 :attr:`EpubFile.toc`. Cet attribut est de la classe :class:`ncx.Ncx` et 
@@ -111,11 +111,11 @@ en retirer.
 
 .. code-block:: python
 
-   book = epub.open(u'book.epub', u'w')
-   filename = u'path/to/file/to/add.xhtml'
-   manifest_item = epub.opf.ManifestItem(identifier=u'IdFile',
-                                         href=u'path/into/epub/add.xhtml',
-                                         media_type=u'application/xhtml+xml')
+   book = epub.open('book.epub', u'w')
+   filename = 'path/to/file/to/add.xhtml'
+   manifest_item = epub.opf.ManifestItem(identifier='IdFile',
+                                         href='path/into/epub/add.xhtml',
+                                         media_type='application/xhtml+xml')
    book.add_item(filename, manifest_item)
    book.close()
 
@@ -130,7 +130,7 @@ API du module
 La fonction open
 ................
 
-.. py:function:: open(filename, mode=u'r')
+.. py:function:: open(filename, mode='r')
    
    Ouvre un fichier epub, et retourne un objet :class:`epub.EpubFile`. Vous
    pouvez ouvrir le fichier en lecture seule (mode `r` par défaut) ou en
@@ -141,9 +141,9 @@ La fonction open
    
    .. code-block:: python
       
-      with epub.open(u'path/to/my.epub') as book:
+      with epub.open('path/to/my.epub') as book:
           # do thing with book, for exemple:
-          print book.read(u'Text/cover.xhtml')
+          print book.read_item('Text/cover.xhtml')
    
    Le mode d'écriture `w` ouvre le fichier epub en écriture et considère un
    fichier vierge. Si le fichier existe déjà il est remplacé.
@@ -153,6 +153,25 @@ La fonction open
    et traité de la même façon qu'avec le mode `w`.
    
    :param string filename: chemin d'accès au fichier epub
+
+Autres fonctions
+................
+
+.. py:function:: get_urlpath_part(url)
+
+   Découpe une url en deux parties : l'url sans fragment, et le fragment.
+   S'il n'y a pas de fragment alors l'url est retournée telle qu'elle avec
+   fragment à `None`.
+
+   .. code-block:: python
+
+      url = 'text/chapter1.xhtml#part2'
+      href, fragment = get_urlpath_part(url)
+      print href # 'text/chapter1.xhtml'
+      print fragment # '#part2'
+
+   :param string url: Le chemin d'un fichier à décomposer en deux parties.
+   :rtype: tuple
 
 La classe EpubFile
 ..................
@@ -301,18 +320,18 @@ La classe EpubFile
 
       .. code-block:: python
       
-         book = epub.open(u'mybook.epub')
+         book = epub.open('mybook.epub')
       
          # get chapter 1
-         item = book.get_item(u'chap01')
-         item_path = item.href # u'Text/chap01.xhtml'
+         item = book.get_item('chap01')
+         item_path = item.href # 'Text/chap01.xhtml'
          
          # display the same thing
          print book.read_item(item)
          print book.read_item(item_path)
          
          # but this won't work!
-         content = book.read_item(u'Text/chap01.xhtml#part1')
+         content = book.read_item('Text/chap01.xhtml#part1')
       
       :param mixed item: Le chemin ou le Manifest Item.
       :rtype: string

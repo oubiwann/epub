@@ -88,15 +88,15 @@ Utilisation
 
 Le cas d'utilisation le plus simple est représenté par le code suivant :
 
-::
+.. code-block:: python
 
-  import epub
-  
-  book = epub.open('path/to/my/book.epub')
-  
-  for id, item in book.opf.manifest.iteritems():
-      content = book.read(item)
-      # do something very nice with the content
+   import epub
+   
+   book = epub.open('path/to/my/book.epub')
+   
+   for item in book.opf.manifest.values():
+       # read the content
+       data = book.read_item(item)
 
 Bien entendu, ce n'est qu'un exemple, très incomplet qui plus est, de ce que 
 vous pouvez faire.
@@ -114,4 +114,3 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-

@@ -74,7 +74,7 @@ langues, voici comment il est possible de l'exploiter :
 
    # meta est un objet de la classe Metadata contenant plusieurs titres
    for title, lang in meta.titles:
-       print u'Le titre en %s est "%s"' % (title, lang)
+       print 'Le titre en %s est "%s"' % (title, lang)
 
 Chaque attribut est décrit avec la forme de son contenu dans la documentation 
 de la classe :class:`Metadata`.
@@ -182,7 +182,7 @@ Les autres attributs simples sont représentées par une chaîne de caractères.
    
    # equivalent metadata
    metadata = epub.opf.Metadata()
-   metadata.title = [(u'Titre français', u'fr'), (u'English title', u'en')]
+   metadata.title = [('Titre français', 'fr'), ('English title', 'en')]
 
 Utiliser l'élélement ``<spine>``
 ................................
@@ -215,7 +215,7 @@ La fonction ``parse_opf``
 La classe ``Opf``
 .................
 
-.. py:class:: Opf(uid_id=None, version=u'2.0', xmlns=XMLNS_OPF, metadata=None, manifest=None, spine=None, guide=None)
+.. py:class:: Opf(uid_id=None, version='2.0', xmlns=XMLNS_OPF, metadata=None, manifest=None, spine=None, guide=None)
 
    :param epub.opf.Metadata metadata: Les méta-données du fichier OPF
    :param epub.opf.Manifest manifest: L'élélement manifest du fichier OPF
@@ -355,7 +355,7 @@ La classe Metadata
       :param string title:
       :param string lang:
 
-   .. py:method:: add_creator(name, role=u'aut', file_as=u'')
+   .. py:method:: add_creator(name, role='aut', file_as='')
    
       :param string name:
       :param string role:
@@ -365,7 +365,7 @@ La classe Metadata
    
       :param string subject:
 
-   .. py:method:: add_contributor(name, role=u'oth', file_as=u'')
+   .. py:method:: add_contributor(name, role='oth', file_as='')
    
       :param string name:
       :param string role:
@@ -376,7 +376,7 @@ La classe Metadata
       :param string date:
       :param string event:
 
-   .. py:method:: add_identifier(content, identifier=u'', scheme=u'')
+   .. py:method:: add_identifier(content, identifier='', scheme='')
    
       :param string content:
       :param string identifier:
@@ -421,7 +421,7 @@ Les classes Manifest et ManifestItem
    .. code-block:: python
       
       # manifest is an epub.opf.Manifest object
-      item = manifest[u'chap001']
+      item = manifest['chap001']
       print item.identifier # display "chap001"
       
       item in manifest # Return true
@@ -477,13 +477,13 @@ Les classes Manifest et ManifestItem
       
       # equivalent metadata
       item = epub.opf.ManifestItem()
-      item.identifier = u'chap01'
-      item.href = u'Text/chap01.xhtml'
-      item.media_type = u'application/xhtml+xml'
+      item.identifier = 'chap01'
+      item.href = 'Text/chap01.xhtml'
+      item.media_type = 'application/xhtml+xml'
       
       # ou bien directement avec le constructeur
-      item = epub.opf.ManifestItem(identifier=u'chap01', href=u'Text/chap01.xhtml',
-                                   media_type=u'application/xhtml+xml')
+      item = epub.opf.ManifestItem(identifier='chap01', href='Text/chap01.xhtml',
+                                   media_type='application/xhtml+xml')
    
    .. py:attribute:: identifier
    

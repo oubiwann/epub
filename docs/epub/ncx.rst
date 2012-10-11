@@ -137,12 +137,12 @@ La classe ``Ncx``
    .. py:attribute:: xmlns
    
       Namespace utilisé pour le document NCX, dont la valeur devrait toujours 
-      être ``u'http://www.daisy.org/z3986/2005/ncx/'``.
+      être ``'http://www.daisy.org/z3986/2005/ncx/'``.
    
    .. py:attribute:: version
    
       Version du fichier NCX, dont la valeur devrait toujours être 
-      ``u'2005-1'``.
+      ``'2005-1'``.
    
    .. py:attribute:: lang
    
@@ -235,13 +235,13 @@ Les classes ``NavMap`` et ``NavPoint``
       ``<navMap>`` (et pas ses petits fils). Chaque élément de cette liste est 
       un objet de la classe :class:`NavPoint`.
 
-   .. py:method:: add_label(label, lang=u'', direction=u'')
+   .. py:method:: add_label(label, lang='', direction='')
    
       :param string label: Texte de l'élément ``navLabel``.
       :param string lang: Langue de l'élément.
       :param string direction: Direction du texte ``rtl`` ou ``ltr``.
 
-   .. py:method:: add_info(label, lang=u'', direction=u'')
+   .. py:method:: add_info(label, lang='', direction='')
    
       :param string label: Texte de l'élément ``navInfo``.
       :param string lang: Langue de l'élément.
@@ -294,7 +294,7 @@ Les classes ``NavMap`` et ``NavPoint``
       Liste des éléments ``<navPoint>`` fils directs. Chaque élément est un 
       objet de la classe :class:`NavPoint`.
 
-   .. py:method:: add_label(label, lang=u'', direction=u'')
+   .. py:method:: add_label(label, lang='', direction='')
    
       :param string label: Texte de l'élément ``navLabel``.
       :param string lang: Langue de l'élément.
@@ -344,13 +344,13 @@ Les classes ``PageList`` et ``PageTarget``
       Liste des éléments ``<pageTarget>`` fils directs. Chaque élément est un 
       objet de la classe :class:`PageTarget`.
 
-   .. py:method:: add_label(label, lang=u'', direction=u'')
+   .. py:method:: add_label(label, lang='', direction='')
    
       :param string label: Texte de l'élément ``navLabel``.
       :param string lang: Langue de l'élément.
       :param string direction: Direction du texte ``rtl`` ou ``ltr``.
 
-   .. py:method:: add_info(label, lang=u'', direction=u'')
+   .. py:method:: add_info(label, lang='', direction='')
    
       :param string label: Texte de l'élément ``navInfo``.
       :param string lang: Langue de l'élément.
@@ -406,7 +406,7 @@ Les classes ``PageList`` et ``PageTarget``
       ``Text/chap1.xhtml`` et plus spéficiquement à l'emplacement du fragment 
       ``p36``.
 
-   .. py:method:: add_label(label, lang=u'', direction=u'')
+   .. py:method:: add_label(label, lang='', direction='')
    
       :param string label: Texte de l'élément ``navLabel``.
       :param string lang: Langue de l'élément.
@@ -450,13 +450,13 @@ Les classes ``NavList`` et ``NavTarget``
       Liste des éléments ``<navTarget>`` fils directs. Chaque élément est un 
       objet de la classe :class:`NavTarget`.
 
-   .. py:method:: add_label(label, lang=u'', direction=u'')
+   .. py:method:: add_label(label, lang='', direction='')
    
       :param string label: Texte de l'élément ``navLabel``.
       :param string lang: Langue de l'élément.
       :param string direction: Direction du texte ``rtl`` ou ``ltr``.
 
-   .. py:method:: add_info(label, lang=u'', direction=u'')
+   .. py:method:: add_info(label, lang='', direction='')
    
       :param string label: Texte de l'élément ``navInfo``.
       :param string lang: Langue de l'élément.
@@ -508,7 +508,7 @@ Les classes ``NavList`` et ``NavTarget``
       ``Text/chap1.xhtml`` et plus spéficiquement à l'emplacement du fragment 
       ``p36``.
 
-   .. py:method:: add_label(label, lang=u'', direction=u'')
+   .. py:method:: add_label(label, lang='', direction='')
    
       :param string label: Texte de l'élément ``navLabel``.
       :param string lang: Langue de l'élément.

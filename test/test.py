@@ -42,6 +42,15 @@ class TestFunction(unittest.TestCase):
                 self.assertEqual(item.identifier, key)
                 self.assertIsInstance(item, epub.opf.ManifestItem)
 
+    def test_get_urlpath_part(self):
+        expected_href = 'path/to/file.html'
+        expected_fragment = 'withfragment'
+        url = '%s#%s' % (expected_href, expected_fragment)
+
+        href, fragment = epub.get_urlpath_part(url)
+        self.assertEquals(href, expected_href)
+        self.assertEquals(fragment, expected_fragment)
+
 
 class TestFunctionWriteMode(unittest.TestCase):
 
