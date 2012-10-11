@@ -121,6 +121,15 @@ class TestFunction(unittest.TestCase):
         text = epub.ncx._parse_for_text_tag(xml_element, 'emptyText')
         self.assertEqual(text, '')
 
+        xml_string = """
+        <someTag>
+            <emptyText></emptyText>
+        </someTag>
+        """
+        xml_element = minidom.parseString(xml_string.encode('utf-8')).documentElement
+        text = epub.ncx._parse_for_text_tag(xml_element, 'emptyText')
+        self.assertEqual(text, '')
+
     def test_parse_xml_nav_target(self):
         """Test function "_parse_xml_nav_target"."""
 

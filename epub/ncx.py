@@ -205,7 +205,7 @@ def _parse_xml_nav_target(element):
     return nav_target
 
 
-def _parse_for_text_tag(xml_element, name='text'):
+def _parse_for_text_tag(xml_element, name=None):
     """Inspect an xml.dom.Element with a child 'name' to get its text value.
 
     NCX file has many element with a child likes
@@ -218,11 +218,13 @@ def _parse_for_text_tag(xml_element, name='text'):
     If nothing is founded, an empty string '' is returned.
 
     Whitespaces and tabulations are stripped."""
-    tags = [e for e in xml_element.childNodes if e.nodeType == e.ELEMENT_NODE and e.tagName == name]
+    name = name or 'text'
+    tags = [e for e in xml_element.childNodes
+              if e.nodeType == e.ELEMENT_NODE and e.tagName == name]
     text = ''
     if len(tags) > 0:
         tag = tags[0]
-        if tag.firstChild:
+        if tag.firstChild and tag.firstChild.data:
             tag.normalize()
             text = tag.firstChild.data.strip()
     return text
@@ -233,7 +235,7 @@ def _create_xml_element_text(data, name=None):
 
     You can use a different tag name with the name argument
     (default is "text").
-    
+
     If data is None or empty, it will create an empty element tag, eg. :
     <emptyTag/> instead of <emptyTag></emptyTag>"""
     if name is None:
@@ -345,10 +347,14 @@ class NavMap(object):
         self.infos = []
         self.nav_point = []
 
-    def add_label(self, label, lang='', direction=''):
+    def add_label(self, label, lang=None, direction=None):
+        lang = lang or ''
+        direction = direction or ''
         self.labels.append((label, lang, direction))
 
-    def add_info(self, label, lang='', direction=''):
+    def add_info(self, label, lang=None, direction=None):
+        lang = lang or ''
+        direction = direction or ''
         self.infos.append((label, lang, direction))
 
     def add_point(self, point):
@@ -396,7 +402,9 @@ class NavPoint(object):
         self.src = None
         self.nav_point = []
 
-    def add_label(self, label, lang='', direction=''):
+    def add_label(self, label, lang=None, direction=None):
+        lang = lang or ''
+        direction = direction or ''
         self.labels.append((label, lang, direction))
 
     def add_point(self, nav_point):
@@ -448,10 +456,14 @@ class PageList(object):
         self.labels = []
         self.infos = []
 
-    def add_label(self, label, lang='', direction=''):
+    def add_label(self, label, lang=None, direction=None):
+        lang = lang or ''
+        direction = direction or ''
         self.labels.append((label, lang, direction))
 
-    def add_info(self, label, lang='', direction=''):
+    def add_info(self, label, lang=None, direction=None):
+        lang = lang or ''
+        direction = direction or ''
         self.infos.append((label, lang, direction))
 
     def add_target(self, page_target):
@@ -507,7 +519,9 @@ class PageTarget(object):
         self.src = None
         self.labels = []
 
-    def add_label(self, label, lang='', direction=''):
+    def add_label(self, label, lang=None, direction=None):
+        lang = lang or ''
+        direction = direction or ''
         self.labels.append((label, lang, direction))
 
     def as_xml_element(self):
@@ -558,10 +572,14 @@ class NavList(object):
         self.labels = []
         self.infos = []
 
-    def add_label(self, label, lang='', direction=''):
+    def add_label(self, label, lang=None, direction=None):
+        lang = lang or ''
+        direction = direction or ''
         self.labels.append((label, lang, direction))
 
-    def add_info(self, label, lang='', direction=''):
+    def add_info(self, label, lang=None, direction=None):
+        lang = lang or ''
+        direction = direction or ''
         self.infos.append((label, lang, direction))
 
     def add_target(self, nav_target):
@@ -616,7 +634,9 @@ class NavTarget(object):
         self.labels = []
         self.src = None
 
-    def add_label(self, label, lang='', direction=''):
+    def add_label(self, label, lang=None, direction=None):
+        lang = lang or ''
+        direction = direction or ''
         self.labels.append((label, lang, direction))
 
     def as_xml_element(self):
