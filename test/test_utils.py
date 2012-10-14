@@ -23,3 +23,12 @@ class TestFunction(unittest.TestCase):
         xml_node = minidom.parseString(xml_text).documentElement
 
         self.assertEquals(epub.utils.get_node_text(xml_node), '')
+
+    def test_get_urlpath_part(self):
+        expected_href = 'path/to/file.html'
+        expected_fragment = 'withfragment'
+        url = '%s#%s' % (expected_href, expected_fragment)
+
+        href, fragment = epub.utils.get_urlpath_part(url)
+        self.assertEquals(href, expected_href)
+        self.assertEquals(fragment, expected_fragment)

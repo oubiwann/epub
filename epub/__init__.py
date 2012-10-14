@@ -20,7 +20,7 @@ import zipfile
 from xml.dom import minidom
 
 
-from epub import ncx, opf
+from epub import ncx, opf, utils
 
 
 MIMETYPE_EPUB = 'application/epub+zip'
@@ -41,27 +41,6 @@ def open(filename, mode=None):
 
 def open_epub(filename, mode=None):
     return EpubFile(filename, mode)
-
-
-def get_urlpath_part(urlpath):
-    """
-    Return a path without url fragment (something like `#frag` at the end).
-
-    This function allow to use path from references and NCX file to read
-    item from Manifest with a correct href (without losing the fragment part).
-
-    eg.:
-
-        url = 'text/chapter1.xhtml#part2'
-        href, fragment = get_urlpath_part(url)
-        print href # 'text/chapter1.xhtml'
-        print fragment # '#part2'
-    """
-    href = urlpath
-    fragment = None
-    if urlpath.count('#'):
-        href, fragment = urlpath.split('#')
-    return (href, fragment)
 
 
 class BadEpubFile(zipfile.BadZipfile):
@@ -377,7 +356,7 @@ class Book(object):
         index_type = 'toc' if index_type is None else index_type
         for urlpath in [x for x, y, z in self.epub_file.opf.guide.references
                           if y == index_type]:
-            href, fragment = get_urlpath_part(urlpath)
+            href, fragment = utils.get_urlpath_part(urlpath)
             manifest_item = self.epub_file.get_item_by_href(href)
             yield BookChapter(self, manifest_item.identifier, fragment)
 
