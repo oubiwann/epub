@@ -217,8 +217,6 @@ class TestEpubFile(unittest.TestCase):
         self.epub_file.extract_item(item)
         extracted_filename = os.path.join(os.getcwd(),
                                           self.extracted_name)
-        print(os.getcwd())
-        print(extracted_filename)
         self.assertTrue(os.path.isfile(extracted_filename))
 
     def test_extract_item_to_path(self):
