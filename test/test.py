@@ -121,7 +121,9 @@ class TestFunctionWriteModeAppend(TestFunctionWriteMode):
     epub_empty = '_data/write/test_empty.epub'
 
     def setUp(self):
-        """Create a copy of source epub."""
+        """
+        Create a copy of source epub.
+        """
         source_filename = os.path.join(os.path.dirname(__file__),
                                        self.epub_source)
         working_copy_filename = os.path.join(os.path.dirname(__file__),
@@ -131,7 +133,9 @@ class TestFunctionWriteModeAppend(TestFunctionWriteMode):
         self._clean_files()
 
     def tearDown(self):
-        """Destroy copy of source epub."""
+        """
+        Destroy copy of source epub.
+        """
         working_copy_filename = os.path.join(os.path.dirname(__file__),
                                              self.epub_path)
         if os.path.isfile(working_copy_filename):
@@ -186,6 +190,8 @@ class TestEpubFile(unittest.TestCase):
     """Test class for epub.EpubFile class"""
 
     epub_path = '_data/test.epub'
+    extracted_dir = '_data'
+    extracted_name = 'OEBPS/Text/Section0002.xhtml'
 
     def setUp(self):
         test_path = os.path.join(os.path.dirname(__file__), self.epub_path)
@@ -193,6 +199,37 @@ class TestEpubFile(unittest.TestCase):
 
     def tearDown(self):
         self.epub_file.close()
+
+        extracted_filename = os.path.join(os.getcwd(),
+                                          self.extracted_name)
+        if os.path.isfile(extracted_filename):
+            os.remove(extracted_filename)
+
+        extracted_filename = os.path.join(os.path.dirname(__file__),
+                                          self.extracted_dir,
+                                          self.extracted_name)
+        if os.path.isfile(extracted_filename):
+            os.remove(extracted_filename)
+
+    def test_extract_item(self):
+        item = self.epub_file.get_item('Section0002.xhtml')
+
+        self.epub_file.extract_item(item)
+        extracted_filename = os.path.join(os.getcwd(),
+                                          self.extracted_name)
+        print(os.getcwd())
+        print(extracted_filename)
+        self.assertTrue(os.path.isfile(extracted_filename))
+
+    def test_extract_item_to_path(self):
+        item = self.epub_file.get_item('Section0002.xhtml')
+        extracted_dir = os.path.join(os.path.dirname(__file__),
+                                     self.extracted_dir)
+
+        self.epub_file.extract_item(item, to_path=extracted_dir)
+        extracted_filename = os.path.join(extracted_dir,
+                                          self.extracted_name)
+        self.assertTrue(os.path.isfile(extracted_filename))
 
     def test_get_item(self):
         """Check EpubFile.get_item() return an EpubManifestItem by its id"""
