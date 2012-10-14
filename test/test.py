@@ -224,7 +224,9 @@ class TestEpubFile(unittest.TestCase):
             self.epub_file.get_item_by_href(item.href)
 
     def test_add_item_fail(self):
-        """When open in read-only mode, add_item must fail."""
+        """
+        When open in read-only mode, add_item must fail.
+        """
         with self.assertRaises(IOError):
             filename = '_data/write/add_item.xhtml'
             manifest_item = epub.opf.ManifestItem(identifier='AddItem0001',
