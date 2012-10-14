@@ -346,20 +346,6 @@ class Book(object):
                 for identifier, linear in self.epub_file.opf.spine.itemrefs
                 if not linear]
 
-    def get_index_table(self, index_type=None):
-        """
-        Index table are referenced in the `references` tag of OPF file.
-
-        It is a list of index table (table of content, table of figure, index,
-        etc.).
-        """
-        index_type = 'toc' if index_type is None else index_type
-        for urlpath in [x for x, y, z in self.epub_file.opf.guide.references
-                          if y == index_type]:
-            href, fragment = utils.get_urlpath_part(urlpath)
-            manifest_item = self.epub_file.get_item_by_href(href)
-            yield BookChapter(self, manifest_item.identifier, fragment)
-
 
 class BookChapter(object):
 
