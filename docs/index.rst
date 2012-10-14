@@ -87,7 +87,8 @@ Sinon, vous pouvez obtenir la dernière version des sources via mercurial :
 Version et compatibilité
 ------------------------
 
-Le module :mod:`epub` est disponible en version stable *0.5.0*.
+Le module :mod:`epub` est disponible en version stable *0.5.0* depuis le
+*14 Octobre 2012*.
 
 Cette version est **compatible et testée** avec Python 2.7 et Python 3.2.
 

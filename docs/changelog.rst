@@ -7,7 +7,7 @@ Changelog
 Version 0.5.0
 -------------
 
-Encore de nouvelles améliorations.
+De nouvelles amélioration, et quelques modifications :
 
 * Ajout de la méthode :meth:`epub.EpubFile.check_mode_write` qui lève une
   exception si le fichier n'est pas ouvert en écriture.
@@ -32,6 +32,12 @@ Encore de nouvelles améliorations.
   fonction python `open()`.
 * Ajout d'une note sur la version et la compatibilité avec les versions de 
   Python dans la documentation.
+
+Il n'est plus possible d'utiliser la méthode `epub.EpubFile.read` avec un 
+:class:`~epub.opf.ManifestItem` directement.
+
+La fonction `epub.open()` est dépréciée et émet un warning. Il faut utiliser
+la fonction :func:`epub.open_epub` à la place.
 
 Bug fix
 .......
