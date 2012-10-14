@@ -31,8 +31,15 @@ DEFAULT_OPF_PATH = 'OEBPS/content.opf'
 DEFAULT_NCX_PATH = 'toc.ncx'
 
 
-def open(filename, mode='r'):
+def open(filename, mode=None):
     """Open an epub file and return an EpubFile object"""
+    import warnings
+    warnings.warn('Function `epub.open` is deprecated since 0.5.0.',
+                  DeprecationWarning)
+    return open_epub(filename, mode)
+
+
+def open_epub(filename, mode=None):
     return EpubFile(filename, mode)
 
 
@@ -82,10 +89,11 @@ class EpubFile(zipfile.ZipFile):
         """
         return os.path.dirname(self.opf_path)
 
-    def __init__(self, filename, mode='r'):
+    def __init__(self, filename, mode=None):
         """
         Open the Epub zip file with mode read "r", write "w" or append "a".
         """
+        mode = mode or 'r'
         zipfile.ZipFile.__init__(self, filename, mode)
 
         if self.mode == 'r':
@@ -279,7 +287,7 @@ class Book(object):
 
     @property
     def description(self):
-        return self.epub.opf.metadata.description
+        return self.epub_file.opf.metadata.description
 
     @property
     def isbn(self):
@@ -287,7 +295,7 @@ class Book(object):
 
     @property
     def publisher(self):
-        return self.epub.opf.metadata.publisher
+        return self.epub_file.opf.metadata.publisher
 
     @property
     def contributors(self):
@@ -346,20 +354,18 @@ class Book(object):
         """
         Return a list of linear chapter from spine.
         """
-        for identifier in [identifier for identifier, linear \
-                           in self.epub_file.opf.spine.itemrefs \
-                           if linear]:
-            yield BookChapter(self, identifier)
+        return [BookChapter(self, identifier)
+                for identifier, linear in self.epub_file.opf.spine.itemrefs
+                if linear]
 
     @property
     def extra_chapters(self):
         """
         Return a list of non-linear chapter from spine.
         """
-        for identifier in [identifier for identifier, linear \
-                           in self.epub_file.opf.spine.itemrefs \
-                           if not linear]:
-            yield BookChapter(self, identifier)
+        return [BookChapter(self, identifier)
+                for identifier, linear in self.epub_file.opf.spine.itemrefs
+                if not linear]
 
     def get_index_table(self, index_type=None):
         """

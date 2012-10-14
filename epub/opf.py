@@ -243,22 +243,30 @@ class Metadata(object):
         self.right = None
         self.metas = []
 
-    def add_title(self, title, lang=''):
+    def add_title(self, title, lang=None):
+        lang = lang or ''
         self.titles.append((title, lang))
 
-    def add_creator(self, name, role='aut', file_as=''):
+    def add_creator(self, name, role=None, file_as=None):
+        role = role or ''
+        file_as = file_as or ''
         self.creators.append((name, role, file_as))
 
     def add_subject(self, subject):
         self.subjects.append(subject)
 
-    def add_contributor(self, name, role='oth', file_as=''):
+    def add_contributor(self, name, role=None, file_as=None):
+        role = role or ''
+        file_as = file_as or ''
         self.contributors.append((name, role, file_as))
 
-    def add_date(self, date, event=''):
+    def add_date(self, date, event=None):
+        event = event or ''
         self.dates.append((date, event))
 
-    def add_identifier(self, content, identifier='', scheme=''):
+    def add_identifier(self, content, identifier=None, scheme=None):
+        identifier = identifier or ''
+        scheme = scheme or ''
         self.identifiers.append((content, identifier, scheme))
 
     def add_language(self, lang):
