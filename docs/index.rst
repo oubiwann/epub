@@ -7,6 +7,7 @@ Python-Epub
    epub/index
    epub/opf
    epub/ncx
+   epub/utils
    changelog
 
 Introduction
@@ -83,6 +84,20 @@ Sinon, vous pouvez obtenir la dernière version des sources via mercurial :
   cd epub
   python setup.py install
 
+Version et compatibilité
+------------------------
+
+Le module :mod:`epub` est disponible en version stable *0.5.0*.
+
+Cette version est **compatible et testée** avec Python 2.7 et Python 3.2.
+
+Cette version est **potentiellement compatible** avec Python 2.6, mais par
+manque de tests unitaires le mainteneur du module ne peut pas garantir de
+compatibilité.
+
+Cette version **n'est pas compatible** avec des versions de Python antérieures
+à la version 2.6.
+
 Utilisation
 -----------
 
@@ -92,7 +107,7 @@ Le cas d'utilisation le plus simple est représenté par le code suivant :
 
    import epub
    
-   book = epub.open('path/to/my/book.epub')
+   book = epub.open_epub('path/to/my/book.epub')
    
    for item in book.opf.manifest.values():
        # read the content

@@ -15,17 +15,23 @@ Encore de nouvelles améliorations.
   pypi (http://pypi.python.org/pypi/ordereddict) (il manque des tests pour
   être certain du bon fonctionnement avec Python 2.6).
 * Nouvelle classe `epub.Book` servant de proxy pour simplifier et abstraire
-  la manipulation du format epub.
+  la manipulation du format epub. *Fonctionnalité expérimentale*.
 * Ajout de la méthode :meth:`epub.EpubFile.extract_item` qui reprend le même
   principe que :meth:`~epub.EpubFile.read_item` en l'appliquant à l'exctraction
   de fichiers.
-* Ajout de la fonction :func:`epub.get_urlpath_part` permettant d'obtenir les
-  deux parties des chemins des fichiers utilisés (entre autre) dans le fichier
-  NCX.
+* Ajout de la fonction :func:`epub.utils.get_urlpath_part` permettant d'obtenir
+  les deux parties des chemins des fichiers utilisés (entre autre) dans le
+  fichier NCX ou l'élément spine du fichier OPF.
 * Support de Python 3.2, avec des test-unitaires passant avec Python 2.7 et
   Python 3.2.
 * Retrait de la notation des chaînes unicodes (le `u` devant les chaînes de
   caractères est retiré) dans la documentation.
+* Ajout d'un warning sur l'usage de la fonction `epub.open()` : fonction
+  dépréciée. Il vaut mieux utiliser :func:`epub.open_epub` à la place, qui
+  prend les mêmes paramètres, mais évite tout potentiel conflit avec la
+  fonction python `open()`.
+* Ajout d'une note sur la version et la compatibilité avec les versions de 
+  Python dans la documentation.
 
 Bug fix
 .......
@@ -38,7 +44,8 @@ Les bugs suivants ont été résolus :
 * `Issue #3`__ : *"_parse_xml_metadata should not choke on absent firstChild"*
   Une fonction a été ajoutée pour traiter la récupération de texte dans un
   noeud xml, et cette fonction est suffisament intelligente pour ne pas
-  planter au premier texte manquant.
+  planter au premier texte manquant. Voir aussi
+  :func:`epub.utils.get_node_text`.
 
 .. __: https://bitbucket.org/exirel/epub/issue/2/documentation-pub-on-tutorial-page
 .. __: https://bitbucket.org/exirel/epub/issue/3/_parse_xml_metadata-should-not-choke-on

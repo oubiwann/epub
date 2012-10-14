@@ -31,7 +31,7 @@ minimum la `spécification Epub 2`__, disponible en ligne sur le site de l'IDPF.
 Ouvrir un fichier Epub
 ----------------------
 
-La fonction principale du module est :func:`epub.open`, qui permet d'ouvrir 
+La fonction principale du module est :func:`epub.open_epub`, qui permet d'ouvrir 
 un fichier epub et d'obtenir un objet de la classe :class:`EpubFile`, 
 permettant de manipuler les données du fichier : son contenu et ses 
 meta-données.
@@ -48,18 +48,18 @@ spécifiquement dans la spécification OCF).
 .. __: http://idpf.org/epub/201
 
 De plus, l'objet :class:`EpubFile` implémentant les bonnes méthodes, vous 
-pouvez utiliser la fonction :func:`open` avec l'instruction ``with`` :
+pouvez utiliser la fonction :func:`open_epub` avec l'instruction ``with`` :
 
 .. code-block:: python
 
-   with epub.open('path/to/my_book.epub') as book:
+   with epub.open_epub('path/to/my_book.epub') as book:
        print 'Vous pouvez lire votre livre !'
 
 Lire le contenu du fichier
 --------------------------
 
 Suivant la norme Epub 2, le contenu du fichier epub est décrit par le fichier 
-opf, indiqué par le fichier ``META-INF/container.xml``. Si :func:`open` se 
+opf, indiqué par le fichier ``META-INF/container.xml``. Si :func:`open_epub` se 
 charge de le trouver pour vous, il vous reste à exploiter la liste des fichiers.
 
 Pour se faire, vous pouvez, au choix, utiliser les informations du fichier opf
@@ -70,7 +70,7 @@ Par exemple pour accéder à l'ensemble des items du fichier :
 
 .. code-block:: python
 
-   book = epub.open('book.epub')
+   book = epub.open_epub('book.epub')
    
    for item in book.opf.manifest.values():
        # read the content
@@ -81,7 +81,7 @@ l'objet de la classe :attr:`opf.Spine` disponible de cette façon :
 
 .. code-block:: python
 
-   book = epub.open('book.epub')
+   book = epub.open_epub('book.epub')
    
    for item_id, linear in book.opf.spine.itemrefs:
        item = book.get_item(item_id)
@@ -111,7 +111,7 @@ en retirer.
 
 .. code-block:: python
 
-   book = epub.open('book.epub', u'w')
+   book = epub.open_epub('book.epub', u'w')
    filename = 'path/to/file/to/add.xhtml'
    manifest_item = epub.opf.ManifestItem(identifier='IdFile',
                                          href='path/into/epub/add.xhtml',
@@ -127,10 +127,10 @@ Le contenu du fichier epub est réellement sauvegardé lorsqu'il est fermé, c'e
 API du module
 -------------
 
-La fonction open
-................
+La fonction open_epub
+.....................
 
-.. py:function:: open(filename, mode='r')
+.. py:function:: open_epub(filename, mode='r')
    
    Ouvre un fichier epub, et retourne un objet :class:`epub.EpubFile`. Vous
    pouvez ouvrir le fichier en lecture seule (mode `r` par défaut) ou en
@@ -141,7 +141,7 @@ La fonction open
    
    .. code-block:: python
       
-      with epub.open('path/to/my.epub') as book:
+      with epub.open_epub('path/to/my.epub') as book:
           # do thing with book, for exemple:
           print book.read_item('Text/cover.xhtml')
    
@@ -153,25 +153,6 @@ La fonction open
    et traité de la même façon qu'avec le mode `w`.
    
    :param string filename: chemin d'accès au fichier epub
-
-Autres fonctions
-................
-
-.. py:function:: get_urlpath_part(url)
-
-   Découpe une url en deux parties : l'url sans fragment, et le fragment.
-   S'il n'y a pas de fragment alors l'url est retournée telle qu'elle avec
-   fragment à `None`.
-
-   .. code-block:: python
-
-      url = 'text/chapter1.xhtml#part2'
-      href, fragment = get_urlpath_part(url)
-      print href # 'text/chapter1.xhtml'
-      print fragment # '#part2'
-
-   :param string url: Le chemin d'un fichier à décomposer en deux parties.
-   :rtype: tuple
 
 La classe EpubFile
 ..................
@@ -186,7 +167,7 @@ La classe EpubFile
    faut passer par les attributs :attr:`opf <epub.EpubFile.opf>` et 
    :attr:`toc <epub.EpubFile.toc>`.
    
-   Il est préférable d'utiliser la fonction :func:`epub.open` plutôt 
+   Il est préférable d'utiliser la fonction :func:`epub.open_epub` plutôt 
    qu'instancier directement un objet EpubFile.
 
    .. py:attribute:: EpubFile.opf
@@ -320,7 +301,7 @@ La classe EpubFile
 
       .. code-block:: python
       
-         book = epub.open('mybook.epub')
+         book = epub.open_epub('mybook.epub')
       
          # get chapter 1
          item = book.get_item('chap01')
