@@ -14,6 +14,7 @@ __all__ = ['opf', 'ncx', 'utils']
 
 import os
 import uuid
+import warnings
 import zipfile
 
 
@@ -33,7 +34,6 @@ DEFAULT_NCX_PATH = 'toc.ncx'
 
 def open(filename, mode=None):
     """Open an epub file and return an EpubFile object"""
-    import warnings
     warnings.warn('Function `epub.open` is deprecated since 0.5.0.',
                   DeprecationWarning)
     return open_epub(filename, mode)
@@ -123,12 +123,19 @@ class EpubFile(zipfile.ZipFile):
         # Read OPF xml file
         xml_string = self.read(self.opf_path)
         self.opf = opf.parse_opf(xml_string)
-        self.uid = [x for x in self.opf.metadata.identifiers
-                      if x[1] == self.opf.uid_id][0]
+        uids = [x for x in self.opf.metadata.identifiers
+                      if x[1] == self.opf.uid_id]
+        if uids:
+            self.uid = uids[0]
+        else:
+        	self.uid = None
+        	warnings.warn('The ePub does not define any uid', SyntaxWarning)
         item_toc = self.get_item(self.opf.spine.toc)
 
         # Inspect NCX toc file
-        self.toc = ncx.parse_toc(self.read_item(item_toc))
+        self.toc = None
+        if item_toc is not None:
+            self.toc = ncx.parse_toc(self.read_item(item_toc))
 
     def close(self):
         if self.fp is None:
