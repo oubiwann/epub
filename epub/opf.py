@@ -437,7 +437,10 @@ class Manifest(OrderedDict):
 
 
 class ManifestItem(object):
-    """Represent an item from the epub's manifest."""
+    """
+    Represent an item from the epub's manifest.
+
+    """
 
     def __init__(self, identifier, href, media_type=None, fallback=None,
                  required_namespace=None, required_modules=None,

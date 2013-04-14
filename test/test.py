@@ -7,7 +7,7 @@ import unittest
 import epub
 
 
-from shutil import copy
+from shutil import copy, rmtree
 
 
 TEST_XHTML_MIMETYPE = 'application/xhtml+xml'
@@ -17,7 +17,7 @@ class TestFunction(unittest.TestCase):
     epub_path = '_data/test.epub'
 
     def test_version(self):
-        self.assertEqual(epub.__version__, '0.5.0')
+        self.assertEqual(epub.__version__, '0.5.1')
 
     def test_open(self):
         test_path = os.path.join(os.path.dirname(__file__), self.epub_path)
@@ -180,44 +180,26 @@ class TestFunctionWriteModeAppend(TestFunctionWriteMode):
 class TestEpubFile(unittest.TestCase):
     """Test class for epub.EpubFile class"""
 
-    epub_path = '_data/test.epub'
-    extracted_dir = '_data'
-    extracted_name = 'OEBPS/Text/Section0002.xhtml'
+    epub_path = os.path.join(os.path.dirname(__file__), '_data/test.epub')
+    extracted_dir = os.path.join(os.path.dirname(__file__), '_data/tmp')
 
     def setUp(self):
-        test_path = os.path.join(os.path.dirname(__file__), self.epub_path)
-        self.epub_file = epub.open(test_path)
+        self.epub_file = epub.open(self.epub_path)
+        if not os.path.exists(self.extracted_dir):
+            os.mkdir(self.extracted_dir)
 
     def tearDown(self):
         self.epub_file.close()
-
-        extracted_filename = os.path.join(os.getcwd(),
-                                          self.extracted_name)
-        if os.path.isfile(extracted_filename):
-            os.remove(extracted_filename)
-
-        extracted_filename = os.path.join(os.path.dirname(__file__),
-                                          self.extracted_dir,
-                                          self.extracted_name)
-        if os.path.isfile(extracted_filename):
-            os.remove(extracted_filename)
-
-    def test_extract_item(self):
-        item = self.epub_file.get_item('Section0002.xhtml')
-
-        self.epub_file.extract_item(item)
-        extracted_filename = os.path.join(os.getcwd(),
-                                          self.extracted_name)
-        self.assertTrue(os.path.isfile(extracted_filename))
+        if os.path.exists(self.extracted_dir):
+            rmtree(self.extracted_dir)
 
     def test_extract_item_to_path(self):
         item = self.epub_file.get_item('Section0002.xhtml')
-        extracted_dir = os.path.join(os.path.dirname(__file__),
-                                     self.extracted_dir)
 
-        self.epub_file.extract_item(item, to_path=extracted_dir)
-        extracted_filename = os.path.join(extracted_dir,
-                                          self.extracted_name)
+        self.epub_file.extract_item(item, to_path=self.extracted_dir)
+        extracted_filename = os.path.join(self.extracted_dir,
+                                          self.epub_file.content_path,
+                                          item.href)
         self.assertTrue(os.path.isfile(extracted_filename))
 
     def test_get_item(self):
@@ -270,12 +252,15 @@ class TestEpubFile(unittest.TestCase):
 
 
 class TestBook(unittest.TestCase):
+    """
+    Test the behavior of epub.Book object.
 
-    epub_path = '_data/test.epub'
+    """
+
+    epub_path = os.path.join(os.path.dirname(__file__), '_data/test.epub')
 
     def setUp(self):
-        test_path = os.path.join(os.path.dirname(__file__), self.epub_path)
-        self.epub_file = epub.open(test_path)
+        self.epub_file = epub.open_epub(self.epub_path)
 
     def tearDown(self):
         self.epub_file.close()
@@ -286,6 +271,7 @@ class TestBook(unittest.TestCase):
 
         for chapter in book.chapters:
             self.assertIsNotNone(chapter)
+            self.assertIsInstance(chapter, epub.BookChapter)
 
     def test_extra_chapters(self):
         book = epub.Book(self.epub_file)
@@ -336,10 +322,10 @@ class TestBook(unittest.TestCase):
         book = epub.Book(self.epub_file)
         self.assertEquals(book.dc_type, 'test_type')
 
-    def test_format(self):
+    def test_dc_format(self):
         self.epub_file.opf.metadata.format = 'test_format'
         book = epub.Book(self.epub_file)
-        self.assertEquals(book.format, 'test_format')
+        self.assertEquals(book.dc_format, 'test_format')
 
     def test_identifiers(self):
         book = epub.Book(self.epub_file)
@@ -393,3 +379,18 @@ class TestBook(unittest.TestCase):
         self.epub_file.opf.metadata.add_title(title, lang)
         book = epub.Book(self.epub_file)
         self.assertIn((title, lang), book.titles)
+
+
+class TestBookChapter(unittest.TestCase):
+
+    epub_path = os.path.join(os.path.dirname(__file__), '_data/test.epub')
+
+    def setUp(self):
+        self.epub_file = epub.open_epub(self.epub_path)
+        self.book = epub.Book(self.epub_file)
+
+    def test_read(self):
+        chapter = self.book.chapters[0]
+        origin = self.epub_file.get_item(chapter.identifier)
+        self.assertEquals(chapter.read(),
+                          self.epub_file.read_item(origin))

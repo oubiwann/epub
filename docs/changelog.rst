@@ -4,6 +4,15 @@ Changelog
 .. toctree::
    :maxdepth: 2
 
+Version 0.5.1
+-------------
+
+* Il est désormais possible d'ouvrir un fichier epub qui ne contient pas
+  de fichier NCX. Un warning est levé lorsqu'un tel fichier epub est ouvert.
+* Il est désormais possible d'ouvrir un fichier epub n'ayant pas d'UID.
+  Un warning est levé lorsqu'un tel fichier epub est ouvert.
+
+
 Version 0.5.0
 -------------
 

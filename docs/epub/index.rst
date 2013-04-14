@@ -28,6 +28,7 @@ minimum la `spécification Epub 2`__, disponible en ligne sur le site de l'IDPF.
 
 .. __: http://idpf.org/epub/201
 
+
 Ouvrir un fichier Epub
 ----------------------
 
@@ -54,6 +55,7 @@ pouvez utiliser la fonction :func:`open_epub` avec l'instruction ``with`` :
 
    with epub.open_epub('path/to/my_book.epub') as book:
        print 'Vous pouvez lire votre livre !'
+
 
 Lire le contenu du fichier
 --------------------------
@@ -99,6 +101,7 @@ représente le fichier de navigation du livre numérique, et propose une
 structure logique de lecture des fichiers (mais cela demande une connaissance 
 plus approfondie de la structure d'un fichier epub).
 
+
 Écrire dans un fichier epub
 ---------------------------
 
@@ -123,6 +126,7 @@ Ce petit exemple vous montre le fonctionnement, qui reste très basique.
 
 Le contenu du fichier epub est réellement sauvegardé lorsqu'il est fermé, c'est
 à dire à l'appel de la méthode :meth:`epub.EpubFile.close`.
+
 
 API du module
 -------------
@@ -316,3 +320,12 @@ La classe EpubFile
       
       :param mixed item: Le chemin ou le Manifest Item.
       :rtype: string
+
+La classe Book
+..............
+
+.. py:class:: Book
+
+   Cette classe permet de simplifier l'accès en lecture à un fichier epub.
+   Un objet Book sert de proxy à l'objet plus complexe EpubFile, par un
+   ensemble de `@property` adaptées.

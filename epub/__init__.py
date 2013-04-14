@@ -8,7 +8,7 @@ Library to open and read files in the epub version 2.
 
 
 __author__ = 'Florian Strzelecki <florian.strzelecki@gmail.com>'
-__version__ = '0.5.0'
+__version__ = '0.5.1'
 __all__ = ['opf', 'ncx', 'utils']
 
 
@@ -56,6 +56,7 @@ class EpubFile(zipfile.ZipFile):
     behavior.
 
     See http://idpf.org/epub/201 for more information about Epub 2.0.1.
+
     """
 
     @property
@@ -65,12 +66,14 @@ class EpubFile(zipfile.ZipFile):
 
         If OPF file is located in `OEBPS/content.opf`, then `content_path` is
         equal to `OEBPS`.
+
         """
         return os.path.dirname(self.opf_path)
 
     def __init__(self, filename, mode=None):
         """
         Open the Epub zip file with mode read "r", write "w" or append "a".
+
         """
         mode = mode or 'r'
         zipfile.ZipFile.__init__(self, filename, mode)
@@ -88,6 +91,7 @@ class EpubFile(zipfile.ZipFile):
     def _init_new(self):
         """
         Build an empty epub archive.
+
         """
         # Write mimetype file: 'application/epub+zip'
         self.writestr('mimetype', MIMETYPE_EPUB)
@@ -128,14 +132,20 @@ class EpubFile(zipfile.ZipFile):
         if uids:
             self.uid = uids[0]
         else:
-        	self.uid = None
-        	warnings.warn('The ePub does not define any uid', SyntaxWarning)
+            self.uid = None
+            warnings.warn('The ePub does not define any uid', SyntaxWarning)
+
         item_toc = self.get_item(self.opf.spine.toc)
 
         # Inspect NCX toc file
         self.toc = None
         if item_toc is not None:
             self.toc = ncx.parse_toc(self.read_item(item_toc))
+        else:
+            warnings.warn('The ePub does not define any NCX file',
+                          SyntaxWarning)
+            self.toc = ncx.Ncx()
+            self.toc.uid = self.uid
 
     def close(self):
         if self.fp is None:
@@ -148,6 +158,7 @@ class EpubFile(zipfile.ZipFile):
         """
         Handle writes when closing epub. Both new file mode (w) and append
         file mode (a), some files must be generated: container, OPF, and NCX.
+
         """
         # Write META-INF/container.xml
         self.writestr('META-INF/container.xml',
@@ -155,10 +166,11 @@ class EpubFile(zipfile.ZipFile):
         # Write OPF File
         self.writestr(self.opf_path,
                       self.opf.as_xml_document().toxml().encode('utf-8'))
-        # Write NCX File
+        # Write NCX File if exist
         item_toc = self.get_item(self.opf.spine.toc)
-        self.writestr(os.path.join(self.content_path, item_toc.href),
-                      self.toc.as_xml_document().toxml().encode('utf-8'))
+        if item_toc:
+            self.writestr(os.path.join(self.content_path, item_toc.href),
+                          self.toc.as_xml_document().toxml().encode('utf-8'))
 
     def _build_container(self):
         template = """<?xml version="1.0" encoding="UTF-8"?>
@@ -181,6 +193,7 @@ class EpubFile(zipfile.ZipFile):
         Optional: you can use `append_to_spine` flag (default=False) to append
         item to spine, and use `is_linear` (default=True) to specify if it is
         linear or not.
+
         """
         self.check_mode_write()
         self.opf.manifest.append(manifest_item)
@@ -196,6 +209,7 @@ class EpubFile(zipfile.ZipFile):
         Raise RuntimeError if file is already closed.
 
         Raise IOError if file is opened read-only.
+
         """
         if not self.fp:
             raise RuntimeError(
@@ -210,6 +224,7 @@ class EpubFile(zipfile.ZipFile):
     def extract_item(self, item, to_path=None):
         """
         Extract an item from its href in epub archive to `to_path` location.
+
         """
         path = item
         if hasattr(item, 'href'):
@@ -222,6 +237,7 @@ class EpubFile(zipfile.ZipFile):
         Get an item from manifest through its "id" attribute.
 
         Return an EpubManifestItem if found, else None.
+
         """
         return self.opf.manifest.get(identifier, None)
 
@@ -230,6 +246,7 @@ class EpubFile(zipfile.ZipFile):
         Get an item from manifest through its "href" attribute.
 
         Return an EpubManifestItem if found, else None.
+
         """
         l = [x for x in self.opf.manifest.values() if x.href == href]
         size = len(l)
@@ -251,6 +268,7 @@ class EpubFile(zipfile.ZipFile):
 
         Html fragments are not acceptable : the path must be exactly the same
         as indicated in the opf file.
+
         """
         path = item
         if hasattr(item, 'href'):
@@ -262,6 +280,7 @@ class Book(object):
     """
     This class is an attempt (work in progress) to expose a simpler object
     model than EpubFile.
+
     """
 
     def __init__(self, epub_file):
@@ -296,7 +315,7 @@ class Book(object):
         return self.epub_file.opf.metadata.dc_type
 
     @property
-    def format(self):
+    def dc_format(self):
         return self.epub_file.opf.metadata.format
 
     @property
@@ -355,6 +374,10 @@ class Book(object):
 
 
 class BookChapter(object):
+
+    @property
+    def identifier(self):
+        return self._manifest_item.identifier
 
     def __init__(self, book, identifier, fragment=None):
         self._book = book
