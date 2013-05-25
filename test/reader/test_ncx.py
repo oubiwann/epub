@@ -358,7 +358,7 @@ class TestFunction(unittest.TestCase):
         xml_string = """<text>Some text</text>"""
         xml_element = epub.ncx._create_xml_element_text('Some text')
         self.assertEqual(xml_element.toxml(), xml_string)
-        
+
         xml_string = """<otherText>Some text</otherText>"""
         xml_element = epub.ncx._create_xml_element_text('Some text', 'otherText')
         self.assertEqual(xml_element.toxml(), xml_string)
@@ -373,7 +373,7 @@ class TestFunction(unittest.TestCase):
 
 
 class TestNavPoint(unittest.TestCase):
-    
+
     def test_as_xml_element(self):
         xml_string = """<navPoint class="some_class" id="point5" playOrder="5">""" + \
             """<navLabel xml:lang="fr" dir="ltr"><text>Label fr</text></navLabel>""" + \
@@ -397,7 +397,7 @@ class TestNavPoint(unittest.TestCase):
 
 
 class TestNavMap(unittest.TestCase):
-    
+
     def test_as_xml_element(self):
         xml_string = """<navMap id="someId">""" + \
             """<navLabel xml:lang="fr" dir="ltr"><text>Label fr</text></navLabel>""" + \
@@ -494,12 +494,12 @@ class TestNavList(unittest.TestCase):
 
 
 class TestNcx(unittest.TestCase):
-    
+
     def test_as_xml_document(self):
         """Check if ncx.as_xml_document reproduce a good xml.
-        
+
         ... And yeah, I hate XML with unit testing :("""
-        
+
         xml_string = """<?xml version="1.0" ?>
 <ncx version="2005-1" xml:lang="en-US" xmlns="http://www.daisy.org/z3986/2005/ncx/">
     <head>

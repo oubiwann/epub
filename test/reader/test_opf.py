@@ -89,9 +89,9 @@ class TestFunction(unittest.TestCase):
                 Python nosetests
             </dc:contributor>
             <dc:description>
-                A long description. There is not any information about how a 
+                A long description. There is not any information about how a
                 description must be. Long, short, etc.
-                
+
                 We just don't know anything about this.
             </dc:description>
             <dc:date opf:event="creation">
@@ -152,9 +152,9 @@ class TestFunction(unittest.TestCase):
 
         # dc:description
         self.assertEqual(metadata.description,
-            """A long description. There is not any information about how a 
+            """A long description. There is not any information about how a
                 description must be. Long, short, etc.
-                
+
                 We just don't know anything about this.""")
 
         # dc:contributor
