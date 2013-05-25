@@ -6,7 +6,7 @@ from genshi.template import TemplateLoader
 import epub
 
 
-class Section:
+class Section(object):
 
     def __init__(self):
         self.title = ''
@@ -16,7 +16,7 @@ class Section:
         self.templateFileName = 'ez-section.html'
 
 
-class Book:
+class Book(object):
 
     def __init__(self, title='', authors=None, cover='', lang='en-UD',
                  sections=None, template_loader=None):

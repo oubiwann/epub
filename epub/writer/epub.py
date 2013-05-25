@@ -19,7 +19,7 @@ from genshi.template import TemplateLoader
 
 
 
-class TocMapNode:
+class TocMapNode(object):
 
     def __init__(self):
         self.playOrder = 0
@@ -39,7 +39,7 @@ class TocMapNode:
             child.__assignPlayOrder(nextPlayOrder)
 
 
-class EpubItem:
+class EpubItem(object):
 
     def __init__(self):
         self.id = ''
@@ -49,7 +49,7 @@ class EpubItem:
         self.html = ''
 
 
-class EpubBook:
+class EpubBook(object):
 
     def __init__(self):
         self.loader = TemplateLoader('templates')
@@ -343,6 +343,7 @@ class EpubBook:
 
 
 def test():
+
     def getMinimalHtml(text):
         return """<!DOCTYPE html PUBLIC "-//W3C//DTD XHtml 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
