@@ -1,16 +1,18 @@
 # -*- coding: utf-8 -*-
 
 # Copyright (c) 2012, Bin Tan
-# This file is distributed under the BSD Licence. See python-epub-builder-license.txt for details.
-
+# This file is distributed under the BSD Licence. See
+# python-epub-builder-license.txt for details.
 import re
 import ez_epub
+
 
 def formatParagraph(paragraph):
     paragraph = paragraph.replace('--', '¡ª')
     paragraph = re.sub(r' +', ' ', paragraph)
     paragraph = re.sub(r'_(.+?)_', r'<em>\1</em>', paragraph)
     return segmentParagraph(paragraph)
+
 
 def segmentParagraph(paragraph):
     segments = []
@@ -27,7 +29,8 @@ def segmentParagraph(paragraph):
     if textStart < len(paragraph):
         segments.append((paragraph[textStart :], ' '.join(style)))
     return segments
-    
+
+
 def parseBook(path, startLineNum, endLineNum):
     PATTERN = re.compile(r'Chapter \d+$')
     sections = []
@@ -57,6 +60,7 @@ def parseBook(path, startLineNum, endLineNum):
     if paragraph != '':
         section.text.append(formatParagraph(paragraph))
     return sections
+
 
 if __name__ == '__main__':
     book = ez_epub.Book()

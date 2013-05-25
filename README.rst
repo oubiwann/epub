@@ -17,7 +17,7 @@ pip install or pip site, or clone latest version from bitbucket repository.
 
     # install from pip
     pip install epub
-    
+
     # install latest version from repository (not recommended)
     hg clone https://bitbucket.org/exirel/epub
     cd epub

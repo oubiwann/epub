@@ -1,8 +1,9 @@
 # Copyright (c) 2012, Bin Tan
-# This file is distributed under the BSD Licence. See python-epub-builder-license.txt for details.
+# This file is distributed under the BSD Licence. See
+# python-epub-builder-license.txt for details.
+from genshi.template import TemplateLoader
 
 import epub
-from genshi.template import TemplateLoader
 
 
 class Section:
@@ -17,14 +18,15 @@ class Section:
 
 class Book:
 
-    def __init__(self):
+    def __init__(self, title='', authors=None, cover='', lang='en-UD',
+                 sections=None, template_loader=None):
         self.impl = epub.EpubBook()
-        self.title = ''
-        self.authors = []
-        self.cover = ''
-        self.lang = 'en-US'
-        self.sections = []
-        self.templateLoader = TemplateLoader('templates')
+        self.title = title
+        self.authors = authors or []
+        self.cover = cover
+        self.lang = lang
+        self.sections = sections or []
+        self.templateLoader = template_loader or TemplateLoader('templates')
 
     def __addSection(self, section, id, depth):
         if depth > 0:

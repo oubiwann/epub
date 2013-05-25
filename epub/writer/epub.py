@@ -1,18 +1,22 @@
 # -*- coding: utf-8 -*-
 
 # Copyright (c) 2012, Bin Tan
-# This file is distributed under the BSD Licence. See python-epub-builder-license.txt for details.
-
+# This file is distributed under the BSD Licence. See
+# python-epub-builder-license.txt for details.
 import itertools
 import mimetypes
 import os
+import progressbar
 import shutil
 import subprocess
 import uuid
 import zipfile
-import progressbar
-from genshi.template import TemplateLoader
+
+
 from lxml import etree
+
+from genshi.template import TemplateLoader
+
 
 
 class TocMapNode:
@@ -389,6 +393,7 @@ def test():
     book.createBook(rootDir)
     EpubBook.createArchive(rootDir, rootDir + '.epub')
     EpubBook.checkEpub('epubcheck-1.0.5.jar', rootDir + '.epub')
+
 
 if __name__ == '__main__':
     test()
