@@ -12,8 +12,8 @@ from pdfminer.pdftypes import LITERALS_DCT_DECODE
 import pdf_customizers
 
 
-class PDFFile:
-    
+class PDFFile(object):
+
     def __init__(self, controller, fileName):
         self.controller = controller
         self.fileName = fileName
@@ -22,7 +22,7 @@ class PDFFile:
         self.pageObjMap = None
         self.pageCount = 0
         self.pageOffset = 0
-        
+
     def getDoc(self):
         if not self.doc:
             fin = open(self.fileName, 'rb')
@@ -35,7 +35,7 @@ class PDFFile:
             if not self.doc.is_extractable:
                 raise Exception("Unable to extract PDF")
         return self.doc
-    
+
     def getPageId(self, objid):
         if not self.pageObjMap:
             self.pageObjMap = {}
@@ -44,21 +44,21 @@ class PDFFile:
                 pageId += 1
                 self.pageObjMap[page.pageid] = pageId
         return self.pageObjMap.get(objid, 0);
-    
+
     def getPageCount(self):
         if self.pageCount == 0:
             for _ in self.getDoc().get_pages():
                 self.pageCount += 1
         return self.pageCount
-    
+
     def getToc(self):
         if not self.toc:
             self.controller.extractToc(self)
         return self.toc
 
 
-class Controller:
-    
+class Controller(object):
+
     def __init__(self, pdfFileNames):
         self.pdfFiles = []
         pageOffset = 0
@@ -67,7 +67,7 @@ class Controller:
             pdfFile.pageOffset = pageOffset
             pageOffset += pdfFile.getPageCount()
             self.pdfFiles.append(pdfFile)
-            
+
     def extractToc(self, pdfFile):
         pdfFile.toc = []
         for (level, title, dest, a, se) in pdfFile.getDoc().get_outlines():
@@ -76,7 +76,7 @@ class Controller:
 
     def getDevice(self, resourceManager):
         return PDFPageAggregator(resourceManager)
-    
+
     def output(self, handler, pageLimit = 0):
         handler.beginCollection(self.pdfFiles)
         for pdfFile in self.pdfFiles:
@@ -94,11 +94,11 @@ class Controller:
         handler.endCollection()
 
 
-class PDFHandler:
-    
+class PDFHandler(object):
+
     def __init__(self):
         pass
-    
+
     def beginCollection(self, pdfFiles):
         self.pdfFiles = pdfFiles
         self.pageId = 0
@@ -106,32 +106,32 @@ class PDFHandler:
         self.totalPageCount = 0
         for pdfFile in pdfFiles:
             self.totalPageCount += pdfFile.getPageCount()
-    
+
     def endCollection(self):
         pass
-    
+
     def beginFile(self, pdfFile):
         self.pdfFile = pdfFile
-    
+
     def endFile(self):
         pass
-    
+
     def doPage(self, ltPage):
         self.pageId += 1
         print self.pageId
 
-        
+
 class TextOutputHandler(PDFHandler):
-    
+
     def __init__(self, outputFileName, lineLength = 50):
         PDFHandler.__init__(self)
         self.outputFileName = outputFileName
         self.lineLength = lineLength
-        
+
     def beginCollection(self, pdfFiles):
         PDFHandler.beginCollection(self, pdfFiles)
         self.sout = StringIO.StringIO()
-    
+
     def endCollection(self):
         PDFHandler.endCollection(self)
         fout = open(self.outputFileName, 'w')
@@ -140,7 +140,7 @@ class TextOutputHandler(PDFHandler):
                 fout.write('%s%s PAGE %d\n' % (' ' * (2 * level - 2), title.encode('utf-8'), pdfFile.pageOffset + pageId))
         fout.write(self.sout.getvalue())
         fout.close()
-        
+
     def doPage(self, ltPage):
         PDFHandler.doPage(self, ltPage)
         self.sout.write('\nPAGE %d\n' % self.pageId)
@@ -154,18 +154,18 @@ class TextOutputHandler(PDFHandler):
             self.outputText(ltItem)
         elif isinstance(ltItem, LTImage):
             self.outputImage(ltItem)
-    
+
     def outputContainer(self, ltContainer):
         self.sout.write('\n')
         for child in ltContainer:
             self.outputItem(child)
         self.sout.write('\n')
-    
+
     def outputText(self, ltText):
         text = ltText.get_text()
         self.incTextPos(len(text))
         self.sout.write(text.encode('utf-8'))
-        
+
     def outputImage(self, ltImage):
         self.imageId += 1
         self.sout.write('IMAGE %s\n' % self.imageId)
@@ -174,30 +174,30 @@ class TextOutputHandler(PDFHandler):
         self.textPos += k
         if self.textPos > self.lineLength:
             self.sout.write('\n')
-            self.textPos = k    
+            self.textPos = k
 
 
 class HTMLOutputHandler(PDFHandler):
-    
-    class FontRegistry:
-        
+
+    class FontRegistry(object):
+
         def __init__(self):
             self.fontMap = {}
             self.cssClassMap = {}
             self.chCount = {}
             self.chWidthSum = {}
-            
+
         def getCSSClass(self, fontName, fontSize):
             fontSize = int(round(fontSize))
             fontId = self.fontMap.setdefault(fontName, len(self.fontMap) + 1)
-            cssClass = 'f%d_%d' % (fontId, fontSize) 
+            cssClass = 'f%d_%d' % (fontId, fontSize)
             self.cssClassMap.setdefault((fontName, fontSize), cssClass)
             return cssClass
-            
+
         def countChar(self, cssClass, chWidth):
             self.chCount[cssClass] = self.chCount.get(cssClass, 0) + 1
             self.chWidthSum[cssClass] = self.chWidthSum.get(cssClass, 0) + chWidth
-        
+
         def getFonts(self):
             l = []
             for (fontName, fontSize), cssClass in self.cssClassMap.iteritems():
@@ -206,20 +206,20 @@ class HTMLOutputHandler(PDFHandler):
                 l.append((cssClass, fontName, self.fontMap[fontName], fontSize, chCount, chWidthSum))
             l.sort(cmp = lambda x, y: cmp(x[3], y[3]) if x[2] == y[2] else cmp(x[2], y[2]))
             return l
-    
+
     def __init__(self, outputDirName, scale = 1.0):
         PDFHandler.__init__(self)
         self.outputDirName = outputDirName
         try:
-            os.makedirs(os.path.join(self.outputDirName, 'images'))
+            os.make_dirs(os.path.join(self.outputDirName, 'images'))
         except OSError:
             pass
         self.scale = scale
-        
+
     def beginCollection(self, pdfFiles):
         PDFHandler.beginCollection(self, pdfFiles)
         self.fontRegistry = HTMLOutputHandler.FontRegistry()
-        
+
     def endCollection(self):
         PDFHandler.endCollection(self)
         fout = open(os.path.join(self.outputDirName, 'toc.htm'), 'w')
@@ -242,7 +242,7 @@ class HTMLOutputHandler(PDFHandler):
 </html>
 """)
         fout.close()
-        
+
         fout = open(os.path.join(self.outputDirName, 'main.css'), 'w')
         fout.write("""#toc a { text-decoration:none; }
 .nav a { text-decoration:none; }
@@ -251,7 +251,7 @@ class HTMLOutputHandler(PDFHandler):
             avgWidth = int(round(chWidthSum / chCount)) if chCount > 0 else 0
             fout.write('.%s { font-size:%dpx; } /* %d %s */\n' % (cssClass, fontSize * self.scale, avgWidth, fontName))
         fout.close()
-    
+
     def doPage(self, ltPage):
         PDFHandler.doPage(self, ltPage)
         self.sout = StringIO.StringIO()
@@ -261,10 +261,10 @@ class HTMLOutputHandler(PDFHandler):
         left, top, right, bottom, width, height = self.getDimensions(ltPage)
         if self.pageId > 1:
             self.sout.write('<div class="nav" style="position:absolute; left:0; top:0"><a href="%d.htm">&lt;</a></div>\n' % (self.pageId - 1))
-        if self.pageId < self.totalPageCount: 
+        if self.pageId < self.totalPageCount:
             self.sout.write('<div class="nav" style="position:absolute; right:0; top:0"><a href="%d.htm">&gt;</a></div>\n' % (self.pageId + 1))
             self.sout.write('<div class="nav" style="position:absolute; right:0; bottom:0"><a href="%d.htm">&gt;</a></div>\n' % (self.pageId + 1))
-        self.sout.write('<div class="nav" style="position:absolute; left:0; bottom:0"><a href="toc.htm">=</a></div>\n')       
+        self.sout.write('<div class="nav" style="position:absolute; left:0; bottom:0"><a href="toc.htm">=</a></div>\n')
         fout = open(os.path.join(self.outputDirName, '%d.htm' % self.pageId), 'w')
         fout.write("""<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -280,7 +280,7 @@ class HTMLOutputHandler(PDFHandler):
 </html>
 """  % (self.pageId, width, height, self.sout.getvalue()))
         fout.close()
-        
+
     def getDimensions(self, ltItem):
         left = ltItem.x0 * self.scale
         top = (self.maxy - ltItem.y1) * self.scale
@@ -289,12 +289,12 @@ class HTMLOutputHandler(PDFHandler):
         width = ltItem.width * self.scale
         height = ltItem.height * self.scale
         return (left, top, right, bottom, width, height)
-        
+
     def outputRect(self, ltItem, color, label):
         left, top, right, bottom, width, height = self.getDimensions(ltItem)
         self.sout.write('<!-- %s %d %d %d %d --><div style="position:absolute; border:%s 1px solid; left:%dpx; top:%dpx; width:%dpx; height:%dpx;"></div>\n' %
                          (label, left, top, right, bottom, color, left, top, width, height))
-    
+
     def outputItem(self, ltItem):
         if isinstance(ltItem, LTContainer):
             self.outputRect(ltItem, 'Lavender', type(ltItem).__name__)
@@ -306,7 +306,7 @@ class HTMLOutputHandler(PDFHandler):
             self.outputImage(ltItem)
         else:
             self.outputRect(ltItem, 'Lavender', type(ltItem).__name__)
-    
+
     def outputText(self, ltText):
         left, top, right, bottom, width, height = self.getDimensions(ltText)
         cssClass = self.fontRegistry.getCSSClass(ltText.fontname, ltText.size * 0.8)
@@ -338,9 +338,9 @@ class HTMLOutputHandler(PDFHandler):
 
         left, top, right, bottom, width, height = self.getDimensions(ltImage)
         self.sout.write('<!-- %d %d %d %d --><img style="position:absolute; left:%dpx; top:%dpx;" width="%d" height="%d" src="images/%s" alt="%s"/>\n' %
-                        (left, top, right, bottom, left, top, width, height, fileName, fileName))            
+                        (left, top, right, bottom, left, top, width, height, fileName, fileName))
 
-        
+
 def main(inputFileNames, outputName, mode, format, txtLineLength, htmlScale, pageLimit):
     if format == 'txt':
         handler = TextOutputHandler(outputName + '.txt', txtLineLength)
@@ -355,7 +355,7 @@ def main(inputFileNames, outputName, mode, format, txtLineLength, htmlScale, pag
     else:
         controller = Controller(inputFileNames)
     controller.output(handler, pageLimit)
-    
+
 def main0():
     def usage():
         print 'Usage: python pdf_converter.py [--format=html|txt] [--mode=...] [--line=50] [--scale=1.25] [--pagelimit=0] input1 input2 ... output'
@@ -405,11 +405,11 @@ def main0():
     inputs = args[:-1]
     output = args[-1]
     main(inputs, output, mode, format, txtLineLength, htmlScale, pageLimit)
-    
+
 def main1():
     fileNames = [r'K:\Reference\JTCSJJ\外国文学\L65.pdf']
     fileNames = [unicode(x).encode('cp936') for x in fileNames]
     main(fileNames, 'D:\\pdfconv\\ZXSQJ', 'jtcsjj', 'html', 40, 1, 0)
-    
+
 if __name__ == '__main__':
     main1()

@@ -8,7 +8,7 @@ This file is distributed under the BSD Licence. See python-epub-builder-license.
     version="2005-1">
   <head>
     <meta name="dtb:uid" content="urn:uuid:${book.UUID}"/>
-    <meta name="dtb:depth" content="${book.getTocMapHeight()}"/>
+    <meta name="dtb:depth" content="${book.get_toc_map_height()}"/>
     <meta name="dtb:totalPageCount" content="0"/>
     <meta name="dtb:maxPageNumber" content="0"/>
   </head>
@@ -25,7 +25,7 @@ This file is distributed under the BSD Licence. See python-epub-builder-license.
       </py:for>
     </navPoint>
     </py:def>
-    <py:for each="child in book.getTocMapRoot().children">
+    <py:for each="child in book.get_toc_map_root().children">
     ${navPoint(child)}
     </py:for>
   </navMap>

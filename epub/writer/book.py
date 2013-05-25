@@ -28,15 +28,15 @@ class ToCMapNode(object):
         self.children = []
         self.depth = 0
 
-    def assignPlayOrder(self):
+    def assign_play_order(self):
         nextPlayOrder = [0]
-        self.__assignPlayOrder(nextPlayOrder)
+        self._assign_play_order(nextPlayOrder)
 
-    def __assignPlayOrder(self, nextPlayOrder):
+    def _assign_play_order(self, nextPlayOrder):
         self.playOrder = nextPlayOrder[0]
         nextPlayOrder[0] = self.playOrder + 1
         for child in self.children:
-            child.__assignPlayOrder(nextPlayOrder)
+            child._assign_play_order(nextPlayOrder)
 
 
 class EPubItem(object):
@@ -54,43 +54,43 @@ class EPubBook(object):
     def __init__(self):
         self.loader = TemplateLoader('templates')
 
-        self.rootDir = ''
-        self.UUID = uuid.uuid1()
+        self.root_dir = ''
+        self.uuid = uuid.uuid1()
 
         self.lang = 'en-US'
         self.title = ''
         self.creators = []
-        self.metaInfo = []
+        self.meta_info = []
 
-        self.imageItems = {}
-        self.htmlItems = {}
-        self.cssItems = {}
-        self.scriptItems = {}
+        self.image_items = {}
+        self.html_items = {}
+        self.css_items = {}
+        self.script_items = {}
 
-        self.coverImage = None
-        self.titlePage = None
-        self.tocPage = None
+        self.cover_image = None
+        self.title_page = None
+        self.toc_page = None
 
         self.spine = []
         self.guide = {}
-        self.tocMapRoot = TocMapNode()
-        self.lastNodeAtDepth = {0 : self.tocMapRoot}
+        self.toc_map_root = TocMapNode()
+        self.last_node_at_depth = {0 : self.toc_map_root}
 
-    def setTitle(self, title):
+    def set_title(self, title):
         self.title = title
 
-    def setLang(self, lang):
+    def set_lang(self, lang):
         self.lang = lang
 
-    def addCreator(self, name, role = 'aut'):
+    def add_creator(self, name, role = 'aut'):
         self.creators.append((name, role))
 
-    def addMeta(self, metaName, metaValue, **metaAttrs):
-        self.metaInfo.append((metaName, metaValue, metaAttrs))
+    def add_meta(self, metaName, metaValue, **metaAttrs):
+        self.meta_info.append((metaName, metaValue, metaAttrs))
 
-    def getMetaTags(self):
+    def get_meta_tags(self):
         l = []
-        for metaName, metaValue, metaAttr in self.metaInfo:
+        for metaName, metaValue, metaAttr in self.meta_info:
             beginTag = '<dc:%s' % metaName
             if metaAttr:
                 for attrName, attrValue in metaAttr.iteritems():
@@ -100,185 +100,185 @@ class EPubBook(object):
             l.append((beginTag, metaValue, endTag))
         return l
 
-    def getImageItems(self):
-        return sorted(self.imageItems.values(), key = lambda x : x.id)
+    def get_image_items(self):
+        return sorted(self.image_items.values(), key = lambda x : x.id)
 
-    def getHtmlItems(self):
-        return sorted(self.htmlItems.values(), key = lambda x : x.id)
+    def get_html_items(self):
+        return sorted(self.html_items.values(), key = lambda x : x.id)
 
-    def getCssItems(self):
-        return sorted(self.cssItems.values(), key = lambda x : x.id)
+    def get_css_items(self):
+        return sorted(self.css_items.values(), key = lambda x : x.id)
 
-    def getScriptItems(self):
-        return sorted(self.scriptItems.values(), key = lambda x : x.id)
+    def get_script_items(self):
+        return sorted(self.script_items.values(), key = lambda x : x.id)
 
-    def getAllItems(self):
+    def get_all_items(self):
         print '   Items in ebook:'
-        print '     HTML:', len(self.htmlItems)
-        print '     CSS:', len(self.cssItems)
-        print '     JS:', len(self.scriptItems)
-        print '     Images:', len(self.imageItems)
-        return sorted(itertools.chain(self.imageItems.values(), self.htmlItems.values(), self.cssItems.values(), self.scriptItems.values()), key = lambda x : x.id)
+        print '     HTML:', len(self.html_items)
+        print '     CSS:', len(self.css_items)
+        print '     JS:', len(self.script_items)
+        print '     Images:', len(self.image_items)
+        return sorted(itertools.chain(self.image_items.values(), self.html_items.values(), self.css_items.values(), self.script_items.values()), key = lambda x : x.id)
 
-    def addImage(self, srcPath, destPath):
+    def add_mage(self, srcPath, destPath):
         item = EpubItem()
-        item.id = 'image_%d' % (len(self.imageItems) + 1)
+        item.id = 'image_%d' % (len(self.image_items) + 1)
         item.srcPath = srcPath
         item.destPath = destPath
         item.mimeType = mimetypes.guess_type(destPath)[0]
-        #assert item.destPath not in self.imageItems
-        if item.destPath not in self.imageItems:
+        #assert item.destPath not in self.image_items
+        if item.destPath not in self.image_items:
 	        #print '  + adding Image', srcPath, item.id
-        	self.imageItems[item.destPath] = item
-        return self.imageItems[item.destPath]
+        	self.image_items[item.destPath] = item
+        return self.image_items[item.destPath]
 
-    def addHtmlForImage(self, imageItem):
+    def add_html_for_image(self, imageItem):
         tmpl = self.loader.load('image.html')
         stream = tmpl.generate(book = self, item = imageItem)
         html = stream.render('xhtml', doctype = 'xhtml11', drop_xml_decl = False)
-        return self.addHtml('', '%s.html' % imageItem.destPath, html)
+        return self.add_html('', '%s.html' % imageItem.destPath, html)
 
-    def addHtml(self, srcPath, destPath, html = None):
+    def add_html(self, srcPath, destPath, html = None):
         item = EpubItem()
-        item.id = 'html_%d' % (len(self.htmlItems) + 1)
+        item.id = 'html_%d' % (len(self.html_items) + 1)
         item.srcPath = srcPath
         item.destPath = destPath
         if html is not None:
             item.html = html
         item.mimeType = 'application/xhtml+xml'
-        if item.destPath not in self.htmlItems:
+        if item.destPath not in self.html_items:
 	        #print '  + adding Page', srcPath, item.id
-        	self.htmlItems[item.destPath] = item
-        return self.htmlItems[item.destPath]
+        	self.html_items[item.destPath] = item
+        return self.html_items[item.destPath]
 
-    def addCss(self, srcPath, destPath):
+    def add_css(self, srcPath, destPath):
         item = EpubItem()
-        item.id = 'css_%d' % (len(self.cssItems) + 1)
+        item.id = 'css_%d' % (len(self.css_items) + 1)
         item.srcPath = srcPath
         item.destPath = destPath
         item.mimeType = 'text/css'
-        #assert item.destPath not in self.cssItems
-        if item.destPath not in self.cssItems:
+        #assert item.destPath not in self.css_items
+        if item.destPath not in self.css_items:
 	        #print '  + adding CSS', srcPath, item.id
-        	self.cssItems[item.destPath] = item
-        return self.cssItems[item.destPath]
+        	self.css_items[item.destPath] = item
+        return self.css_items[item.destPath]
 
-    def addScript(self, srcPath, destPath):
+    def add_script(self, srcPath, destPath):
         item = EpubItem()
-        item.id = 'js_%d' % (len(self.scriptItems) + 1)
+        item.id = 'js_%d' % (len(self.script_items) + 1)
         item.srcPath = srcPath
         item.destPath = destPath
         item.mimeType = 'text/javascript'
-        if item.destPath not in self.scriptItems:
+        if item.destPath not in self.script_items:
 	        #print '  + adding JS', srcPath, item.id
-        	self.scriptItems[item.destPath] = item
-        return self.scriptItems[item.destPath]
+        	self.script_items[item.destPath] = item
+        return self.script_items[item.destPath]
 
-    def addCover(self, srcPath):
-        assert not self.coverImage
+    def add_cover(self, srcPath):
+        assert not self.cover_image
         _, ext = os.path.splitext(srcPath)
         destPath = 'cover%s' % ext
-        self.coverImage = self.addImage(srcPath, destPath)
-        #coverPage = self.addHtmlForImage(self.coverImage)
-        #self.addSpineItem(coverPage, False, -300)
-        #self.addGuideItem(coverPage.destPath, 'Cover', 'cover')
+        self.cover_image = self.add_mage(srcPath, destPath)
+        #coverPage = self.add_html_for_image(self.cover_image)
+        #self.add_spine_item(coverPage, False, -300)
+        #self.add_guide_item(coverPage.destPath, 'Cover', 'cover')
 
-    def __makeTitlePage(self):
-        assert self.titlePage
-        if self.titlePage.html:
+    def _make_title_page(self):
+        assert self.title_page
+        if self.title_page.html:
             return
         tmpl = self.loader.load('title-page.html')
         stream = tmpl.generate(book = self)
-        self.titlePage.html = stream.render('xhtml', doctype = 'xhtml11', drop_xml_decl = False)
+        self.title_page.html = stream.render('xhtml', doctype = 'xhtml11', drop_xml_decl = False)
 
-    def addTitlePage(self, html = ''):
-        assert not self.titlePage
-        self.titlePage = self.addHtml('', 'title-page.html', html)
-        self.addSpineItem(self.titlePage, True, -200)
-        self.addGuideItem('title-page.html', 'Title Page', 'title-page')
+    def add_title_page(self, html = ''):
+        assert not self.title_page
+        self.title_page = self.add_html('', 'title-page.html', html)
+        self.add_spine_item(self.title_page, True, -200)
+        self.add_guide_item('title-page.html', 'Title Page', 'title-page')
 
-    def __makeTocPage(self):
-        assert self.tocPage
+    def _make_toc_page(self):
+        assert self.toc_page
         tmpl = self.loader.load('toc.html')
         stream = tmpl.generate(book = self)
-        self.tocPage.html = stream.render('xhtml', doctype = 'xhtml11', drop_xml_decl = False)
+        self.toc_page.html = stream.render('xhtml', doctype = 'xhtml11', drop_xml_decl = False)
 
-    def addTocPage(self):
-        assert not self.tocPage
-        self.tocPage = self.addHtml('', 'toc.html', '')
-        self.addSpineItem(self.tocPage, False, -100)
-        self.addGuideItem('toc.html', 'Table of Contents', 'toc')
+    def add_toc_page(self):
+        assert not self.toc_page
+        self.toc_page = self.add_html('', 'toc.html', '')
+        self.add_spine_item(self.toc_page, False, -100)
+        self.add_guide_item('toc.html', 'Table of Contents', 'toc')
 
-    def getSpine(self):
+    def get_spine(self):
         return sorted(self.spine)
 
-    def addSpineItem(self, item, linear = True, order = None):
-        assert item.destPath in self.htmlItems
+    def add_spine_item(self, item, linear = True, order = None):
+        assert item.destPath in self.html_items
         if order == None:
             order = (max(order for order, _, _ in self.spine) if self.spine else 0) + 1
         self.spine.append((order, item, linear))
 
-    def getGuide(self):
+    def get_guide(self):
         return sorted(self.guide.values(), key = lambda x : x[2])
 
-    def addGuideItem(self, href, title, type):
+    def add_guide_item(self, href, title, type):
         assert type not in self.guide
         self.guide[type] = (href, title, type)
 
-    def getTocMapRoot(self):
-        return self.tocMapRoot
+    def get_toc_map_root(self):
+        return self.toc_map_root
 
-    def getTocMapHeight(self):
-        return max(self.lastNodeAtDepth.keys())
+    def get_toc_map_height(self):
+        return max(self.last_node_at_depth.keys())
 
-    def addTocMapNode(self, href, title, depth = None, parent = None):
+    def add_toc_map_node(self, href, title, depth = None, parent = None):
         node = TocMapNode()
         node.href = href
         node.title = title
         if parent == None:
             if depth == None:
-                parent = self.tocMapRoot
+                parent = self.toc_map_root
             else:
-                parent = self.lastNodeAtDepth[depth - 1]
+                parent = self.last_node_at_depth[depth - 1]
         parent.children.append(node)
         node.depth = parent.depth + 1
-        self.lastNodeAtDepth[node.depth] = node
+        self.last_node_at_depth[node.depth] = node
         return node
 
-    def makeDirs(self):
+    def make_dirs(self):
         try:
-            os.makedirs(os.path.join(self.rootDir, 'META-INF'))
+            os.make_dirs(os.path.join(self.root_dir, 'META-INF'))
         except OSError:
             pass
         try:
-            os.makedirs(os.path.join(self.rootDir, 'OEBPS'))
+            os.make_dirs(os.path.join(self.root_dir, 'OEBPS'))
         except OSError:
             pass
 
-    def __writeContainerXML(self):
-        fout = open(os.path.join(self.rootDir, 'META-INF', 'container.xml'), 'w')
+    def _write_container_xml(self):
+        fout = open(os.path.join(self.root_dir, 'META-INF', 'container.xml'), 'w')
         tmpl = self.loader.load('container.xml')
         stream = tmpl.generate()
         fout.write(stream.render('xml'))
         fout.close()
 
-    def __writeTocNCX(self):
-        self.tocMapRoot.assignPlayOrder()
-        fout = open(os.path.join(self.rootDir, 'OEBPS', 'toc.ncx'), 'w')
+    def _write_toc_ncx(self):
+        self.toc_map_root.assign_play_order()
+        fout = open(os.path.join(self.root_dir, 'OEBPS', 'toc.ncx'), 'w')
         tmpl = self.loader.load('toc.ncx')
         stream = tmpl.generate(book = self)
         fout.write(stream.render('xml'))
         fout.close()
 
-    def __writeContentOPF(self):
-        fout = open(os.path.join(self.rootDir, 'OEBPS', 'content.opf'), 'w')
+    def _write_content_opf(self):
+        fout = open(os.path.join(self.root_dir, 'OEBPS', 'content.opf'), 'w')
         tmpl = self.loader.load('content.opf')
         stream = tmpl.generate(book = self)
         fout.write(stream.render('xml'))
         fout.close()
 
-    def __writeItems(self):
-        items = self.getAllItems()
+    def _write_items(self):
+        items = self.get_all_items()
         pbar = progressbar.ProgressBar(
         	widgets=[progressbar.Percentage(), progressbar.Counter('%5d'),
         	progressbar.Bar(), progressbar.ETA()],
@@ -286,7 +286,7 @@ class EPubBook(object):
         ).start()
         for item in items:
             #print item.id, item.destPath
-            outname = os.path.join(self.rootDir, 'OEBPS', item.destPath)
+            outname = os.path.join(self.root_dir, 'OEBPS', item.destPath)
             if item.html:
                 print '   writing html to %s' % (outname)
                 fout = open(outname, 'w')
@@ -298,18 +298,18 @@ class EPubBook(object):
         	pbar.update(pbar.currval + 1)
         pbar.finish()
 
-    def __writeMimeType(self):
-        fout = open(os.path.join(self.rootDir, 'mimetype'), 'w')
+    def _write_mime_type(self):
+        fout = open(os.path.join(self.root_dir, 'mimetype'), 'w')
         fout.write('application/epub+zip')
         fout.close()
 
     @staticmethod
-    def __listManifestItems(contentOPFPath):
+    def _list_manifest_items(contentOPFPath):
         tree = etree.parse(contentOPFPath)
         return tree.xpath("//opf:manifest/opf:item/@href", namespaces = {'opf': 'http://www.idpf.org/2007/opf'})
 
     @staticmethod
-    def createArchive(rootDir, outputPath):
+    def create_archive(rootDir, outputPath):
         fout = zipfile.ZipFile(outputPath, 'w')
         cwd = os.getcwd()
         os.chdir(rootDir)
@@ -317,7 +317,7 @@ class EPubBook(object):
         fileList = []
         fileList.append(os.path.join('META-INF', 'container.xml'))
         fileList.append(os.path.join('OEBPS', 'content.opf'))
-        for itemPath in EpubBook.__listManifestItems(os.path.join('OEBPS', 'content.opf')):
+        for itemPath in EpubBook._list_manifest_items(os.path.join('OEBPS', 'content.opf')):
             fileList.append(os.path.join('OEBPS', itemPath))
         for filePath in fileList:
             fout.write(filePath, compress_type = zipfile.ZIP_DEFLATED)
@@ -325,18 +325,18 @@ class EPubBook(object):
         os.chdir(cwd)
 
     @staticmethod
-    def checkEpub(checkerPath, epubPath):
+    def check_epub(checkerPath, epubPath):
         subprocess.call(['java', '-jar', checkerPath, epubPath], shell = True)
 
-    def createBook(self, rootDir):
-        if self.titlePage:
-            self.__makeTitlePage()
-        if self.tocPage:
-            self.__makeTocPage()
-        self.rootDir = rootDir
-        self.makeDirs()
-        self.__writeMimeType()
-        self.__writeItems()
-        self.__writeContainerXML()
-        self.__writeContentOPF()
-        self.__writeTocNCX()
+    def create_book(self, rootDir):
+        if self.title_page:
+            self._make_title_page()
+        if self.toc_page:
+            self._make_toc_page()
+        self.root_dir = rootDir
+        self.make_dirs()
+        self._write_mime_type()
+        self._write_items()
+        self._write_container_xml()
+        self._write_content_opf()
+        self._write_toc_ncx()

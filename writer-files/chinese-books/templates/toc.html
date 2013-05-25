@@ -25,7 +25,7 @@
     ${tocEntry(child)}
     </py:for>
   </py:def>
-  <py:for each="child in book.getTocMapRoot().children">
+  <py:for each="child in book.get_toc_map_root().children">
   ${tocEntry(child)}
   </py:for>
 </body>

@@ -14,24 +14,24 @@ This file is distributed under the BSD Licence. See python-epub-builder-license.
     <py:for each="name, role in book.creators">
     <dc:creator opf:role="$role">$name</dc:creator>
     </py:for>
-    <py:for each="beginTag, content, endTag in book.getMetaTags()">
+    <py:for each="beginTag, content, endTag in book.get_meta_tags()">
     ${Markup(beginTag)}$content${Markup(endTag)}
     </py:for>
     <opf:meta name="cover" content="${book.coverImage.id}" py:if="book.coverImage"/>
   </opf:metadata>
   <opf:manifest>
     <opf:item id="ncxtoc" media-type="application/x-dtbncx+xml" href="toc.ncx"/>
-    <py:for each="item in book.getAllItems()">
+    <py:for each="item in book.get_all_items()">
     <opf:item id="${item.id}" media-type="${item.mimeType}" href="${item.destPath}"/>
     </py:for>
   </opf:manifest>
   <opf:spine toc="ncxtoc">
-    <py:for each="_, item, linear in book.getSpine()">
+    <py:for each="_, item, linear in book.get_spine()">
     <opf:itemref idref="${item.id}" linear="${'yes' if linear else 'no'}"/>
     </py:for>
   </opf:spine>
   <opf:guide py:if="book.guide">
-    <py:for each="href, title, type in book.getGuide()">
+    <py:for each="href, title, type in book.get_guide()">
     <opf:reference href="$href" type="$type" title="$title"/>
     </py:for>
   </opf:guide>

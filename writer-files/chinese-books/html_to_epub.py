@@ -8,11 +8,11 @@ import epub
 
 book = None
 
-class Char:
-    
+class Char(object):
+
     HALF_WIDTH_PUNCTUATIONS = u'.?!,;:"\'()-<>[]'
     FULL_WIDTH_PUNCTUATIONS = u'。？！，、；：“ ”‘ ’（）─…—·《 》〈 〉'
-    
+
     def __init__(self):
         self.index = 0
         self.left = 0
@@ -23,10 +23,10 @@ class Char:
         self.fontSize = 0
         self.text = ''
         self.corruptedText = None
-        
+
     def isPunctuation(self):
         return Char.HALF_WIDTH_PUNCTUATIONS.find(self.text) != -1 or Char.FULL_WIDTH_PUNCTUATIONS.find(self.text) != -1
-    
+
     def normalize(self):
         if book.REPLACE_FULL_WIDTH_ALNUM:
             o = ord(self.text[0])
@@ -36,30 +36,30 @@ class Char:
                 self.text = chr(ord('A') + o - 0xFF21)
             elif 0xFF41 <= o <= 0xFF5A:
                 self.text = chr(ord('a') + o - 0xFF41)
-                
+
     def isFootnoteAnchor(self):
         o = ord(self.text[0])
         return 0x2460 <= o <= 0x24FF or self.text[0] == 'B'
 
-              
-class PagePos:
-    
+
+class PagePos(object):
+
     HEAD = 0
     BODY = 1
     FOOT = 2
-    
+
     DESCRIPTIONS = ['HEAD', 'BODY', 'FOOT']
 
-        
-class Line:
-    
+
+class Line(object):
+
     def __init__(self, page):
         self.lineNum = 0
         self.page = page
         self.chars = []
         self.footnotes = []
         self.pagePos = PagePos.BODY
-        
+
     def getLineIndex(self):
         i = 0
         while i < len(self.page.lines):
@@ -67,7 +67,7 @@ class Line:
                 return i
             i += 1
         return -1
-        
+
     def getLeft(self, skipLeadingWhiteSpaces = False, adjustForPunctuation = False):
         k = self.countLeadingWhiteSpaces() if skipLeadingWhiteSpaces else 0
         if k == len(self.chars):
@@ -76,50 +76,50 @@ class Line:
         if book.ADJUST_LINE_LEFT_FOR_PUNCTUATION and adjustForPunctuation and self.chars[k].isPunctuation():
             return (self.chars[k].left + self.chars[k].right) / 2
         return self.chars[k].left
-    
+
     def getRight(self):
         if ord(self.chars[-1].text[0]) < 128 or self.chars[-1].isPunctuation():
             return (self.chars[-1].left + self.chars[-1].right) / 2
         else:
             return self.chars[-1].right
-        
+
     def getTop(self):
         return min(ch.top for ch in self.chars)
-    
+
     def getBottom(self):
         return max(ch.bottom for ch in self.chars)
-        
+
     def getText(self):
         return ''.join(ch.text for ch in self.chars)
-        
+
     def getMinFontSize(self):
         return min(ch.fontSize for ch in self.chars)
-    
+
     def getMaxFontSize(self):
         return max(ch.fontSize for ch in self.chars)
-    
+
     def countLeadingWhiteSpaces(self):
         k = 0
         while k < len(self.chars) and self.chars[k].text == '　':
             k += 1
         return k
-    
-    
-class TextFormatSnippet:
-    
+
+
+class TextFormatSnippet(object):
+
     def __init__(self):
         self.text = ''
         self.format = ''
 
-        
-class Section:
-    
+
+class Section(object):
+
     def __init__(self):
         self.lines = []
         self.matcher = None
         self.cssClass = ''
         self.snippets = None
-        
+
     def output(self, out):
         footnotes = []
         for line in self.lines:
@@ -128,13 +128,13 @@ class Section:
         out.write('\n\n')
         for footnote in footnotes:
             footnote.output(out)
-            
+
     def getFootnotes(self):
         footnotes = []
         for line in self.lines:
             footnotes.extend(line.footnotes)
         return footnotes
-            
+
     def getTextFormatSnippets(self):
         if self.snippets != None:
             return self.snippets
@@ -160,7 +160,7 @@ class Section:
                     lastFormat = format
                 snippet.text += ch.text
         return snippets
-    
+
     def getIndentation(self):
         if self.lines[0].pagePos != PagePos.BODY:
             return 0
@@ -172,9 +172,9 @@ class Section:
         indentation = (self.lines[0].getLeft() - self.lines[1].getLeft()) / float(fontSize) + self.lines[0].countLeadingWhiteSpaces() - self.lines[1].countLeadingWhiteSpaces()
         return int(round(indentation))
 
-        
-class Chapter:
-    
+
+class Chapter(object):
+
     def __init__(self):
         self.title = ''
         self.level = 1
@@ -182,7 +182,7 @@ class Chapter:
         self.lineNum = 0
         self.lines = []
         self.sections = []
-        
+
     def output(self, out, lineMode = True):
         levelIndicator = '#' * (2 + self.level)
         out.write('%s %s %s\n\n' % (levelIndicator, self.title.encode('utf-8'), levelIndicator))
@@ -193,7 +193,7 @@ class Chapter:
             for section in self.sections:
                 section.output(out)
         out.write('\n')
-        
+
     def makeSections(self):
         beginLineIndex  = 0
         while beginLineIndex < len(self.lines):
@@ -216,36 +216,36 @@ class Chapter:
                 section.cssClass = matcher.cssClass
             self.sections.append(section)
             beginLineIndex = endLineIndex + 1
-    
+
     def getAllSections(self):
         sections = []
         for section in self.sections:
             sections.append(section)
             sections.extend(section.getFootnotes())
         return sections
-    
 
-class SectionMatcher:
-    
+
+class SectionMatcher(object):
+
     def __init__(self):
         self.cssClass = ''
-        
+
     def match(self, chapter, beginLineIndex):
         return -1
-    
+
 
 class AlignedSectionMatcher(SectionMatcher):
-    
+
     def __init__(self):
         SectionMatcher.__init__(self)
         self.ALLOW_DIFFERENT_MAX_FONT_SIZE = True
-    
+
     def getIndentation(self):
         return 0
-    
+
     def getLeftAlign(self, beginLine, line):
         return line.getLeft(True, line == beginLine)
-    
+
     def match(self, chapter, beginLineIndex):
         beginLine = chapter.lines[beginLineIndex]
         endLineIndex = beginLineIndex
@@ -274,21 +274,21 @@ class AlignedSectionMatcher(SectionMatcher):
 
 
 class IndentedSectionMatcher(AlignedSectionMatcher):
-    
+
     def __init__(self, indentation_count):
         AlignedSectionMatcher.__init__(self)
         self.indentation_count = indentation_count
         self.RE_ADJUST_INDENTATION = True
-    
+
     def getIndentation(self):
         return self.indentation_count
-    
+
     def getLeftAlign(self, beginLine, line):
         if line == beginLine:
             fontSize = beginLine.getMaxFontSize()
             return beginLine.getLeft(True, True) - fontSize * self.indentation_count
         return line.getLeft(True)
-    
+
     def match(self, chapter, beginLineIndex):
         beginLine = chapter.lines[beginLineIndex]
         endLineIndex = AlignedSectionMatcher.match(self, chapter, beginLineIndex)
@@ -307,22 +307,22 @@ class IndentedSectionMatcher(AlignedSectionMatcher):
                 return endLineIndex - 1
         return endLineIndex
 
-        
-class Block:
-    
+
+class Block(object):
+
     def __init__(self):
         self.left = 0
         self.right = 0
         self.top = 0
         self.bottom = 0
         self.blockType = ''
-        
+
     def equals(self, other):
         return self.left == other.left and self.right == other.right and self.top == other.top and self.bottom == other.bottom and self.blockType == other.blockType
 
-    
-class Page:
-    
+
+class Page(object):
+
     def __init__(self, book):
         self.pageNum = 0
         self.book = book
@@ -335,13 +335,13 @@ class Page:
         self.top = 0
         self.bottom = 0
         self.footnotes = []
-        
+
     def getLine(self, lineNum):
         for line in self.lines:
             if line.lineNum == lineNum:
                 return line
         return None
-        
+
     def getBlock(self, blockType, blockIndex, minBlockWidth = 30):
         k = 0
         for block in self.blocks:
@@ -350,7 +350,7 @@ class Page:
                     return block
                 k += 1
         return None
-        
+
     def parseHTML(self):
         fin = open(self.fileName)
         pat1 = re.compile(r'<!-- (.+) (\d+) (\d+) (\d+) (\d+) --><div')
@@ -389,7 +389,7 @@ class Page:
                 ch.text = unicode(match.group(7), 'utf-8')
                 if ch.text == '':
                     book.log('OOPS: empty text')
-                    continue 
+                    continue
                 if match.group(9):
                     ch.corruptedText = match.group(9).replace('\\x', '')
                     if ch.corruptedText.endswith('20'):
@@ -408,7 +408,7 @@ class Page:
             out.write(line.getText().encode('utf-8') + '\n')
             lastPagePos = line.pagePos
         out.write('\n')
-        
+
     def makeLines(self):
         line = None
         for ch in self.chars:
@@ -416,7 +416,7 @@ class Page:
                 line = Line(self)
                 self.lines.append(line)
             line.chars.append(ch)
-            
+
         self.markHeadFoot()
 
         self.lines.sort(key = lambda line : line.chars[0].bottom)
@@ -431,15 +431,15 @@ class Page:
         self.lines = lines
         for line in self.lines:
             line.chars.sort(cmp = lambda ch1, ch2: ch1.left - ch2.left if ch1.left != ch2.left else ch1.bottom - ch2.bottom)
-            
+
         self.adjustTitleFootnote()
-            
+
         lineNum = 1
         for line in self.lines:
             if line.pagePos == PagePos.BODY:
                 line.lineNum = lineNum
                 lineNum += 1
-            
+
     def adjustTitleFootnote(self):
         k = 0
         while k < len(self.lines):
@@ -455,7 +455,7 @@ class Page:
         if len(self.chars) == 0:
             return
         book.markHeadFoot(self)
-                        
+
         footnote = None
         for line in self.lines:
             if line.pagePos == PagePos.FOOT:
@@ -474,7 +474,7 @@ class Page:
                     self.footnotes.append(('', footnote))
                 footnote.lines.append(line)
         self.anchorFootnotes()
-                
+
     def anchorFootnotes(self):
         if book.IGNORE_FOOTNOTES or self.footnotes == []:
             return
@@ -500,23 +500,23 @@ class Page:
         if len(anchors) != len(self.footnotes) or len(anchors) != len(used):
             book.log('OOPS: footnote anchoring: %d' % self.pageNum)
 
-class TOCEntry:
-    
+class TOCEntry(object):
+
     def __init__(self):
         self.pageNum = 0
         self.lineNum = 0
         self.level = 1
         self.title = ''
 
-            
-class Book:
-    
+
+class Book(object):
+
     def __init__(self):
         global book
         book = self
-        
+
         self.REPLACE_FULL_WIDTH_ALNUM = True
-        
+
         self.NEW_LINE_Y_DIFF = 6
 
         self.PAGE_BOUNDING_BOX_INDEX = 1
@@ -531,13 +531,13 @@ class Book:
         self.PAGE_FOOT_LINE_TYPE = 'LTLine'
         self.PAGE_FOOT_MARGIN = 10
         self.IGNORE_FOOTNOTES = False
-        
+
         self.FONT_SIZE_FOR_CHAPTER = 16
         self.CHAPTER_TITLE_PATTERNS = [unicode(r'[一二三四五六七八九十百○]+$'), unicode(r'[　\s]*第[　\s]*[一二三四五六七八九十百]+[　\s]*[回章节部幕]([　\s]|\Z)')]
         self.USE_TOC_FILE = False
         self.CENTER_ALIGN_DIFF_FOR_CHAPTER = 0
         self.CENTER_ALIGN_MARGIN_FOR_CHAPTER = 100
-        
+
         self.ADJUST_LINE_LEFT_FOR_PUNCTUATION = True
         self.MIN_SECTION_LINE_SIZE = 20
         self.MIN_SECTION_LINE_PROPORTION = 0.8
@@ -545,11 +545,11 @@ class Book:
         self.MAX_SECTION_LINE_X_DIFF = 10
         self.MAX_SECTION_LINE_RIGHT_MARGIN = 50
         self.COMMON_SECTION_FIRST_LINE_LEFT = [101]
-        
+
         self.REMOVE_INDENTATIONS = True
-        
+
         self.MAIN_TEXT_FONT_SIZE = 12
-        
+
         self.TITLE_PAGE_TEMPLATE = 'jtcsjj-title.html'
         self.PAGE_TEMPLATE = 'jtcsjj.html'
 
@@ -570,10 +570,10 @@ class Book:
         self.translators = []
 
         self.sectionMatchers = [IndentedSectionMatcher(2), IndentedSectionMatcher(0)]
-        
+
         self.logFileName = ''
         self.logFile = None
-        
+
     def log(self, str):
         print str
         if self.logFileName != '' and not self.logFile:
@@ -595,7 +595,7 @@ class Book:
                 entry.pageNum = int(match.group(2))
                 entry.title = unicode(match.group(3))
                 self.tocChapters.setdefault(entry.pageNum, []).append(entry)
-        
+
     def parseHTML(self):
         pat = re.compile(r'(\d+).htm')
         l = []
@@ -617,9 +617,9 @@ class Book:
             page.parseHTML()
             boundingBox = self.getPageBoundingBox(page)
             if boundingBox:
-                page.left, page.top, page.right, page.bottom = boundingBox 
+                page.left, page.top, page.right, page.bottom = boundingBox
             self.pages.append(page)
-            
+
     def listImages(self):
         imgDirName = os.path.join(self.dirName, 'images')
         pat = re.compile(r'(\d+).jpg')
@@ -638,13 +638,13 @@ class Book:
         if book.PAGE_BOUNDING_BOX:
             return book.PAGE_BOUNDING_BOX
         return None
-    
+
     def adjustPages(self):
         pass
-    
+
     def adjustSections(self):
         pass
-    
+
     def process(self):
         if self.USE_TOC_FILE:
             self.parseTOCFile()
@@ -667,7 +667,7 @@ class Book:
         if len(self.translators) > 0:
             lines.append(('translator', '　 '.join(self.translators) + '　译'))
         return lines
-                
+
     def replaceCorruptedText(self, page, ch):
         if ch.corruptedText in self.corruptedTextReplacement:
             ch.text = self.corruptedTextReplacement[ch.corruptedText]
@@ -682,10 +682,10 @@ class Book:
 
     def markNoChapter(self, pageNum, lineNum):
         self.markChapter(pageNum, lineNum, -1, None)
-                        
+
     def markChapter(self, pageNum, lineNum, level, title):
         self.markedChapters[(pageNum, lineNum)] = (title, level)
-        
+
     def markHeadFoot(self, page):
         if self.HAS_PAGE_HEAD:
             if self.PAGE_HEAD_LINE_INDEX >= 0:
@@ -709,7 +709,7 @@ class Book:
                 for line in page.lines:
                     if line.chars[0].bottom > page.bottom - self.PAGE_FOOT_MARGIN:
                         line.pagePos = PagePos.FOOT
-        
+
     def makeChapters(self):
         chapterTitlePatterns = [re.compile(x) for x in book.CHAPTER_TITLE_PATTERNS]
         chapter = None
@@ -758,18 +758,18 @@ class Book:
                     self.chapters.append(chapter)
                 if chapter:
                     chapter.lines.append(line)
-    
+
     def getChapterTitle(self, page, line):
         return line.getText()
-    
+
     def getChapterLevel(self, page, line):
         return 1
-    
+
     def outputPages(self, fileName):
         fout = open(fileName, 'w')
         for page in self.pages:
             page.output(fout)
-            
+
     def outputChapters(self, fileName):
         fout = open(fileName, 'w')
         for chapter in self.chapters:
@@ -777,7 +777,7 @@ class Book:
         fout.write('\n')
         for chapter in self.chapters:
             chapter.output(fout, True)
-            
+
     def outputSections(self, fileName):
         fout = open(fileName, 'w')
         indentations = {}
@@ -801,7 +801,7 @@ class Book:
         fout.write('\n')
         for chapter in self.chapters:
             chapter.output(fout, False)
-            
+
     def outputHeaders(self, fileName):
         fout = open(fileName, 'w')
         for page in self.pages:
@@ -810,7 +810,7 @@ class Book:
                 fout.write('%d> ' % page.pageNum)
                 for line in lines:
                     fout.write('%s\n' % line.getText())
-                    
+
     def outputFooters(self, fileName):
         fout = open(fileName, 'w')
         for page in self.pages:
@@ -819,7 +819,7 @@ class Book:
                 fout.write('%d> ' % page.pageNum)
                 for line in lines:
                     fout.write('%s\n' % line.getText())
-            
+
     def outputCorruptedText(self, fileName):
         corrupted = {}
         firstOccurrence = {}
@@ -841,42 +841,42 @@ class Book:
             for line in lines:
                 fout.write(line.getText() + '\n')
             fout.write('\n')
-            
+
     def outputEPub(self, rootDir):
         ep = epub.EpubBook()
-        ep.setLang('zh-CN')
-        ep.setTitle(self.title)
+        ep.set_lang('zh-CN')
+        ep.set_title(self.title)
         for author in self.authors:
-            ep.addCreator(author)
+            ep.add_creator(author)
         for translator in self.translators:
-            ep.addCreator(translator, 'trl');
+            ep.add_creator(translator, 'trl');
 
         loader = TemplateLoader('templates')
         tmpl = loader.load(self.TITLE_PAGE_TEMPLATE)
         stream = tmpl.generate(lines = self.getTitlePageLines())
         html = stream.render('xhtml', doctype='xhtml11', drop_xml_decl=False)
-        ep.addTitlePage(html)
-        
-        ep.addTocPage()
-        ep.addCover(self.imagePaths[0])
-        
+        ep.add_title_page(html)
+
+        ep.add_toc_page()
+        ep.add_cover(self.imagePaths[0])
+
         tmpl = loader.load(self.PAGE_TEMPLATE)
         for i, imagePath in enumerate(self.imagePaths):
-            imageItem = ep.addImage(imagePath, 'img%d.jpg' % (i + 1))
-            htmlItem = ep.addHtmlForImage(imageItem)
-            ep.addSpineItem(htmlItem)
+            imageItem = ep.add_mage(imagePath, 'img%d.jpg' % (i + 1))
+            htmlItem = ep.add_html_for_image(imageItem)
+            ep.add_spine_item(htmlItem)
         for k, chapter in enumerate(self.chapters):
             stream = tmpl.generate(chapter = chapter)
             html = stream.render('xhtml', doctype='xhtml11', drop_xml_decl=False)
-            item = ep.addHtml('', 'ch%d.html' % (k + 1), html)
-            ep.addSpineItem(item)
+            item = ep.add_html('', 'ch%d.html' % (k + 1), html)
+            ep.add_spine_item(item)
             if chapter.title != '':
-                ep.addTocMapNode(item.destPath, chapter.title, chapter.level)
-        
+                ep.add_toc_map_node(item.destPath, chapter.title, chapter.level)
+
         if self.outputFileName == '':
             self.outputFileName = self.title
         outputDir = os.path.join(rootDir, self.outputFileName.encode('cp936'))
         outputFile = os.path.join(rootDir, self.outputFileName.encode('cp936') + '.epub')
-        ep.createBook(outputDir)
-        ep.createArchive(outputDir, outputFile)
-        ep.checkEpub('epubcheck-1.1.jar', outputFile)
+        ep.create_book(outputDir)
+        ep.create_archive(outputDir, outputFile)
+        ep.check_epub('epubcheck-1.1.jar', outputFile)
