@@ -4,6 +4,7 @@
 import epub
 from genshi.template import TemplateLoader
 
+
 class Section:
 
     def __init__(self):
@@ -12,9 +13,10 @@ class Section:
         self.css = ''
         self.text = []
         self.templateFileName = 'ez-section.html'
-        
+
+
 class Book:
-    
+
     def __init__(self):
         self.impl = epub.EpubBook()
         self.title = ''
@@ -23,7 +25,7 @@ class Book:
         self.lang = 'en-US'
         self.sections = []
         self.templateLoader = TemplateLoader('templates')
-      
+
     def __addSection(self, section, id, depth):
         if depth > 0:
             stream = self.templateLoader.load(section.templateFileName).generate(section = section)
@@ -35,10 +37,10 @@ class Book:
         if len(section.subsections) > 0:
             for i, subsection in enumerate(section.subsections):
                 self.__addSection(subsection, id + str(i + 1), depth + 1)
-    
+
     def make(self, outputDir):
         outputFile = outputDir + '.epub'
-        
+
         self.impl.setTitle(self.title)
         self.impl.setLang(self.lang)
         for author in self.authors:

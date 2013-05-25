@@ -14,19 +14,20 @@ import progressbar
 from genshi.template import TemplateLoader
 from lxml import etree
 
+
 class TocMapNode:
-    
+
     def __init__(self):
         self.playOrder = 0
         self.title = ''
         self.href = ''
         self.children = []
         self.depth = 0
-    
+
     def assignPlayOrder(self):
         nextPlayOrder = [0]
         self.__assignPlayOrder(nextPlayOrder)
-    
+
     def __assignPlayOrder(self, nextPlayOrder):
         self.playOrder = nextPlayOrder[0]
         nextPlayOrder[0] = self.playOrder + 1
@@ -70,19 +71,19 @@ class EpubBook:
         self.guide = {}
         self.tocMapRoot = TocMapNode()
         self.lastNodeAtDepth = {0 : self.tocMapRoot}
-        
+
     def setTitle(self, title):
         self.title = title
-    
+
     def setLang(self, lang):
         self.lang = lang
-    
+
     def addCreator(self, name, role = 'aut'):
         self.creators.append((name, role))
-        
+
     def addMeta(self, metaName, metaValue, **metaAttrs):
         self.metaInfo.append((metaName, metaValue, metaAttrs))
-    
+
     def getMetaTags(self):
         l = []
         for metaName, metaValue, metaAttr in self.metaInfo:
@@ -94,19 +95,19 @@ class EpubBook:
             endTag = '</dc:%s>' % metaName
             l.append((beginTag, metaValue, endTag))
         return l
-        
+
     def getImageItems(self):
         return sorted(self.imageItems.values(), key = lambda x : x.id)
-    
+
     def getHtmlItems(self):
         return sorted(self.htmlItems.values(), key = lambda x : x.id)
 
     def getCssItems(self):
         return sorted(self.cssItems.values(), key = lambda x : x.id)
-    
+
     def getScriptItems(self):
         return sorted(self.scriptItems.values(), key = lambda x : x.id)
-    
+
     def getAllItems(self):
         print '   Items in ebook:'
         print '     HTML:', len(self.htmlItems)
@@ -114,7 +115,7 @@ class EpubBook:
         print '     JS:', len(self.scriptItems)
         print '     Images:', len(self.imageItems)
         return sorted(itertools.chain(self.imageItems.values(), self.htmlItems.values(), self.cssItems.values(), self.scriptItems.values()), key = lambda x : x.id)
-        
+
     def addImage(self, srcPath, destPath):
         item = EpubItem()
         item.id = 'image_%d' % (len(self.imageItems) + 1)
@@ -126,13 +127,13 @@ class EpubBook:
 	        #print '  + adding Image', srcPath, item.id
         	self.imageItems[item.destPath] = item
         return self.imageItems[item.destPath]
-    
+
     def addHtmlForImage(self, imageItem):
         tmpl = self.loader.load('image.html')
         stream = tmpl.generate(book = self, item = imageItem)
         html = stream.render('xhtml', doctype = 'xhtml11', drop_xml_decl = False)
         return self.addHtml('', '%s.html' % imageItem.destPath, html)
-    
+
     def addHtml(self, srcPath, destPath, html = None):
         item = EpubItem()
         item.id = 'html_%d' % (len(self.htmlItems) + 1)
@@ -145,7 +146,7 @@ class EpubBook:
 	        #print '  + adding Page', srcPath, item.id
         	self.htmlItems[item.destPath] = item
         return self.htmlItems[item.destPath]
-    
+
     def addCss(self, srcPath, destPath):
         item = EpubItem()
         item.id = 'css_%d' % (len(self.cssItems) + 1)
@@ -157,7 +158,7 @@ class EpubBook:
 	        #print '  + adding CSS', srcPath, item.id
         	self.cssItems[item.destPath] = item
         return self.cssItems[item.destPath]
-    
+
     def addScript(self, srcPath, destPath):
         item = EpubItem()
         item.id = 'js_%d' % (len(self.scriptItems) + 1)
@@ -168,7 +169,7 @@ class EpubBook:
 	        #print '  + adding JS', srcPath, item.id
         	self.scriptItems[item.destPath] = item
         return self.scriptItems[item.destPath]
-    
+
     def addCover(self, srcPath):
         assert not self.coverImage
         _, ext = os.path.splitext(srcPath)
@@ -177,7 +178,7 @@ class EpubBook:
         #coverPage = self.addHtmlForImage(self.coverImage)
         #self.addSpineItem(coverPage, False, -300)
         #self.addGuideItem(coverPage.destPath, 'Cover', 'cover')
-        
+
     def __makeTitlePage(self):
         assert self.titlePage
         if self.titlePage.html:
@@ -185,13 +186,13 @@ class EpubBook:
         tmpl = self.loader.load('title-page.html')
         stream = tmpl.generate(book = self)
         self.titlePage.html = stream.render('xhtml', doctype = 'xhtml11', drop_xml_decl = False)
-        
+
     def addTitlePage(self, html = ''):
         assert not self.titlePage
         self.titlePage = self.addHtml('', 'title-page.html', html)
         self.addSpineItem(self.titlePage, True, -200)
         self.addGuideItem('title-page.html', 'Title Page', 'title-page')
-    
+
     def __makeTocPage(self):
         assert self.tocPage
         tmpl = self.loader.load('toc.html')
@@ -203,29 +204,29 @@ class EpubBook:
         self.tocPage = self.addHtml('', 'toc.html', '')
         self.addSpineItem(self.tocPage, False, -100)
         self.addGuideItem('toc.html', 'Table of Contents', 'toc')
-    
+
     def getSpine(self):
         return sorted(self.spine)
-    
+
     def addSpineItem(self, item, linear = True, order = None):
         assert item.destPath in self.htmlItems
         if order == None:
             order = (max(order for order, _, _ in self.spine) if self.spine else 0) + 1
         self.spine.append((order, item, linear))
-    
+
     def getGuide(self):
         return sorted(self.guide.values(), key = lambda x : x[2])
-    
+
     def addGuideItem(self, href, title, type):
         assert type not in self.guide
         self.guide[type] = (href, title, type)
-    
+
     def getTocMapRoot(self):
         return self.tocMapRoot
-    
+
     def getTocMapHeight(self):
         return max(self.lastNodeAtDepth.keys())
-    
+
     def addTocMapNode(self, href, title, depth = None, parent = None):
         node = TocMapNode()
         node.href = href
@@ -239,7 +240,7 @@ class EpubBook:
         node.depth = parent.depth + 1
         self.lastNodeAtDepth[node.depth] = node
         return node
-    
+
     def makeDirs(self):
         try:
             os.makedirs(os.path.join(self.rootDir, 'META-INF'))
@@ -249,7 +250,7 @@ class EpubBook:
             os.makedirs(os.path.join(self.rootDir, 'OEBPS'))
         except OSError:
             pass
-    
+
     def __writeContainerXML(self):
         fout = open(os.path.join(self.rootDir, 'META-INF', 'container.xml'), 'w')
         tmpl = self.loader.load('container.xml')
@@ -264,18 +265,18 @@ class EpubBook:
         stream = tmpl.generate(book = self)
         fout.write(stream.render('xml'))
         fout.close()
-    
+
     def __writeContentOPF(self):
         fout = open(os.path.join(self.rootDir, 'OEBPS', 'content.opf'), 'w')
         tmpl = self.loader.load('content.opf')
         stream = tmpl.generate(book = self)
         fout.write(stream.render('xml'))
         fout.close()
-    
+
     def __writeItems(self):
         items = self.getAllItems()
         pbar = progressbar.ProgressBar(
-        	widgets=[progressbar.Percentage(), progressbar.Counter('%5d'), 
+        	widgets=[progressbar.Percentage(), progressbar.Counter('%5d'),
         	progressbar.Bar(), progressbar.ETA()],
         	maxval=len(items)
         ).start()
@@ -297,7 +298,7 @@ class EpubBook:
         fout = open(os.path.join(self.rootDir, 'mimetype'), 'w')
         fout.write('application/epub+zip')
         fout.close()
-    
+
     @staticmethod
     def __listManifestItems(contentOPFPath):
         tree = etree.parse(contentOPFPath)
@@ -318,11 +319,11 @@ class EpubBook:
             fout.write(filePath, compress_type = zipfile.ZIP_DEFLATED)
         fout.close()
         os.chdir(cwd)
-    
+
     @staticmethod
     def checkEpub(checkerPath, epubPath):
         subprocess.call(['java', '-jar', checkerPath, epubPath], shell = True)
-    
+
     def createBook(self, rootDir):
         if self.titlePage:
             self.__makeTitlePage()
@@ -352,11 +353,11 @@ def test():
     book.addCreator('Guybrush Threepwood')
     book.addMeta('contributor', 'Smalltalk80', role = 'bkp')
     book.addMeta('date', '2010', event = 'publication')
-    
+
     book.addTitlePage()
     book.addTocPage()
     book.addCover(r'D:\epub\blank.png')
-    
+
     book.addCss(r'main.css', 'main.css')
 
     n1 = book.addHtml('', '1.html', getMinimalHtml('Chapter 1'))
@@ -377,7 +378,7 @@ def test():
     #t111 = book.addTocMapNode(n111.destPath, '1.1.1', parent = t11)
     #t12 = book.addTocMapNode(n12.destPath, '1.2', parent = t1)
     #t2 = book.addTocMapNode(n2.destPath, '2')
-    
+
     book.addTocMapNode(n1.destPath, '1')
     book.addTocMapNode(n11.destPath, '1.1', 2)
     book.addTocMapNode(n111.destPath, '1.1.1', 3)
@@ -388,6 +389,6 @@ def test():
     book.createBook(rootDir)
     EpubBook.createArchive(rootDir, rootDir + '.epub')
     EpubBook.checkEpub('epubcheck-1.0.5.jar', rootDir + '.epub')
-    
+
 if __name__ == '__main__':
     test()
