@@ -72,7 +72,7 @@ class EpubFile(zipfile.ZipFile):
         # Write mimetype file: 'application/epub+zip'
         self.writestr('mimetype', const.MIMETYPE_EPUB)
         # Default path for opf
-        self.opf_path = const.DEFAULT_OPF_PATH
+        self.opf_path = const.OPF_PATH
         # Uid & Uid's id
         uid_id = 'BookId'
         self.uid = '%s' % uuid.uuid4()

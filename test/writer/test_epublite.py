@@ -77,7 +77,9 @@ class BookTestCase(unittest.TestCase):
     """
     def test_book(self):
         from test.writer import test_epublite as module
-        book = epublite.Book(template_dir=utils.get_test_data_dir(module))
+        book = epublite.Book(
+            template_dir=utils.get_test_data_dir(module),
+            display_progress=False)
         book.title = 'Pride and Prejudice'
         book.authors = ['Jane Austen']
         book.sections = parse_book('pg1342.txt', 30, 13061)

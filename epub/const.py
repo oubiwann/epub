@@ -1,6 +1,10 @@
 MIMETYPE_EPUB = 'application/epub+zip'
+MIMETYPE_HTML = 'application/xhtml+xml'
 MIMETYPE_OPF = 'application/oebps-package+xml'
 MIMETYPE_NCX = 'application/x-dtbncx+xml'
+MIMETYPE_JS = 'text/javascript'
+MIMETYPE_CSS = 'text/css'
 
-DEFAULT_OPF_PATH = 'OEBPS/content.opf'
-DEFAULT_NCX_PATH = 'toc.ncx'
+OPF_PATH = 'OEBPS/content.opf'
+NCX_PATH = 'OEBPS/toc.ncx'
+CONTAINER_PATH = 'META-INF/container.xml'

@@ -19,8 +19,10 @@ class Section(object):
 class Book(object):
 
     def __init__(self, title='', authors=None, cover='', lang='en-UD',
-                 sections=None, template_loader=None, template_dir=None):
-        self.impl = book.EPubBook(template_dir)
+                 sections=None, template_loader=None, template_dir=None,
+                 display_progress=True):
+        self.impl = book.EPubBook(
+            template_dir, display_progress=display_progress)
         self.title = title
         self.authors = authors or []
         self.cover = cover
@@ -56,4 +58,4 @@ class Book(object):
         self._add_section(root, 's', 0)
         self.impl.create_book(output_dir)
         self.impl.create_archive(output_dir, output_file)
-        self.impl.check_epub(checker, output_file)
+        #self.impl.check_epub(checker, output_file)

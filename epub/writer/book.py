@@ -3,11 +3,13 @@
 # Copyright (c) 2012, Bin Tan
 # This file is distributed under the BSD Licence. See
 # python-epub-builder-license.txt for details.
+from cStringIO import StringIO
 import itertools
 import mimetypes
 import os
 import shutil
 import subprocess
+import sys
 import uuid
 import zipfile
 
@@ -17,6 +19,7 @@ from lxml import etree
 
 from genshi.template import TemplateLoader
 
+from epub import const
 
 
 class ToCMapNode(object):
@@ -51,7 +54,7 @@ class EPubItem(object):
 
 class EPubBook(object):
 
-    def __init__(self, template_dir=None):
+    def __init__(self, template_dir=None, display_progress=True):
         self.loader = TemplateLoader(template_dir)
 
         self.root_dir = ''
@@ -75,6 +78,7 @@ class EPubBook(object):
         self.guide = {}
         self.toc_map_root = ToCMapNode()
         self.last_node_at_depth = {0 : self.toc_map_root}
+        self.display_progress = display_progress
 
     def set_title(self, title):
         self.title = title
@@ -146,7 +150,7 @@ class EPubBook(object):
         item.dest_path = dest_path
         if html is not None:
             item.html = html
-        item.mime_type = 'application/xhtml+xml'
+        item.mime_type = const.MIMETYPE_HTML
         if item.dest_path not in self.html_items:
 	        #print '  + adding Page', srcPath, item.id
         	self.html_items[item.dest_path] = item
@@ -157,7 +161,7 @@ class EPubBook(object):
         item.id = 'css_%d' % (len(self.css_items) + 1)
         item.srcPath = srcPath
         item.dest_path = dest_path
-        item.mime_type = 'text/css'
+        item.mime_type = const.MIMETYPE_CSS
         #assert item.dest_path not in self.css_items
         if item.dest_path not in self.css_items:
 	        #print '  + adding CSS', srcPath, item.id
@@ -169,7 +173,7 @@ class EPubBook(object):
         item.id = 'js_%d' % (len(self.script_items) + 1)
         item.srcPath = srcPath
         item.dest_path = dest_path
-        item.mime_type = 'text/javascript'
+        item.mime_type = const.MIMETYPE_JS
         if item.dest_path not in self.script_items:
 	        #print '  + adding JS', srcPath, item.id
         	self.script_items[item.dest_path] = item
@@ -206,7 +210,8 @@ class EPubBook(object):
         assert self.toc_page
         tmpl = self.loader.load('toc.html')
         stream = tmpl.generate(book=self)
-        self.toc_page.html = stream.render('xhtml', doctype = 'xhtml11', drop_xml_decl = False)
+        self.toc_page.html = stream.render(
+            'xhtml', doctype='xhtml11', drop_xml_decl=False)
 
     def add_toc_page(self):
         assert not self.toc_page
@@ -217,10 +222,11 @@ class EPubBook(object):
     def get_spine(self):
         return sorted(self.spine)
 
-    def add_spine_item(self, item, linear = True, order = None):
+    def add_spine_item(self, item, linear = True, order=None):
         assert item.dest_path in self.html_items
         if order == None:
-            order = (max(order for order, _, _ in self.spine) if self.spine else 0) + 1
+            order = (max(order for order, _, _ in self.spine)
+                        if self.spine else 0) + 1
         self.spine.append((order, item, linear))
 
     def get_guide(self):
@@ -261,7 +267,7 @@ class EPubBook(object):
             pass
 
     def _write_container_xml(self):
-        fout = open(os.path.join(self.root_dir, 'META-INF', 'container.xml'), 'w')
+        fout = open(os.path.join(self.root_dir, const.CONTAINER_PATH), 'w')
         tmpl = self.loader.load('container.xml')
         stream = tmpl.generate()
         fout.write(stream.render('xml'))
@@ -269,14 +275,14 @@ class EPubBook(object):
 
     def _write_toc_ncx(self):
         self.toc_map_root.assign_playOrder()
-        fout = open(os.path.join(self.root_dir, 'OEBPS', 'toc.ncx'), 'w')
+        fout = open(os.path.join(self.root_dir, const.NCX_PATH), 'w')
         tmpl = self.loader.load('toc.ncx')
         stream = tmpl.generate(book=self)
         fout.write(stream.render('xml'))
         fout.close()
 
     def _write_content_opf(self):
-        fout = open(os.path.join(self.root_dir, 'OEBPS', 'content.opf'), 'w')
+        fout = open(os.path.join(self.root_dir, const.OPF_PATH), 'w')
         tmpl = self.loader.load('content.opf')
         stream = tmpl.generate(book=self)
         fout.write(stream.render('xml'))
@@ -284,11 +290,15 @@ class EPubBook(object):
 
     def _write_items(self):
         items = self.get_all_items()
+        if self.display_progress:
+            output = sys.stderr
+        else:
+            output = StringIO()
         pbar = progressbar.ProgressBar(
             maxval=len(items),
         	widgets=[progressbar.Percentage(), progressbar.Counter('%5d'),
-        	   progressbar.Bar(), progressbar.ETA()]
-            ).start()
+        	   progressbar.Bar(), progressbar.ETA()],
+            fd=output).start()
         for item in items:
             #print item.id, item.dest_path
             outname = os.path.join(self.root_dir, 'OEBPS', item.dest_path)
@@ -307,24 +317,26 @@ class EPubBook(object):
 
     def _write_mime_type(self):
         fout = open(os.path.join(self.root_dir, 'mime_type'), 'w')
-        fout.write('application/epub+zip')
+        fout.write(const.MIMETYPE_EPUB)
         fout.close()
 
     @staticmethod
     def _list_manifest_items(contentOPFPath):
         tree = etree.parse(contentOPFPath)
-        return tree.xpath("//opf:manifest/opf:item/@href", namespaces = {'opf': 'http://www.idpf.org/2007/opf'})
+        return tree.xpath(
+            "//opf:manifest/opf:item/@href",
+            namespaces={'opf': 'http://www.idpf.org/2007/opf'})
 
     @staticmethod
-    def create_archive(rootDir, outputPath):
-        fout = zipfile.ZipFile(outputPath, 'w')
+    def create_archive(root_dir, output_path):
+        fout = zipfile.ZipFile(output_path, 'w')
         cwd = os.getcwd()
-        os.chdir(rootDir)
+        os.chdir(root_dir)
         fout.write('mime_type', compress_type = zipfile.ZIP_STORED)
         fileList = []
-        fileList.append(os.path.join('META-INF', 'container.xml'))
-        fileList.append(os.path.join('OEBPS', 'content.opf'))
-        for itemPath in EPubBook._list_manifest_items(os.path.join('OEBPS', 'content.opf')):
+        fileList.append(const.CONTAINER_PATH)
+        fileList.append(const.OPF_PATH)
+        for itemPath in EPubBook._list_manifest_items(const.OPF_PATH):
             fileList.append(os.path.join('OEBPS', itemPath))
         for filePath in fileList:
             fout.write(filePath, compress_type = zipfile.ZIP_DEFLATED)
@@ -337,16 +349,16 @@ class EPubBook(object):
         #print cmd
         subprocess.call(cmd, shell=False)
 
-    def create_book(self, rootDir, extension='.epub'):
+    def create_book(self, root_dir, extension='.epub'):
         if self.title_page:
             self._make_title_page()
         if self.toc_page:
             self._make_toc_page()
-        self.root_dir = rootDir
+        self.root_dir = root_dir
         self.make_dirs()
         self._write_mime_type()
         self._write_items()
         self._write_container_xml()
         self._write_content_opf()
         self._write_toc_ncx()
-        self.create_archive(rootDir, rootDir + extension)
+        self.create_archive(root_dir, root_dir + extension)
