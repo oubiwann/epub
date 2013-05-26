@@ -1,17 +1,18 @@
 # -*- coding: utf-8
+import re
 import unittest
 
 from epub.writer import epublite
 
 
-def formatParagraph(paragraph):
+def format_paragraph(paragraph):
     paragraph = paragraph.replace('--', '¡ª')
     paragraph = re.sub(r' +', ' ', paragraph)
     paragraph = re.sub(r'_(.+?)_', r'<em>\1</em>', paragraph)
-    return segmentParagraph(paragraph)
+    return segment_paragraph(paragraph)
 
 
-def segmentParagraph(paragraph):
+def segment_paragraph(paragraph):
     segments = []
     textStart = 0
     style = []
@@ -28,7 +29,7 @@ def segmentParagraph(paragraph):
     return segments
 
 
-def parseBook(path, startLineNum, endLineNum):
+def parse_book(path, startLineNum, endLineNum):
     PATTERN = re.compile(r'Chapter \d+$')
     sections = []
     paragraph = ''
@@ -48,30 +49,30 @@ def parseBook(path, startLineNum, endLineNum):
             sections.append(section)
         elif line == '':
             if paragraph != '':
-                section.text.append(formatParagraph(paragraph))
+                section.text.append(format_paragraph(paragraph))
                 paragraph = ''
         else:
             if paragraph != '':
                 paragraph += ' '
             paragraph += line
     if paragraph != '':
-        section.text.append(formatParagraph(paragraph))
+        section.text.append(format_paragraph(paragraph))
     return sections
 
 
-class SectionTestCase(unittest.testcase):
+class SectionTestCase(unittest.TestCase):
     """
     """
     def test_section(self):
         pass
 
 
-class BookTestCase(unittest.testcase):
+class BookTestCase(unittest.TestCase):
     """
     """
     def test_book(self):
         book = epublite.Book()
         book.title = 'Pride and Prejudice'
         book.authors = ['Jane Austen']
-        book.sections = parseBook(r'D:\epub\1342.txt', 38, 13061)
+        book.sections = parse_book(r'D:\epub\1342.txt', 38, 13061)
         book.make(r'D:\epub\%s' % book.title)

@@ -28,15 +28,15 @@ class ToCMapNode(object):
         self.children = []
         self.depth = 0
 
-    def assign_play_order(self):
-        nextPlayOrder = [0]
-        self._assign_play_order(nextPlayOrder)
+    def assign_playOrder(self):
+        nextplayOrder = [0]
+        self._assign_playOrder(nextplayOrder)
 
-    def _assign_play_order(self, nextPlayOrder):
-        self.playOrder = nextPlayOrder[0]
-        nextPlayOrder[0] = self.playOrder + 1
+    def _assign_playOrder(self, nextplayOrder):
+        self.playOrder = nextplayOrder[0]
+        nextplayOrder[0] = self.playOrder + 1
         for child in self.children:
-            child._assign_play_order(nextPlayOrder)
+            child._assign_playOrder(nextplayOrder)
 
 
 class EPubItem(object):
@@ -44,15 +44,15 @@ class EPubItem(object):
     def __init__(self):
         self.id = ''
         self.srcPath = ''
-        self.destPath = ''
-        self.mimeType = ''
+        self.dest_path = ''
+        self.mime_type = ''
         self.html = ''
 
 
 class EPubBook(object):
 
-    def __init__(self):
-        self.loader = TemplateLoader('templates')
+    def __init__(self, template_dir=None):
+        self.loader = TemplateLoader(template_dir)
 
         self.root_dir = ''
         self.uuid = uuid.uuid1()
@@ -73,7 +73,7 @@ class EPubBook(object):
 
         self.spine = []
         self.guide = {}
-        self.toc_map_root = TocMapNode()
+        self.toc_map_root = ToCMapNode()
         self.last_node_at_depth = {0 : self.toc_map_root}
 
     def set_title(self, title):
@@ -113,80 +113,88 @@ class EPubBook(object):
         return sorted(self.script_items.values(), key = lambda x : x.id)
 
     def get_all_items(self):
-        print '   Items in ebook:'
-        print '     HTML:', len(self.html_items)
-        print '     CSS:', len(self.css_items)
-        print '     JS:', len(self.script_items)
-        print '     Images:', len(self.image_items)
+        # XXX debug
+        #print '   Items in ebook:'
+        #print '     HTML:', len(self.html_items)
+        #print '     CSS:', len(self.css_items)
+        #print '     JS:', len(self.script_items)
+        #print '     Images:', len(self.image_items)
         return sorted(itertools.chain(self.image_items.values(), self.html_items.values(), self.css_items.values(), self.script_items.values()), key = lambda x : x.id)
 
-    def add_mage(self, srcPath, destPath):
-        item = EpubItem()
+    def add_mage(self, srcPath, dest_path):
+        item = EPubItem()
         item.id = 'image_%d' % (len(self.image_items) + 1)
         item.srcPath = srcPath
-        item.destPath = destPath
-        item.mimeType = mimetypes.guess_type(destPath)[0]
-        #assert item.destPath not in self.image_items
-        if item.destPath not in self.image_items:
+        item.dest_path = dest_path
+        item.mime_type = mimetypes.guess_type(dest_path)[0]
+        #assert item.dest_path not in self.image_items
+        if item.dest_path not in self.image_items:
 	        #print '  + adding Image', srcPath, item.id
-        	self.image_items[item.destPath] = item
-        return self.image_items[item.destPath]
+        	self.image_items[item.dest_path] = item
+        return self.image_items[item.dest_path]
 
     def add_html_for_image(self, imageItem):
         tmpl = self.loader.load('image.html')
         stream = tmpl.generate(book=self, item = imageItem)
         html = stream.render('xhtml', doctype = 'xhtml11', drop_xml_decl = False)
-        return self.add_html('', '%s.html' % imageItem.destPath, html)
+        return self.add_html('', '%s.html' % imageItem.dest_path, html)
 
-    def add_html(self, srcPath, destPath, html = None):
-        item = EpubItem()
+    def add_html(self, srcPath, dest_path, html = None):
+        item = EPubItem()
         item.id = 'html_%d' % (len(self.html_items) + 1)
         item.srcPath = srcPath
-        item.destPath = destPath
+        item.dest_path = dest_path
         if html is not None:
             item.html = html
-        item.mimeType = 'application/xhtml+xml'
-        if item.destPath not in self.html_items:
+        item.mime_type = 'application/xhtml+xml'
+        if item.dest_path not in self.html_items:
 	        #print '  + adding Page', srcPath, item.id
-        	self.html_items[item.destPath] = item
-        return self.html_items[item.destPath]
+        	self.html_items[item.dest_path] = item
+        return self.html_items[item.dest_path]
 
-    def add_css(self, srcPath, destPath):
-        item = EpubItem()
+    def add_css(self, srcPath, dest_path):
+        item = EPubItem()
         item.id = 'css_%d' % (len(self.css_items) + 1)
         item.srcPath = srcPath
-        item.destPath = destPath
-        item.mimeType = 'text/css'
-        #assert item.destPath not in self.css_items
-        if item.destPath not in self.css_items:
+        item.dest_path = dest_path
+        item.mime_type = 'text/css'
+        #assert item.dest_path not in self.css_items
+        if item.dest_path not in self.css_items:
 	        #print '  + adding CSS', srcPath, item.id
-        	self.css_items[item.destPath] = item
-        return self.css_items[item.destPath]
+        	self.css_items[item.dest_path] = item
+        return self.css_items[item.dest_path]
 
-    def add_script(self, srcPath, destPath):
-        item = EpubItem()
+    def add_script(self, srcPath, dest_path):
+        item = EPubItem()
         item.id = 'js_%d' % (len(self.script_items) + 1)
         item.srcPath = srcPath
-        item.destPath = destPath
-        item.mimeType = 'text/javascript'
-        if item.destPath not in self.script_items:
+        item.dest_path = dest_path
+        item.mime_type = 'text/javascript'
+        if item.dest_path not in self.script_items:
 	        #print '  + adding JS', srcPath, item.id
-        	self.script_items[item.destPath] = item
-        return self.script_items[item.destPath]
+        	self.script_items[item.dest_path] = item
+        return self.script_items[item.dest_path]
 
     def add_cover(self, srcPath):
         assert not self.cover_image
         _, ext = os.path.splitext(srcPath)
-        destPath = 'cover%s' % ext
-        self.cover_image = self.add_mage(srcPath, destPath)
+        dest_path = 'cover%s' % ext
+        self.cover_image = self.add_mage(srcPath, dest_path)
         #coverPage = self.add_html_for_image(self.cover_image)
         #self.add_spine_item(coverPage, False, -300)
-        #self.add_guide_item(coverPage.destPath, 'Cover', 'cover')
+        #self.add_guide_item(coverPage.dest_path, 'Cover', 'cover')
 
     def _make_title_page(self):
         assert self.title_page
         if self.title_page.html:
             return
+        # XXX debug
+        #import os, sys
+        from epub.writer import book
+        path = book.__file__
+        # XXX debug
+        #import pdb;pdb.set_trace()
+        #tmpl = self.loader.load('../test/writer/_data/title-page.html')
         tmpl = self.loader.load('title-page.html')
         stream = tmpl.generate(book=self)
         self.title_page.html = stream.render('xhtml', doctype = 'xhtml11', drop_xml_decl = False)
@@ -213,7 +221,7 @@ class EPubBook(object):
         return sorted(self.spine)
 
     def add_spine_item(self, item, linear = True, order = None):
-        assert item.destPath in self.html_items
+        assert item.dest_path in self.html_items
         if order == None:
             order = (max(order for order, _, _ in self.spine) if self.spine else 0) + 1
         self.spine.append((order, item, linear))
@@ -232,7 +240,7 @@ class EPubBook(object):
         return max(self.last_node_at_depth.keys())
 
     def add_toc_map_node(self, href, title, depth = None, parent = None):
-        node = TocMapNode()
+        node = ToCMapNode()
         node.href = href
         node.title = title
         if parent == None:
@@ -247,11 +255,11 @@ class EPubBook(object):
 
     def make_dirs(self):
         try:
-            os.make_dirs(os.path.join(self.root_dir, 'META-INF'))
+            os.makedirs(os.path.join(self.root_dir, 'META-INF'))
         except OSError:
             pass
         try:
-            os.make_dirs(os.path.join(self.root_dir, 'OEBPS'))
+            os.makedirs(os.path.join(self.root_dir, 'OEBPS'))
         except OSError:
             pass
 
@@ -263,7 +271,7 @@ class EPubBook(object):
         fout.close()
 
     def _write_toc_ncx(self):
-        self.toc_map_root.assign_play_order()
+        self.toc_map_root.assign_playOrder()
         fout = open(os.path.join(self.root_dir, 'OEBPS', 'toc.ncx'), 'w')
         tmpl = self.loader.load('toc.ncx')
         stream = tmpl.generate(book=self)
@@ -280,26 +288,28 @@ class EPubBook(object):
     def _write_items(self):
         items = self.get_all_items()
         pbar = progressbar.ProgressBar(
+            maxval=len(items),
         	widgets=[progressbar.Percentage(), progressbar.Counter('%5d'),
-        	progressbar.Bar(), progressbar.ETA()],
-        	maxval=len(items)
-        ).start()
+        	   progressbar.Bar(), progressbar.ETA()]
+            ).start()
         for item in items:
-            #print item.id, item.destPath
-            outname = os.path.join(self.root_dir, 'OEBPS', item.destPath)
+            #print item.id, item.dest_path
+            outname = os.path.join(self.root_dir, 'OEBPS', item.dest_path)
             if item.html:
-                print '   writing html to %s' % (outname)
+                # XXX debug
+                #print '   writing html to %s' % (outname)
                 fout = open(outname, 'w')
                 fout.write(item.html)
                 fout.close()
             else:
+                # XXX debug
                 #print '   copying %s --> %s' % (item.srcPath, outname)
                 shutil.copyfile(item.srcPath, outname)
         	pbar.update(pbar.currval + 1)
         pbar.finish()
 
     def _write_mime_type(self):
-        fout = open(os.path.join(self.root_dir, 'mimetype'), 'w')
+        fout = open(os.path.join(self.root_dir, 'mime_type'), 'w')
         fout.write('application/epub+zip')
         fout.close()
 
@@ -313,11 +323,11 @@ class EPubBook(object):
         fout = zipfile.ZipFile(outputPath, 'w')
         cwd = os.getcwd()
         os.chdir(rootDir)
-        fout.write('mimetype', compress_type = zipfile.ZIP_STORED)
+        fout.write('mime_type', compress_type = zipfile.ZIP_STORED)
         fileList = []
         fileList.append(os.path.join('META-INF', 'container.xml'))
         fileList.append(os.path.join('OEBPS', 'content.opf'))
-        for itemPath in EpubBook._list_manifest_items(os.path.join('OEBPS', 'content.opf')):
+        for itemPath in EPubBook._list_manifest_items(os.path.join('OEBPS', 'content.opf')):
             fileList.append(os.path.join('OEBPS', itemPath))
         for filePath in fileList:
             fout.write(filePath, compress_type = zipfile.ZIP_DEFLATED)
@@ -326,9 +336,11 @@ class EPubBook(object):
 
     @staticmethod
     def check_epub(checkerPath, epubPath):
-        subprocess.call(['java', '-jar', checkerPath, epubPath], shell = True)
+        cmd = ['java', '-jar', checkerPath, epubPath]
+        print cmd
+        subprocess.call(cmd, shell=False)
 
-    def create_book(self, rootDir):
+    def create_book(self, rootDir, extension='.epub'):
         if self.title_page:
             self._make_title_page()
         if self.toc_page:
@@ -340,3 +352,4 @@ class EPubBook(object):
         self._write_container_xml()
         self._write_content_opf()
         self._write_toc_ncx()
+        self.create_archive(rootDir, rootDir + extension)

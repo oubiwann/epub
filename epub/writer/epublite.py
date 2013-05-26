@@ -13,14 +13,14 @@ class Section(object):
         self.subsections = []
         self.css = ''
         self.text = []
-        self.templateFileName = 'ez-section.html'
+        self.template_filename = 'ez-section.html'
 
 
 class Book(object):
 
     def __init__(self, title='', authors=None, cover='', lang='en-UD',
                  sections=None, template_loader=None):
-        self.impl = book.EpubBook()
+        self.impl = book.EPubBook()
         self.title = title
         self.authors = authors or []
         self.cover = cover
@@ -30,7 +30,8 @@ class Book(object):
 
     def _add_section(self, section, id, depth):
         if depth > 0:
-            stream = self.templateLoader.load(section.templateFileName).generate(section = section)
+            loader = self.templateLoader.load(section.template_filename)
+            stream = loader.generate(section=section)
             html = stream.render('xhtml', doctype = 'xhtml11', drop_xml_decl = False)
             item = self.impl.add_html('', '%s.html' % id, html)
             self.impl.add_spine_item(item)
