@@ -38,19 +38,23 @@ EPub Reader
 
 ..code:: python
 
-    import epub
+    from epub.reader import content
 
-    book = epub.open_epub('path/to/my/book.epub')
+    mybook = content.open_epub('path/to/my/book.epub')
 
-    for item in book.opf.manifest.values():
+    for item in mybook.opf.manifest.values():
         # read the content
-        data = book.read_item(item)
+        data = mybook.read_item(item)
 
 
-Pub Writer
-----------
+EPub Writer
+-----------
 
-TBD
+..code:: python
+
+    from epub.writer import book
+
+    (more soon ...)
 
 
 .. Links
