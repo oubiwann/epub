@@ -17,13 +17,13 @@ Downloading
 
 You can use ``pip`` to install the Epub library:
 
-.. code: bash
+.. code:: bash
 
     $ pip install https://github.com/oubiwann/epub/archive/master.zip
 
 Or, you could clone the git repo:
 
-.. code: bash
+.. code:: bash
 
     $ git clone https://github.com/oubiwann/epub.git
     $ cd epub
@@ -36,7 +36,7 @@ Documentation
 EPub Reader
 -----------
 
-.. code: python
+.. code:: python
 
     from epub.reader import content
 
@@ -50,7 +50,7 @@ EPub Reader
 EPub Writer
 -----------
 
-.. code: python
+.. code:: python
 
     from epub.writer import book
 
