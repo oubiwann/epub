@@ -513,7 +513,7 @@ class Book(object):
 
     def __init__(self):
         global book
-        book = self
+        book=self
 
         self.REPLACE_FULL_WIDTH_ALNUM = True
 

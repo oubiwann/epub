@@ -7,7 +7,7 @@ from epub import const
 from epub.reader import opf
 
 
-class TestFunction(unittest.TestCase):
+class ParseTestCase(unittest.TestCase):
 
     def test_parse_opf(self):
         xml_string = """<?xml version="1.0" ?>
@@ -134,8 +134,8 @@ class TestFunction(unittest.TestCase):
 
         # dc:title
         self.assertEqual(metadata.titles,
-                         [('Metadata for testing purpose', ''),
-                          ('Metadonnée pour les tests.', 'fr')])
+                         [(u'Metadata for testing purpose', u''),
+                          (u'Metadonn\xe9e pour les tests.', u'fr')])
 
         # dc:creator
         self.assertEqual(metadata.creators,
@@ -229,7 +229,7 @@ class TestFunction(unittest.TestCase):
         self.assertEqual(manifest['chap2'].href, 'Text/chap2.html')
 
 
-class TestMetadata(unittest.TestCase):
+class MetadataTestCase(unittest.TestCase):
 
     def test_add_identifier(self):
         metadata = opf.Metadata()
@@ -264,11 +264,12 @@ class TestMetadata(unittest.TestCase):
         self.maxDiff = None
         doc = minidom.parseString(xml_string)
         xml_element = doc.documentElement
-
-        metadata = opf._parse_xml_metadata(xml_element)
-
-        self.assertEqual(metadata.as_xml_element().toprettyxml('    ').strip(),
-                         xml_element.toxml().strip())
+        xml_element.normalize()
+        result = xml_element.toxml(
+            ).replace('\n', '').replace('    ', '').strip()
+        metadata = opf._parse_xml_metadata(xml_element).as_xml_element().toxml()
+        expected = metadata.replace('\n', '').strip()
+        self.assertEqual(expected, result)
 
     def test_as_xml_element_creators(self):
         xml_string = """<metadata xmlns:dc="%s" xmlns:opf="%s">
@@ -282,11 +283,11 @@ class TestMetadata(unittest.TestCase):
         doc = minidom.parseString(xml_string)
         xml_element = doc.documentElement
         xml_element.normalize()
-
-        metadata = opf._parse_xml_metadata(xml_element)
-
-        self.assertEqual(metadata.as_xml_element().toprettyxml('    ').strip(),
-                         xml_element.toxml().strip())
+        result = xml_element.toxml(
+            ).replace('\n', '').replace('    ', '').strip()
+        metadata = opf._parse_xml_metadata(xml_element).as_xml_element().toxml()
+        expected = metadata.replace('\n', '').strip()
+        self.assertEqual(expected, result)
 
     def test_as_xml_element_subjects(self):
         xml_string = """<metadata xmlns:dc="%s" xmlns:opf="%s">
@@ -298,11 +299,11 @@ class TestMetadata(unittest.TestCase):
         doc = minidom.parseString(xml_string)
         xml_element = doc.documentElement
         xml_element.normalize()
-
-        metadata = opf._parse_xml_metadata(xml_element)
-
-        self.assertEqual(metadata.as_xml_element().toprettyxml('    ').strip(),
-                         xml_element.toxml().strip())
+        result = xml_element.toxml(
+            ).replace('\n', '').replace('    ', '').strip()
+        metadata = opf._parse_xml_metadata(xml_element).as_xml_element().toxml()
+        expected = metadata.replace('\n', '').strip()
+        self.assertEqual(expected, result)
 
     def test_as_xml_element_description(self):
         xml_string = """<metadata xmlns:dc="%s" xmlns:opf="%s">
@@ -313,11 +314,11 @@ class TestMetadata(unittest.TestCase):
         doc = minidom.parseString(xml_string)
         xml_element = doc.documentElement
         xml_element.normalize()
-
-        metadata = opf._parse_xml_metadata(xml_element)
-
-        self.assertEqual(metadata.as_xml_element().toprettyxml('    ').strip(),
-                         xml_element.toxml().strip())
+        result = xml_element.toxml(
+            ).replace('\n', '').replace('    ', '').strip()
+        metadata = opf._parse_xml_metadata(xml_element).as_xml_element().toxml()
+        expected = metadata.replace('\n', '').strip()
+        self.assertEqual(expected, result)
 
     def test_as_xml_element_publisher(self):
         xml_string = """<metadata xmlns:dc="%s" xmlns:opf="%s">
@@ -328,11 +329,11 @@ class TestMetadata(unittest.TestCase):
         doc = minidom.parseString(xml_string)
         xml_element = doc.documentElement
         xml_element.normalize()
-
-        metadata = opf._parse_xml_metadata(xml_element)
-
-        self.assertEqual(metadata.as_xml_element().toprettyxml('    ').strip(),
-                         xml_element.toxml().strip())
+        result = xml_element.toxml(
+            ).replace('\n', '').replace('    ', '').strip()
+        metadata = opf._parse_xml_metadata(xml_element).as_xml_element().toxml()
+        expected = metadata.replace('\n', '').strip()
+        self.assertEqual(expected, result)
 
     def test_as_xml_element_contributors(self):
         xml_string = """<metadata xmlns:dc="%s" xmlns:opf="%s">
@@ -346,11 +347,11 @@ class TestMetadata(unittest.TestCase):
         doc = minidom.parseString(xml_string)
         xml_element = doc.documentElement
         xml_element.normalize()
-
-        metadata = opf._parse_xml_metadata(xml_element)
-
-        self.assertEqual(metadata.as_xml_element().toprettyxml('    ').strip(),
-                         xml_element.toxml().strip())
+        result = xml_element.toxml(
+            ).replace('\n', '').replace('    ', '').strip()
+        metadata = opf._parse_xml_metadata(xml_element).as_xml_element().toxml()
+        expected = metadata.replace('\n', '').strip()
+        self.assertEqual(expected, result)
 
     def test_as_xml_element_date(self):
         xml_string = """<metadata xmlns:dc="%s" xmlns:opf="%s">
@@ -362,11 +363,11 @@ class TestMetadata(unittest.TestCase):
         doc = minidom.parseString(xml_string)
         xml_element = doc.documentElement
         xml_element.normalize()
-
-        metadata = opf._parse_xml_metadata(xml_element)
-
-        self.assertEqual(metadata.as_xml_element().toprettyxml('    ').strip(),
-                         xml_element.toxml().strip())
+        result = xml_element.toxml(
+            ).replace('\n', '').replace('    ', '').strip()
+        metadata = opf._parse_xml_metadata(xml_element).as_xml_element().toxml()
+        expected = metadata.replace('\n', '').strip()
+        self.assertEqual(expected, result)
 
     def test_as_xml_element_type(self):
         xml_string = """<metadata xmlns:dc="%s" xmlns:opf="%s">
@@ -377,11 +378,11 @@ class TestMetadata(unittest.TestCase):
         doc = minidom.parseString(xml_string)
         xml_element = doc.documentElement
         xml_element.normalize()
-
-        metadata = opf._parse_xml_metadata(xml_element)
-
-        self.assertEqual(metadata.as_xml_element().toprettyxml('    ').strip(),
-                         xml_element.toxml().strip())
+        result = xml_element.toxml(
+            ).replace('\n', '').replace('    ', '').strip()
+        metadata = opf._parse_xml_metadata(xml_element).as_xml_element().toxml()
+        expected = metadata.replace('\n', '').strip()
+        self.assertEqual(expected, result)
 
     def test_as_xml_element_format(self):
         xml_string = """<metadata xmlns:dc="%s" xmlns:opf="%s">
@@ -392,11 +393,11 @@ class TestMetadata(unittest.TestCase):
         doc = minidom.parseString(xml_string)
         xml_element = doc.documentElement
         xml_element.normalize()
-
-        metadata = opf._parse_xml_metadata(xml_element)
-
-        self.assertEqual(metadata.as_xml_element().toprettyxml('    ').strip(),
-                         xml_element.toxml().strip())
+        result = xml_element.toxml(
+            ).replace('\n', '').replace('    ', '').strip()
+        metadata = opf._parse_xml_metadata(xml_element).as_xml_element().toxml()
+        expected = metadata.replace('\n', '').strip()
+        self.assertEqual(expected, result)
 
     def test_as_xml_element_source(self):
         xml_string = """<metadata xmlns:dc="%s" xmlns:opf="%s">
@@ -407,11 +408,11 @@ class TestMetadata(unittest.TestCase):
         doc = minidom.parseString(xml_string)
         xml_element = doc.documentElement
         xml_element.normalize()
-
-        metadata = opf._parse_xml_metadata(xml_element)
-
-        self.assertEqual(metadata.as_xml_element().toprettyxml('    ').strip(),
-                         xml_element.toxml().strip())
+        result = xml_element.toxml(
+            ).replace('\n', '').replace('    ', '').strip()
+        metadata = opf._parse_xml_metadata(xml_element).as_xml_element().toxml()
+        expected = metadata.replace('\n', '').strip()
+        self.assertEqual(expected, result)
 
     def test_as_xml_element_relation(self):
         xml_string = """<metadata xmlns:dc="%s" xmlns:opf="%s">
@@ -422,11 +423,11 @@ class TestMetadata(unittest.TestCase):
         doc = minidom.parseString(xml_string)
         xml_element = doc.documentElement
         xml_element.normalize()
-
-        metadata = opf._parse_xml_metadata(xml_element)
-
-        self.assertEqual(metadata.as_xml_element().toprettyxml('    ').strip(),
-                         xml_element.toxml().strip())
+        result = xml_element.toxml(
+            ).replace('\n', '').replace('    ', '').strip()
+        metadata = opf._parse_xml_metadata(xml_element).as_xml_element().toxml()
+        expected = metadata.replace('\n', '').strip()
+        self.assertEqual(expected, result)
 
     def test_as_xml_element_coverage(self):
         xml_string = """<metadata xmlns:dc="%s" xmlns:opf="%s">
@@ -437,11 +438,11 @@ class TestMetadata(unittest.TestCase):
         doc = minidom.parseString(xml_string)
         xml_element = doc.documentElement
         xml_element.normalize()
-
-        metadata = opf._parse_xml_metadata(xml_element)
-
-        self.assertEqual(metadata.as_xml_element().toprettyxml('    ').strip(),
-                         xml_element.toxml().strip())
+        result = xml_element.toxml(
+            ).replace('\n', '').replace('    ', '').strip()
+        metadata = opf._parse_xml_metadata(xml_element).as_xml_element().toxml()
+        expected = metadata.replace('\n', '').strip()
+        self.assertEqual(expected, result)
 
     def test_as_xml_element_right(self):
         xml_string = """<metadata xmlns:dc="%s" xmlns:opf="%s">
@@ -452,16 +453,16 @@ class TestMetadata(unittest.TestCase):
         doc = minidom.parseString(xml_string)
         xml_element = doc.documentElement
         xml_element.normalize()
+        result = xml_element.toxml(
+            ).replace('\n', '').replace('    ', '').strip()
+        metadata = opf._parse_xml_metadata(xml_element).as_xml_element().toxml()
+        expected = metadata.replace('\n', '').strip()
+        self.assertEqual(expected, result)
 
-        metadata = opf._parse_xml_metadata(xml_element)
 
-        self.assertEqual(metadata.as_xml_element().toprettyxml('    ').strip(),
-                         xml_element.toxml().strip())
+class ManifestTestCase(unittest.TestCase):
 
-
-class TestManifest(unittest.TestCase):
-
-    class TestDuckManifestItem(object):
+    class FakeManifestItem(object):
 
         def __init__(self, identifier=None, href=None):
             self.identifier = identifier
@@ -488,15 +489,15 @@ class TestManifest(unittest.TestCase):
         with self.assertRaises(ValueError):
             manifest[bad_id] = manifest_item
 
-        duck_ok = self.TestDuckManifestItem(duck_id, duck_href)
+        duck_ok = self.FakeManifestItem(duck_id, duck_href)
         manifest[duck_id] = duck_ok
 
         with self.assertRaises(ValueError):
-            duck_ko = self.TestDuckManifestItem(duck_id)
+            duck_ko = self.FakeManifestItem(duck_id)
             manifest[duck_id] = duck_ko
 
         with self.assertRaises(ValueError):
-            duck_ko = self.TestDuckManifestItem(duck_id)
+            duck_ko = self.FakeManifestItem(duck_id)
             manifest.append(duck_ko)
 
         self.assertTrue(identifier in manifest)
@@ -540,7 +541,7 @@ class TestManifest(unittest.TestCase):
         self.assertEqual(xml_output, xml_input)
 
 
-class TestGuide(unittest.TestCase):
+class GuideTestCase(unittest.TestCase):
 
     def test_as_xml_element(self):
         xml_string = """<guide>
@@ -559,7 +560,7 @@ class TestGuide(unittest.TestCase):
                          xml_element.toxml().strip())
 
 
-class TestSpine(unittest.TestCase):
+class SpineTestCase(unittest.TestCase):
 
     def test_init(self):
         sp = opf.Spine()
@@ -621,7 +622,7 @@ class TestSpine(unittest.TestCase):
                          xml_element.toxml().strip())
 
 
-class TestOpf(unittest.TestCase):
+class OpfTestCase(unittest.TestCase):
 
     def test_init(self):
         obj = opf.Opf()
@@ -670,8 +671,6 @@ class TestOpf(unittest.TestCase):
 """
         self.maxDiff = None
         parsed = opf.parse_opf(xml_string)
-
-        xml_input = xml_string.strip()
-        xml_output = parsed.as_xml_document().toprettyxml('    ').strip()
-
-        self.assertEqual(xml_input, xml_output)
+        xml_output = parsed.as_xml_document().toxml().strip()
+        expected = xml_string.strip().replace('\n', '').replace('    ', '')
+        self.assertEqual(expected, xml_output)

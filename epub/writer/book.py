@@ -134,7 +134,7 @@ class EPubBook(object):
 
     def add_html_for_image(self, imageItem):
         tmpl = self.loader.load('image.html')
-        stream = tmpl.generate(book = self, item = imageItem)
+        stream = tmpl.generate(book=self, item = imageItem)
         html = stream.render('xhtml', doctype = 'xhtml11', drop_xml_decl = False)
         return self.add_html('', '%s.html' % imageItem.destPath, html)
 
@@ -188,7 +188,7 @@ class EPubBook(object):
         if self.title_page.html:
             return
         tmpl = self.loader.load('title-page.html')
-        stream = tmpl.generate(book = self)
+        stream = tmpl.generate(book=self)
         self.title_page.html = stream.render('xhtml', doctype = 'xhtml11', drop_xml_decl = False)
 
     def add_title_page(self, html = ''):
@@ -200,7 +200,7 @@ class EPubBook(object):
     def _make_toc_page(self):
         assert self.toc_page
         tmpl = self.loader.load('toc.html')
-        stream = tmpl.generate(book = self)
+        stream = tmpl.generate(book=self)
         self.toc_page.html = stream.render('xhtml', doctype = 'xhtml11', drop_xml_decl = False)
 
     def add_toc_page(self):
@@ -266,14 +266,14 @@ class EPubBook(object):
         self.toc_map_root.assign_play_order()
         fout = open(os.path.join(self.root_dir, 'OEBPS', 'toc.ncx'), 'w')
         tmpl = self.loader.load('toc.ncx')
-        stream = tmpl.generate(book = self)
+        stream = tmpl.generate(book=self)
         fout.write(stream.render('xml'))
         fout.close()
 
     def _write_content_opf(self):
         fout = open(os.path.join(self.root_dir, 'OEBPS', 'content.opf'), 'w')
         tmpl = self.loader.load('content.opf')
-        stream = tmpl.generate(book = self)
+        stream = tmpl.generate(book=self)
         fout.write(stream.render('xml'))
         fout.close()
 

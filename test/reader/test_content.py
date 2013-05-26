@@ -9,7 +9,7 @@ from epub.reader import content, opf
 TEST_XHTML_MIMETYPE = 'application/xhtml+xml'
 
 
-class TestFunction(unittest.TestCase):
+class ContentTestCase(unittest.TestCase):
     epub_path = '_data/test.epub'
 
     def test_open(self):
@@ -36,7 +36,7 @@ class TestFunction(unittest.TestCase):
                 self.assertIsInstance(item, opf.ManifestItem)
 
 
-class TestFunctionWriteMode(unittest.TestCase):
+class ContentWriteModeTestCase(unittest.TestCase):
 
     epub_path = '_data/write/test.epub'
     xhtml_item_path = '_data/write/add_item.xhtml'
@@ -67,7 +67,7 @@ class TestFunctionWriteMode(unittest.TestCase):
                       book.opf.spine.itemrefs)
 
 
-class TestFunctionWriteModeNew(TestFunctionWriteMode):
+class ContentWriteModeNewTestCase(ContentWriteModeTestCase):
 
     def setUp(self):
         self._clean_files()
@@ -99,7 +99,7 @@ class TestFunctionWriteModeNew(TestFunctionWriteMode):
         book.close()
 
 
-class TestFunctionWriteModeAppend(TestFunctionWriteMode):
+class ContentWriteModeAppendTestCase(ContentWriteModeTestCase):
 
     epub_source = '_data/write/source.epub'
     epub_empty = '_data/write/test_empty.epub'
@@ -142,7 +142,7 @@ class TestFunctionWriteModeAppend(TestFunctionWriteMode):
         self.assertEqual(book.opf_path, 'OEBPS/content.opf')
         self.assertEqual(book.content_path, 'OEBPS')
         self.assertEqual(book.opf.metadata.languages, ['fr'])
-        self.assertEqual(book.opf.metadata.titles, [('Il était une fois...', '')])
+        self.assertEqual(book.opf.metadata.titles, [(u'Il \xe9tait une fois...', '')])
         self.assertEqual(len(book.opf.manifest), 2)
         # 4 meta files: mimetype, container.xml, content.opf, toc.ncx,
         # 1 content file: Section0001.xhtml
@@ -170,7 +170,7 @@ class TestFunctionWriteModeAppend(TestFunctionWriteMode):
         book.close()
 
 
-class TestEpubFile(unittest.TestCase):
+class EpubFileTestCase(unittest.TestCase):
     """Test class for epub.EpubFile class"""
 
     epub_path = os.path.join(os.path.dirname(__file__), '_data/test.epub')

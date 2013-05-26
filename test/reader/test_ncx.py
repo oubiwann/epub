@@ -1,18 +1,14 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-
 import os
 import unittest
-
-
 from xml.dom import minidom
-
 
 from epub.reader import ncx
 
 
-class TestFunction(unittest.TestCase):
+class ParseTestCase(unittest.TestCase):
     """Test case for all the _parse_* function."""
 
     ncx_path = '_data/test.ncx'
@@ -372,7 +368,7 @@ class TestFunction(unittest.TestCase):
         self.assertEqual(xml_element.toxml(), xml_string)
 
 
-class TestNavPoint(unittest.TestCase):
+class NavPointTestCase(unittest.TestCase):
 
     def test_as_xml_element(self):
         xml_string = """<navPoint class="some_class" id="point5" playOrder="5">""" + \
@@ -396,7 +392,7 @@ class TestNavPoint(unittest.TestCase):
                          xml_element.toxml())
 
 
-class TestNavMap(unittest.TestCase):
+class NavMapTestCase(unittest.TestCase):
 
     def test_as_xml_element(self):
         xml_string = """<navMap id="someId">""" + \
@@ -417,7 +413,7 @@ class TestNavMap(unittest.TestCase):
                          xml_element.toxml())
 
 
-class TestPageTarget(unittest.TestCase):
+class PageTargetTestCase(unittest.TestCase):
 
     def test_as_xml_element(self):
         xml_string = """<pageTarget class="some_class" id="testid" playOrder="5" type="page_type" value="Some Value">""" + \
@@ -433,7 +429,7 @@ class TestPageTarget(unittest.TestCase):
                          xml_element.toxml())
 
 
-class TestPageList(unittest.TestCase):
+class PageListTestCase(unittest.TestCase):
 
     def test_as_xml_element(self):
         xml_string = """<pageList id="pagelist-1" class="page_class">""" + \
@@ -455,7 +451,7 @@ class TestPageList(unittest.TestCase):
                          xml_element.toxml())
 
 
-class TestNavTarget(unittest.TestCase):
+class NavTargetTestCase(unittest.TestCase):
 
     def test_as_xml_element(self):
         xml_string = """<navTarget class="some_class" id="testid" playOrder="5" value="5">""" + \
@@ -471,7 +467,7 @@ class TestNavTarget(unittest.TestCase):
                          xml_element.toxml())
 
 
-class TestNavList(unittest.TestCase):
+class NavListTestCase(unittest.TestCase):
 
     def test_as_xml_element(self):
         xml_string = """<navList class="some_class" id="testid">""" + \
@@ -493,7 +489,7 @@ class TestNavList(unittest.TestCase):
                          xml_element.toxml())
 
 
-class TestNcx(unittest.TestCase):
+class NcxTestCase(unittest.TestCase):
 
     def test_as_xml_document(self):
         """Check if ncx.as_xml_document reproduce a good xml.
@@ -510,30 +506,42 @@ class TestNcx(unittest.TestCase):
         <meta content="Epub Test" name="dtb:generator"/>
     </head>
     <docTitle>
-        <text>Selections from &quot;Great Pictures, As Seen and Described by Famous Writers&quot;</text>
+        <text>
+            Selections from &quot;Great Pictures, As Seen and Described by Famous Writers&quot;
+        </text>
     </docTitle>
     <docAuthor>
-        <text>Esther Singleton</text>
+        <text>
+            Esther Singleton
+        </text>
     </docAuthor>
     <docAuthor>
-        <text>Test Author</text>
+        <text>
+            Test Author
+        </text>
     </docAuthor>
     <navMap>
         <navPoint class="h1" id="ch1">
             <navLabel>
-                <text>Chapter 1</text>
+                <text>
+                    Chapter 1
+                </text>
             </navLabel>
             <content src="content.html#ch_1"/>
             <navPoint class="h2" id="ch_1_1">
                 <navLabel>
-                    <text>Chapter 1.1</text>
+                    <text>
+                        Chapter 1.1
+                    </text>
                 </navLabel>
                 <content src="content.html#ch_1_1"/>
             </navPoint>
         </navPoint>
         <navPoint class="h1" id="ncx-2">
             <navLabel>
-                <text>Chapter 2</text>
+                <text>
+                    Chapter 2
+                </text>
             </navLabel>
             <content src="content.html#ch_2"/>
         </navPoint>
@@ -541,30 +549,40 @@ class TestNcx(unittest.TestCase):
     <pageList>
         <pageTarget id="p1" type="normal" value="1">
             <navLabel dir="ltr">
-                <text>1</text>
+                <text>
+                    1
+                </text>
             </navLabel>
             <content src="content.html#p1"/>
         </pageTarget>
         <pageTarget id="p2" type="normal" value="2">
             <navLabel>
-                <text>2</text>
+                <text>
+                    2
+                </text>
             </navLabel>
             <content src="content.html#p2"/>
         </pageTarget>
     </pageList>
     <navList>
         <navLabel>
-            <text>List of Illustrations</text>
+            <text>
+                List of Illustrations
+            </text>
         </navLabel>
         <navTarget id="ill-1">
             <navLabel>
-                <text>Portratit of Georg Gisze (Holbein)</text>
+                <text>
+                    Portratit of Georg Gisze (Holbein)
+                </text>
             </navLabel>
             <content src="content.html#ill1"/>
         </navTarget>
         <navTarget id="ill-2">
             <navLabel>
-                <text>The adoration of the lamb (Van Eyck)</text>
+                <text>
+                    The adoration of the lamb (Van Eyck)
+                </text>
             </navLabel>
             <content src="content.html#ill2"/>
         </navTarget>
