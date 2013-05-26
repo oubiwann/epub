@@ -9,27 +9,27 @@ Le fichier de navigation NCX
 Navigation Center eXtended
 --------------------------
 
-Le format NCX est un format XML qui permet de décrire la structure de 
-navigation d'un livre numérique. La spécification de ce format est dirigé et 
+Le format NCX est un format XML qui permet de décrire la structure de
+navigation d'un livre numérique. La spécification de ce format est dirigé et
 maintenu par le `DAISY Consortium`__.
 
 .. __: http://www.niso.org/workrooms/daisy/Z39-86-2005.html#NCX
 
-   The Navigation Control file for XML applications (NCX) exposes the 
-   hierarchical structure of a Publication to allow the user to navigate 
-   through it. The NCX is similar to a table of contents in that it enables the 
-   reader to jump directly to any of the major structural elements of the 
+   The Navigation Control file for XML applications (NCX) exposes the
+   hierarchical structure of a Publication to allow the user to navigate
+   through it. The NCX is similar to a table of contents in that it enables the
+   reader to jump directly to any of the major structural elements of the
    document
 
-Il est employé dans le cadre du format epub avec quelques modifications 
+Il est employé dans le cadre du format epub avec quelques modifications
 apportées par la `spécification epub OPF`__.
 
 .. __: http://idpf.org/epub/20/spec/OPF_2.0.1_draft.htm#Section2.4.1
 
-Tout comme le format OPF, la bibliothèque python-epub propose un module à part 
+Tout comme le format OPF, la bibliothèque python-epub propose un module à part
 entière pour manipuler ce format plus simplement.
 
-La classe :class:`Ncx` permet au développeur d'utiliser ce contenu au travers 
+La classe :class:`Ncx` permet au développeur d'utiliser ce contenu au travers
 de ses différents attributs :
 
 * :attr:`Ncx.nav_map` pour l'élément ``<navMap>``
@@ -39,7 +39,7 @@ de ses différents attributs :
 Comprendre la structure
 .......................
 
-La clé pour comprendre comment utiliser le format NCX est sans doute de 
+La clé pour comprendre comment utiliser le format NCX est sans doute de
 comprendre le principe d'une table de matière ; prenez l'exemple suivant :
 
 * Volume 1
@@ -52,8 +52,8 @@ comprendre le principe d'une table de matière ; prenez l'exemple suivant :
       * Chapitre 2
       * Chapitre 3
 
-Cette structure est finalement très simple : un arbre aux ramification 
-descendantes. Cette liste est une ``<navMap>``, dont chaque élément est un 
+Cette structure est finalement très simple : un arbre aux ramification
+descendantes. Cette liste est une ``<navMap>``, dont chaque élément est un
 ``<navPoint>``.
 
 Voici la même chose au format xml :
@@ -105,10 +105,10 @@ Vous aurez sans doute remarqué plusieurs choses :
 * Cet attribut est cependant **optionnel**
 * Un ``<navPoint>`` représente une entrée de la navigation
 * Un ``<navPoint>`` peut avoir lui-même plusieurs ``<navPoint>`` en fils
-* Le contenu pointé par un ``<navPoint>``, via sa balise ``<content>`` n'est 
+* Le contenu pointé par un ``<navPoint>``, via sa balise ``<content>`` n'est
   pas un chemin d'accès mais une url relative à l'emplacement du fichier NCX
 
-Armée de cette nouvelle compréhension, utiliser un objet :class:`Ncx` ne 
+Armée de cette nouvelle compréhension, utiliser un objet :class:`Ncx` ne
 devrait plus être un gros problème.
 
 API du module
@@ -119,9 +119,9 @@ La fonction ``parse_ncx``
 
 .. py:function:: parse_ncx(xml_string)
 
-   Analyse les données xml au format NCX, et retourne un objet de la classe 
+   Analyse les données xml au format NCX, et retourne un objet de la classe
    :class:`Ncx` représentant ces données.
-   
+
    :param string xml_string: Le contenu du fichier xml NCX.
    :rtype: Ncx
 
@@ -130,28 +130,28 @@ La classe ``Ncx``
 
 .. py:class:: Ncx
 
-   Représente le fichier NCX d'un livre numérique. Un fichier NCX est un 
-   fichier xml respectant les spécifications de la norme NCX avec les 
+   Représente le fichier NCX d'un livre numérique. Un fichier NCX est un
+   fichier xml respectant les spécifications de la norme NCX avec les
    modifications apportées par la spécification Epub.
 
    .. py:attribute:: xmlns
-   
-      Namespace utilisé pour le document NCX, dont la valeur devrait toujours 
+
+      Namespace utilisé pour le document NCX, dont la valeur devrait toujours
       être ``'http://www.daisy.org/z3986/2005/ncx/'``.
-   
+
    .. py:attribute:: version
-   
-      Version du fichier NCX, dont la valeur devrait toujours être 
+
+      Version du fichier NCX, dont la valeur devrait toujours être
       ``'2005-1'``.
-   
+
    .. py:attribute:: lang
-   
+
       Langue du contenu du fichier NCX.
-   
+
    .. py:attribute:: uid
 
       Identifiant unique du livre.
-   
+
    .. py:attribute:: depth
 
       Représente la meta-donnée ``dtb:depth``.
@@ -169,41 +169,41 @@ La classe ``Ncx``
       Représente la meta-donnée ``dtb:generator``.
 
    .. py:attribute:: title
-   
+
       Titre du livre.
-   
+
    .. py:attribute:: authors
-   
+
       Liste des auteurs du livre.
-   
+
    .. py:attribute:: nav_map
 
-      Objet de la classe :class:`NavMap` représentant l'élément ``<navMap>`` du 
-      fichier NCX. Cet attribut permet d'accéder à la structure de navigation 
+      Objet de la classe :class:`NavMap` représentant l'élément ``<navMap>`` du
+      fichier NCX. Cet attribut permet d'accéder à la structure de navigation
       principale.
 
    .. py:attribute:: page_list
-   
-      Objet de la classe :class:`PageList` représentant l'élément ``<pageList>`` 
+
+      Objet de la classe :class:`PageList` représentant l'élément ``<pageList>``
       du fichier NCX.
-      
+
    .. py:attribute:: nav_lists
 
-      Liste d'objets de la classe :class:`NavList` représentant les éléments 
+      Liste d'objets de la classe :class:`NavList` représentant les éléments
       ``<navList>`` du fichier NCX.
-      
+
       Il peut n'y avoir aucun élément dans cette liste.
 
    .. py:method:: add_nav_list(nav_list)
-   
+
       Ajoute un object :class:`NavList` à la liste des ``NavList``.
-      
+
       :param epub.ncx.NavList nav_list: la liste à ajouter
 
    .. py:method:: as_xml_document()
-   
+
       Retourne l'élément XML Dom correspondant à la structure de l'objet.
-   
+
       :rtype: :class:`xml.dom.Element`
 
 Les classes ``NavMap`` et ``NavPoint``
@@ -217,46 +217,46 @@ Les classes ``NavMap`` et ``NavPoint``
 
    .. py:attribute:: labels
 
-      Liste des labels de la NavMap : chaque label et un tuple de la forme 
-      ``(label, lang, dir)``, indiquant respectivement le titre du label, sa 
+      Liste des labels de la NavMap : chaque label et un tuple de la forme
+      ``(label, lang, dir)``, indiquant respectivement le titre du label, sa
       langue, et la direction d'écriture (``ltr`` ou ``rtl``).
 
    .. py:attribute:: infos
 
-      Liste des infos de la NavMap : chaque info et un tuple de la forme 
-      ``(info, lang, dir)``, indiquant respectivement le contenu de l'info, sa 
+      Liste des infos de la NavMap : chaque info et un tuple de la forme
+      ``(info, lang, dir)``, indiquant respectivement le contenu de l'info, sa
       langue, et la direction d'écriture (``ltr`` ou ``rtl``).
-      
+
       Une "info" est simplement une description de l'élément.
 
    .. py:attribute:: nav_point
-   
-      Liste des éléments ``<navPoint>`` en fils direct de l'élément 
-      ``<navMap>`` (et pas ses petits fils). Chaque élément de cette liste est 
+
+      Liste des éléments ``<navPoint>`` en fils direct de l'élément
+      ``<navMap>`` (et pas ses petits fils). Chaque élément de cette liste est
       un objet de la classe :class:`NavPoint`.
 
    .. py:method:: add_label(label, lang='', direction='')
-   
+
       :param string label: Texte de l'élément ``navLabel``.
       :param string lang: Langue de l'élément.
       :param string direction: Direction du texte ``rtl`` ou ``ltr``.
 
    .. py:method:: add_info(label, lang='', direction='')
-   
+
       :param string label: Texte de l'élément ``navInfo``.
       :param string lang: Langue de l'élément.
       :param string direction: Direction du texte ``rtl`` ou ``ltr``.
 
    .. py:method:: add_point(point)
-   
+
       Ajoute un objet :class:`NavPoint` à la liste des ``navPoint``.
-   
+
       :param epub.ncx.NavPoint point: ajoute un ``NavPoint`` à la liste de ``navPoint``.
 
    .. py:method:: as_xml_document()
-   
+
       Retourne l'élément XML Dom correspondant à la structure de l'objet.
-   
+
       :rtype: :class:`xml.dom.Element`
 
 .. py:class:: NavPoint
@@ -266,50 +266,50 @@ Les classes ``NavMap`` et ``NavPoint``
       Chaîne de caractère, identifiant du ``<navPoint>``.
 
    .. py:attribute:: class_name
-   
+
       Chaîne de caractère, indique la classe css proposée.
-   
-   .. py:attribute:: play_order
-   
-      Chaîne de caractère, indique le placement dans l'ordre de lecture de 
+
+   .. py:attribute:: playOrder
+
+      Chaîne de caractère, indique le placement dans l'ordre de lecture de
       l'élément. Peut être vide.
-   
+
    .. py:attribute:: labels
-   
-      Liste des labels du ``<navPoint>`` : chaque label et un tuple de la forme 
-      ``(label, lang, dir)``, indiquant respectivement le titre du label, sa 
+
+      Liste des labels du ``<navPoint>`` : chaque label et un tuple de la forme
+      ``(label, lang, dir)``, indiquant respectivement le titre du label, sa
       langue, et la direction d'écriture (``ltr`` ou ``rtl``).
-   
+
    .. py:attribute:: src
-   
-      Chaîne de caractère, indique l'url relative à l'emplacement du fichier 
+
+      Chaîne de caractère, indique l'url relative à l'emplacement du fichier
       NCX, et pouvant pointer vers des fragments de fichiers du fichier epub.
-      
-      Exemple : ``Text/chap1.xhtml#p36`` indique le fichier 
-      ``Text/chap1.xhtml`` et plus spéficiquement à l'emplacement du fragment 
+
+      Exemple : ``Text/chap1.xhtml#p36`` indique le fichier
+      ``Text/chap1.xhtml`` et plus spéficiquement à l'emplacement du fragment
       ``p36``.
-   
+
    .. py:attribute:: nav_point
-   
-      Liste des éléments ``<navPoint>`` fils directs. Chaque élément est un 
+
+      Liste des éléments ``<navPoint>`` fils directs. Chaque élément est un
       objet de la classe :class:`NavPoint`.
 
    .. py:method:: add_label(label, lang='', direction='')
-   
+
       :param string label: Texte de l'élément ``navLabel``.
       :param string lang: Langue de l'élément.
       :param string direction: Direction du texte ``rtl`` ou ``ltr``.
 
    .. py:method:: add_point(point)
-   
+
       Ajoute un objet :class:`NavPoint` à la liste des ``navPoint``.
-   
+
       :param epub.ncx.NavPoint point: ajoute un ``NavPoint`` à la liste de ``navPoint``.
 
    .. py:method:: as_xml_document()
-   
+
       Retourne l'élément XML Dom correspondant à la structure de l'objet.
-   
+
       :rtype: :class:`xml.dom.Element`
 
 Les classes ``PageList`` et ``PageTarget``
@@ -322,50 +322,50 @@ Les classes ``PageList`` et ``PageTarget``
       Chaîne de caractère, identifiant du ``<pageList>``.
 
    .. py:attribute:: class_name
-   
+
       Chaîne de caractère, indique la classe css proposée.
-   
+
    .. py:attribute:: labels
-   
-      Liste des labels du ``<navPoint>`` : chaque label et un tuple de la forme 
-      ``(label, lang, dir)``, indiquant respectivement le titre du label, sa 
+
+      Liste des labels du ``<navPoint>`` : chaque label et un tuple de la forme
+      ``(label, lang, dir)``, indiquant respectivement le titre du label, sa
       langue, et la direction d'écriture (``ltr`` ou ``rtl``).
 
    .. py:attribute:: infos
-   
-      Liste des infos de la NavMap : chaque info et un tuple de la forme 
-      ``(info, lang, dir)``, indiquant respectivement le contenu de l'info, sa 
+
+      Liste des infos de la NavMap : chaque info et un tuple de la forme
+      ``(info, lang, dir)``, indiquant respectivement le contenu de l'info, sa
       langue, et la direction d'écriture (``ltr`` ou ``rtl``).
-      
+
       Une "info" est simplement une description de l'élément.
 
    .. py:attribute:: page_target
-   
-      Liste des éléments ``<pageTarget>`` fils directs. Chaque élément est un 
+
+      Liste des éléments ``<pageTarget>`` fils directs. Chaque élément est un
       objet de la classe :class:`PageTarget`.
 
    .. py:method:: add_label(label, lang='', direction='')
-   
+
       :param string label: Texte de l'élément ``navLabel``.
       :param string lang: Langue de l'élément.
       :param string direction: Direction du texte ``rtl`` ou ``ltr``.
 
    .. py:method:: add_info(label, lang='', direction='')
-   
+
       :param string label: Texte de l'élément ``navInfo``.
       :param string lang: Langue de l'élément.
       :param string direction: Direction du texte ``rtl`` ou ``ltr``.
 
    .. py:method:: add_target(page_target)
-   
+
       Ajoute un élément :class:`PageTarget` à la liste des ``pageTarget``.
-   
+
       :param epub.ncx.PageTarget page_target: l'élément à ajouter
 
    .. py:method:: as_xml_document()
-   
+
       Retourne l'élément XML Dom correspondant à la structure de l'objet.
-   
+
       :rtype: :class:`xml.dom.Element`
 
 .. py:class:: PageTarget
@@ -375,47 +375,47 @@ Les classes ``PageList`` et ``PageTarget``
       Chaîne de caractère, identifiant du ``<pageList>``.
 
    .. py:attribute:: labels
-   
-      Liste des labels du ``<navPoint>`` : chaque label et un tuple de la forme 
-      ``(label, lang, dir)``, indiquant respectivement le titre du label, sa 
+
+      Liste des labels du ``<navPoint>`` : chaque label et un tuple de la forme
+      ``(label, lang, dir)``, indiquant respectivement le titre du label, sa
       langue, et la direction d'écriture (``ltr`` ou ``rtl``).
 
    .. py:attribute:: value
-   
+
       Chaîne de caractères, représente l'attribut ``value`` de l'élément.
-   
+
    .. py:attribute:: target_type
-      
+
       Chaîne de caractères.
 
    .. py:attribute:: class_name
-   
+
       Chaîne de caractère, indique la classe css proposée.
-      
-   .. py:attribute:: play_order
-   
-      Chaîne de caractère, indique le placement dans l'ordre de lecture de 
+
+   .. py:attribute:: playOrder
+
+      Chaîne de caractère, indique le placement dans l'ordre de lecture de
       l'élément. Peut être vide.
-      
+
    .. py:attribute:: src
-   
-      Chaîne de caractère, indique l'url relative à l'emplacement du fichier 
+
+      Chaîne de caractère, indique l'url relative à l'emplacement du fichier
       NCX, et pouvant pointer vers des fragments de fichiers du fichier epub.
-      
-      Exemple : ``Text/chap1.xhtml#p36`` indique le fichier 
-      ``Text/chap1.xhtml`` et plus spéficiquement à l'emplacement du fragment 
+
+      Exemple : ``Text/chap1.xhtml#p36`` indique le fichier
+      ``Text/chap1.xhtml`` et plus spéficiquement à l'emplacement du fragment
       ``p36``.
 
    .. py:method:: add_label(label, lang='', direction='')
-   
+
       :param string label: Texte de l'élément ``navLabel``.
       :param string lang: Langue de l'élément.
       :param string direction: Direction du texte ``rtl`` ou ``ltr``.
 
    .. py:method:: as_xml_document()
-   
+
       Retourne l'élément XML Dom correspondant à la structure de l'objet.
-   
+
       :rtype: :class:`xml.dom.Element`
 
 Les classes ``NavList`` et ``NavTarget``
@@ -428,50 +428,50 @@ Les classes ``NavList`` et ``NavTarget``
       Chaîne de caractère, identifiant du ``<navList>``.
 
    .. py:attribute:: class_name
-   
+
       Chaîne de caractère, indique la classe css proposée.
-   
+
    .. py:attribute:: labels
-   
-      Liste des labels du ``<navPoint>`` : chaque label et un tuple de la forme 
-      ``(label, lang, dir)``, indiquant respectivement le titre du label, sa 
+
+      Liste des labels du ``<navPoint>`` : chaque label et un tuple de la forme
+      ``(label, lang, dir)``, indiquant respectivement le titre du label, sa
       langue, et la direction d'écriture (``ltr`` ou ``rtl``).
 
    .. py:attribute:: infos
-   
-      Liste des infos de la NavMap : chaque info et un tuple de la forme 
-      ``(info, lang, dir)``, indiquant respectivement le contenu de l'info, sa 
+
+      Liste des infos de la NavMap : chaque info et un tuple de la forme
+      ``(info, lang, dir)``, indiquant respectivement le contenu de l'info, sa
       langue, et la direction d'écriture (``ltr`` ou ``rtl``).
-      
+
       Une "info" est simplement une description de l'élément.
 
    .. py:attribute:: nav_target
-   
-      Liste des éléments ``<navTarget>`` fils directs. Chaque élément est un 
+
+      Liste des éléments ``<navTarget>`` fils directs. Chaque élément est un
       objet de la classe :class:`NavTarget`.
 
    .. py:method:: add_label(label, lang='', direction='')
-   
+
       :param string label: Texte de l'élément ``navLabel``.
       :param string lang: Langue de l'élément.
       :param string direction: Direction du texte ``rtl`` ou ``ltr``.
 
    .. py:method:: add_info(label, lang='', direction='')
-   
+
       :param string label: Texte de l'élément ``navInfo``.
       :param string lang: Langue de l'élément.
       :param string direction: Direction du texte ``rtl`` ou ``ltr``.
 
    .. py:method:: add_target(nav_target)
-   
+
       Ajoute un élément :class:`NavTarget` à la liste des ``navTarget``.
-   
+
       :param epub.ncx.NavTarget nav_target: l'élément à ajouter
 
    .. py:method:: as_xml_document()
-   
+
       Retourne l'élément XML Dom correspondant à la structure de l'objet.
-   
+
       :rtype: :class:`xml.dom.Element`
 
 .. py:class:: NavTarget
@@ -481,41 +481,41 @@ Les classes ``NavList`` et ``NavTarget``
       Chaîne de caractère, identifiant du ``<pageList>``.
 
    .. py:attribute:: labels
-   
-      Liste des labels du ``<navPoint>`` : chaque label et un tuple de la forme 
-      ``(label, lang, dir)``, indiquant respectivement le titre du label, sa 
+
+      Liste des labels du ``<navPoint>`` : chaque label et un tuple de la forme
+      ``(label, lang, dir)``, indiquant respectivement le titre du label, sa
       langue, et la direction d'écriture (``ltr`` ou ``rtl``).
 
    .. py:attribute:: value
-   
+
       Chaîne de caractères, représente l'attribut ``value`` de l'élément.
 
    .. py:attribute:: class_name
-   
+
       Chaîne de caractère, indique la classe css proposée.
 
-   .. py:attribute:: play_order
-   
-      Chaîne de caractère, indique le placement dans l'ordre de lecture de 
+   .. py:attribute:: playOrder
+
+      Chaîne de caractère, indique le placement dans l'ordre de lecture de
       l'élément. Peut être vide.
-      
+
    .. py:attribute:: src
-   
-      Chaîne de caractère, indique l'url relative à l'emplacement du fichier 
+
+      Chaîne de caractère, indique l'url relative à l'emplacement du fichier
       NCX, et pouvant pointer vers des fragments de fichiers du fichier epub.
-      
-      Exemple : ``Text/chap1.xhtml#p36`` indique le fichier 
-      ``Text/chap1.xhtml`` et plus spéficiquement à l'emplacement du fragment 
+
+      Exemple : ``Text/chap1.xhtml#p36`` indique le fichier
+      ``Text/chap1.xhtml`` et plus spéficiquement à l'emplacement du fragment
       ``p36``.
 
    .. py:method:: add_label(label, lang='', direction='')
-   
+
       :param string label: Texte de l'élément ``navLabel``.
       :param string lang: Langue de l'élément.
       :param string direction: Direction du texte ``rtl`` ou ``ltr``.
 
    .. py:method:: as_xml_document()
-   
+
       Retourne l'élément XML Dom correspondant à la structure de l'objet.
-   
+
       :rtype: :class:`xml.dom.Element`
