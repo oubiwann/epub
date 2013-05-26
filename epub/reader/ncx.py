@@ -101,7 +101,7 @@ def _parse_xml_nav_point(element):
     nav_point = NavPoint()
     nav_point.identifier = element.getAttribute('id')
     nav_point.class_name = element.getAttribute('class')
-    nav_point.play_order = element.getAttribute('playOrder')
+    nav_point.playOrder = element.getAttribute('playOrder')
 
     children = [e for e in element.childNodes if e.nodeType == e.ELEMENT_NODE]
     for node in children:
@@ -148,7 +148,7 @@ def _parse_xml_page_target(element):
     page_target.value = element.getAttribute('value')
     page_target.target_type = element.getAttribute('type')
     page_target.class_name = element.getAttribute('class')
-    page_target.play_order = element.getAttribute('playOrder')
+    page_target.playOrder = element.getAttribute('playOrder')
 
     children = [e for e in element.childNodes if e.nodeType == e.ELEMENT_NODE]
     for node in children:
@@ -191,7 +191,7 @@ def _parse_xml_nav_target(element):
     nav_target.identifier = element.getAttribute('id')
     nav_target.value = element.getAttribute('value')
     nav_target.class_name = element.getAttribute('class')
-    nav_target.play_order = element.getAttribute('playOrder')
+    nav_target.playOrder = element.getAttribute('playOrder')
 
     children = [e for e in element.childNodes if e.nodeType == e.ELEMENT_NODE]
     for node in children:
@@ -397,7 +397,7 @@ class NavPoint(object):
     def __init__(self):
         self.identifier = None
         self.class_name = None
-        self.play_order = None
+        self.playOrder = None
         self.labels = []
         self.src = None
         self.nav_point = []
@@ -422,8 +422,8 @@ class NavPoint(object):
         if self.class_name:
             nav_point.setAttribute('class', self.class_name)
 
-        if self.play_order:
-            nav_point.setAttribute('playOrder', self.play_order)
+        if self.playOrder:
+            nav_point.setAttribute('playOrder', self.playOrder)
 
         # navLabel
         for text, lang, direction in self.labels:
@@ -515,7 +515,7 @@ class PageTarget(object):
         self.value = None
         self.target_type = None
         self.class_name = None
-        self.play_order = None
+        self.playOrder = None
         self.src = None
         self.labels = []
 
@@ -542,8 +542,8 @@ class PageTarget(object):
         if self.class_name:
             page_target.setAttribute('class', self.class_name)
 
-        if self.play_order:
-            page_target.setAttribute('playOrder', self.play_order)
+        if self.playOrder:
+            page_target.setAttribute('playOrder', self.playOrder)
 
         # navLabel
         for text, lang, direction in self.labels:
@@ -630,7 +630,7 @@ class NavTarget(object):
         self.identifier = None
         self.class_name = None
         self.value = None
-        self.play_order = None
+        self.playOrder = None
         self.labels = []
         self.src = None
 
@@ -654,8 +654,8 @@ class NavTarget(object):
         if self.value:
             nav_target.setAttribute('value', self.value)
 
-        if self.play_order:
-            nav_target.setAttribute('playOrder', self.play_order)
+        if self.playOrder:
+            nav_target.setAttribute('playOrder', self.playOrder)
 
         # navLabel
         for text, lang, direction in self.labels:
