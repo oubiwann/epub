@@ -1,14 +1,10 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
-
 import unittest
-
 
 from xml.dom import minidom
 
-
-import epub
+from epub import const
+from epub.reader import opf
 
 
 class TestFunction(unittest.TestCase):
@@ -50,11 +46,11 @@ class TestFunction(unittest.TestCase):
     </spine>
 </package>
 """
-        opf = epub.opf.parse_opf(xml_string)
-        self.assertIsInstance(opf.metadata, epub.opf.Metadata)
-        self.assertIsInstance(opf.manifest, epub.opf.Manifest)
-        self.assertIsInstance(opf.guide, epub.opf.Guide)
-        self.assertIsInstance(opf.spine, epub.opf.Spine)
+        parsed = opf.parse_opf(xml_string)
+        self.assertIsInstance(parsed.metadata, opf.Metadata)
+        self.assertIsInstance(parsed.manifest, opf.Manifest)
+        self.assertIsInstance(parsed.guide, opf.Guide)
+        self.assertIsInstance(parsed.spine, opf.Spine)
 
     def test_parse_xml_metadata(self):
         """Test _parse_xml_metadata."""
@@ -128,8 +124,8 @@ class TestFunction(unittest.TestCase):
             <meta content="Another Custom Meta" name="custom:other"/>
         </metadata>
         """
-        element = minidom.parseString(xml_string.encode('utf-8')).documentElement
-        metadata = epub.opf._parse_xml_metadata(element)
+        element = minidom.parseString(xml_string).documentElement
+        metadata = opf._parse_xml_metadata(element)
 
         # dc:identifier
         self.assertEqual(metadata.identifiers,
@@ -213,13 +209,14 @@ class TestFunction(unittest.TestCase):
         </manifest>
         """
         xml_element = minidom.parseString(xml_string).documentElement
-        manifest = epub.opf._parse_xml_manifest(xml_element)
-        self.assertIsInstance(manifest, epub.opf.Manifest,
-                              'Manifest must be an epub.opf.Manifest instance.')
+        manifest = opf._parse_xml_manifest(xml_element)
+        self.assertIsInstance(
+            manifest, opf.Manifest,
+            'Manifest must be an epub.reader.opf.Manifest instance.')
         self.assertEqual(len(manifest), 4)
 
         for item in manifest.values():
-            self.assertIsInstance(item, epub.opf.ManifestItem)
+            self.assertIsInstance(item, opf.ManifestItem)
 
         self.assertEqual(manifest['toc'].identifier, 'toc')
         self.assertEqual(manifest['cover'].identifier, 'cover')
@@ -235,7 +232,7 @@ class TestFunction(unittest.TestCase):
 class TestMetadata(unittest.TestCase):
 
     def test_add_identifier(self):
-        metadata = epub.opf.Metadata()
+        metadata = opf.Metadata()
         self.assertEqual(metadata.identifiers, [])
 
         metadata.add_identifier('978-284172074-3', 'ID_ISBN', 'isbn')
@@ -250,7 +247,7 @@ class TestMetadata(unittest.TestCase):
                           ('781445645135453123543', 'ID_UID', 'UID')])
 
     def test_get_isbn(self):
-        metadata = epub.opf.Metadata()
+        metadata = opf.Metadata()
         self.assertEqual(metadata.get_isbn(), None)
 
         metadata.add_identifier('978-284172074-3', 'ID_ISBN', 'isbn')
@@ -268,7 +265,7 @@ class TestMetadata(unittest.TestCase):
         doc = minidom.parseString(xml_string)
         xml_element = doc.documentElement
 
-        metadata = epub.opf._parse_xml_metadata(xml_element)
+        metadata = opf._parse_xml_metadata(xml_element)
 
         self.assertEqual(metadata.as_xml_element().toprettyxml('    ').strip(),
                          xml_element.toxml().strip())
@@ -279,14 +276,14 @@ class TestMetadata(unittest.TestCase):
     <dc:creator opf:file-as="aut">Second Creator with File-as attribute</dc:creator>
     <dc:creator opf:role="translator">Third Creator with role</dc:creator>
     <dc:creator opf:role="translator" opf:file-as="aut">Last creator with All</dc:creator>
-</metadata>""" % (epub.opf.XMLNS_DC, epub.opf.XMLNS_OPF)
+</metadata>""" % (opf.XMLNS_DC, opf.XMLNS_OPF)
 
         self.maxDiff = None
         doc = minidom.parseString(xml_string)
         xml_element = doc.documentElement
         xml_element.normalize()
 
-        metadata = epub.opf._parse_xml_metadata(xml_element)
+        metadata = opf._parse_xml_metadata(xml_element)
 
         self.assertEqual(metadata.as_xml_element().toprettyxml('    ').strip(),
                          xml_element.toxml().strip())
@@ -295,14 +292,14 @@ class TestMetadata(unittest.TestCase):
         xml_string = """<metadata xmlns:dc="%s" xmlns:opf="%s">
     <dc:subject>Subject One</dc:subject>
     <dc:subject>Subject Two</dc:subject>
-</metadata>""" % (epub.opf.XMLNS_DC, epub.opf.XMLNS_OPF)
+</metadata>""" % (opf.XMLNS_DC, opf.XMLNS_OPF)
 
         self.maxDiff = None
         doc = minidom.parseString(xml_string)
         xml_element = doc.documentElement
         xml_element.normalize()
 
-        metadata = epub.opf._parse_xml_metadata(xml_element)
+        metadata = opf._parse_xml_metadata(xml_element)
 
         self.assertEqual(metadata.as_xml_element().toprettyxml('    ').strip(),
                          xml_element.toxml().strip())
@@ -310,14 +307,14 @@ class TestMetadata(unittest.TestCase):
     def test_as_xml_element_description(self):
         xml_string = """<metadata xmlns:dc="%s" xmlns:opf="%s">
     <dc:description>This is a very long description. I don't know how you could use it, but...</dc:description>
-</metadata>""" % (epub.opf.XMLNS_DC, epub.opf.XMLNS_OPF)
+</metadata>""" % (opf.XMLNS_DC, opf.XMLNS_OPF)
 
         self.maxDiff = None
         doc = minidom.parseString(xml_string)
         xml_element = doc.documentElement
         xml_element.normalize()
 
-        metadata = epub.opf._parse_xml_metadata(xml_element)
+        metadata = opf._parse_xml_metadata(xml_element)
 
         self.assertEqual(metadata.as_xml_element().toprettyxml('    ').strip(),
                          xml_element.toxml().strip())
@@ -325,14 +322,14 @@ class TestMetadata(unittest.TestCase):
     def test_as_xml_element_publisher(self):
         xml_string = """<metadata xmlns:dc="%s" xmlns:opf="%s">
     <dc:publisher>Exirel Python Epub</dc:publisher>
-</metadata>""" % (epub.opf.XMLNS_DC, epub.opf.XMLNS_OPF)
+</metadata>""" % (opf.XMLNS_DC, opf.XMLNS_OPF)
 
         self.maxDiff = None
         doc = minidom.parseString(xml_string)
         xml_element = doc.documentElement
         xml_element.normalize()
 
-        metadata = epub.opf._parse_xml_metadata(xml_element)
+        metadata = opf._parse_xml_metadata(xml_element)
 
         self.assertEqual(metadata.as_xml_element().toprettyxml('    ').strip(),
                          xml_element.toxml().strip())
@@ -343,14 +340,14 @@ class TestMetadata(unittest.TestCase):
     <dc:contributor opf:file-as="aut">Second Contributor with File-as attribute</dc:contributor>
     <dc:contributor opf:role="translator">Third Contributor with role</dc:contributor>
     <dc:contributor opf:role="translator" opf:file-as="aut">Last Contributor with All</dc:contributor>
-</metadata>""" % (epub.opf.XMLNS_DC, epub.opf.XMLNS_OPF)
+</metadata>""" % (opf.XMLNS_DC, opf.XMLNS_OPF)
 
         self.maxDiff = None
         doc = minidom.parseString(xml_string)
         xml_element = doc.documentElement
         xml_element.normalize()
 
-        metadata = epub.opf._parse_xml_metadata(xml_element)
+        metadata = opf._parse_xml_metadata(xml_element)
 
         self.assertEqual(metadata.as_xml_element().toprettyxml('    ').strip(),
                          xml_element.toxml().strip())
@@ -359,14 +356,14 @@ class TestMetadata(unittest.TestCase):
         xml_string = """<metadata xmlns:dc="%s" xmlns:opf="%s">
     <dc:date opf:event="php_end">2008-08-08</dc:date>
     <dc:date>2009-09-09</dc:date>
-</metadata>""" % (epub.opf.XMLNS_DC, epub.opf.XMLNS_OPF)
+</metadata>""" % (opf.XMLNS_DC, opf.XMLNS_OPF)
 
         self.maxDiff = None
         doc = minidom.parseString(xml_string)
         xml_element = doc.documentElement
         xml_element.normalize()
 
-        metadata = epub.opf._parse_xml_metadata(xml_element)
+        metadata = opf._parse_xml_metadata(xml_element)
 
         self.assertEqual(metadata.as_xml_element().toprettyxml('    ').strip(),
                          xml_element.toxml().strip())
@@ -374,14 +371,14 @@ class TestMetadata(unittest.TestCase):
     def test_as_xml_element_type(self):
         xml_string = """<metadata xmlns:dc="%s" xmlns:opf="%s">
     <dc:type>Epub Type</dc:type>
-</metadata>""" % (epub.opf.XMLNS_DC, epub.opf.XMLNS_OPF)
+</metadata>""" % (opf.XMLNS_DC, opf.XMLNS_OPF)
 
         self.maxDiff = None
         doc = minidom.parseString(xml_string)
         xml_element = doc.documentElement
         xml_element.normalize()
 
-        metadata = epub.opf._parse_xml_metadata(xml_element)
+        metadata = opf._parse_xml_metadata(xml_element)
 
         self.assertEqual(metadata.as_xml_element().toprettyxml('    ').strip(),
                          xml_element.toxml().strip())
@@ -389,14 +386,14 @@ class TestMetadata(unittest.TestCase):
     def test_as_xml_element_format(self):
         xml_string = """<metadata xmlns:dc="%s" xmlns:opf="%s">
     <dc:format>Epub Format</dc:format>
-</metadata>""" % (epub.opf.XMLNS_DC, epub.opf.XMLNS_OPF)
+</metadata>""" % (opf.XMLNS_DC, opf.XMLNS_OPF)
 
         self.maxDiff = None
         doc = minidom.parseString(xml_string)
         xml_element = doc.documentElement
         xml_element.normalize()
 
-        metadata = epub.opf._parse_xml_metadata(xml_element)
+        metadata = opf._parse_xml_metadata(xml_element)
 
         self.assertEqual(metadata.as_xml_element().toprettyxml('    ').strip(),
                          xml_element.toxml().strip())
@@ -404,14 +401,14 @@ class TestMetadata(unittest.TestCase):
     def test_as_xml_element_source(self):
         xml_string = """<metadata xmlns:dc="%s" xmlns:opf="%s">
     <dc:source>Epub Format</dc:source>
-</metadata>""" % (epub.opf.XMLNS_DC, epub.opf.XMLNS_OPF)
+</metadata>""" % (opf.XMLNS_DC, opf.XMLNS_OPF)
 
         self.maxDiff = None
         doc = minidom.parseString(xml_string)
         xml_element = doc.documentElement
         xml_element.normalize()
 
-        metadata = epub.opf._parse_xml_metadata(xml_element)
+        metadata = opf._parse_xml_metadata(xml_element)
 
         self.assertEqual(metadata.as_xml_element().toprettyxml('    ').strip(),
                          xml_element.toxml().strip())
@@ -419,14 +416,14 @@ class TestMetadata(unittest.TestCase):
     def test_as_xml_element_relation(self):
         xml_string = """<metadata xmlns:dc="%s" xmlns:opf="%s">
     <dc:relation>Epub Relation</dc:relation>
-</metadata>""" % (epub.opf.XMLNS_DC, epub.opf.XMLNS_OPF)
+</metadata>""" % (opf.XMLNS_DC, opf.XMLNS_OPF)
 
         self.maxDiff = None
         doc = minidom.parseString(xml_string)
         xml_element = doc.documentElement
         xml_element.normalize()
 
-        metadata = epub.opf._parse_xml_metadata(xml_element)
+        metadata = opf._parse_xml_metadata(xml_element)
 
         self.assertEqual(metadata.as_xml_element().toprettyxml('    ').strip(),
                          xml_element.toxml().strip())
@@ -434,14 +431,14 @@ class TestMetadata(unittest.TestCase):
     def test_as_xml_element_coverage(self):
         xml_string = """<metadata xmlns:dc="%s" xmlns:opf="%s">
     <dc:coverage>Epub Coverage</dc:coverage>
-</metadata>""" % (epub.opf.XMLNS_DC, epub.opf.XMLNS_OPF)
+</metadata>""" % (opf.XMLNS_DC, opf.XMLNS_OPF)
 
         self.maxDiff = None
         doc = minidom.parseString(xml_string)
         xml_element = doc.documentElement
         xml_element.normalize()
 
-        metadata = epub.opf._parse_xml_metadata(xml_element)
+        metadata = opf._parse_xml_metadata(xml_element)
 
         self.assertEqual(metadata.as_xml_element().toprettyxml('    ').strip(),
                          xml_element.toxml().strip())
@@ -449,14 +446,14 @@ class TestMetadata(unittest.TestCase):
     def test_as_xml_element_right(self):
         xml_string = """<metadata xmlns:dc="%s" xmlns:opf="%s">
     <dc:rights>Epub Rights</dc:rights>
-</metadata>""" % (epub.opf.XMLNS_DC, epub.opf.XMLNS_OPF)
+</metadata>""" % (opf.XMLNS_DC, opf.XMLNS_OPF)
 
         self.maxDiff = None
         doc = minidom.parseString(xml_string)
         xml_element = doc.documentElement
         xml_element.normalize()
 
-        metadata = epub.opf._parse_xml_metadata(xml_element)
+        metadata = opf._parse_xml_metadata(xml_element)
 
         self.assertEqual(metadata.as_xml_element().toprettyxml('    ').strip(),
                          xml_element.toxml().strip())
@@ -478,8 +475,8 @@ class TestManifest(unittest.TestCase):
         duck_href = 'fake_item_001.xhtml'
         href = 'item_001.xhtml'
         media = 'application/xhtml+xml'
-        manifest = epub.opf.Manifest()
-        manifest_item = epub.opf.ManifestItem(identifier, href, media)
+        manifest = opf.Manifest()
+        manifest_item = opf.ManifestItem(identifier, href, media)
 
         self.assertEqual(len(manifest), 0)
 
@@ -507,19 +504,19 @@ class TestManifest(unittest.TestCase):
         self.assertTrue(duck_ok in manifest)
 
     def test_add_item(self):
-        """Check epub.opf.Manifest.add_item()"""
+        """Check epub.reader.opf.Manifest.add_item()"""
 
         identifier = 'Chap003'
         href = 'Text/chap3.xhtml'
-        media_type = epub.MIMETYPE_OPF
+        media_type = const.MIMETYPE_OPF
 
-        manifest = epub.opf.Manifest()
-        item = epub.opf.ManifestItem(identifier, href, media_type)
+        manifest = opf.Manifest()
+        item = opf.ManifestItem(identifier, href, media_type)
 
         manifest.add_item(identifier, href, media_type)
 
         self.assertEqual(len(manifest), 1, 'Il manque un objet !')
-        self.assertIsInstance(manifest[identifier], epub.opf.ManifestItem)
+        self.assertIsInstance(manifest[identifier], opf.ManifestItem)
 
     def test_as_xml_element(self):
         xml_string = """<manifest>
@@ -535,7 +532,7 @@ class TestManifest(unittest.TestCase):
         doc = minidom.parseString(xml_string)
         xml_element = doc.documentElement
 
-        manifest = epub.opf._parse_xml_manifest(xml_element)
+        manifest = opf._parse_xml_manifest(xml_element)
 
         xml_input = xml_element.toxml().strip()
         xml_output = manifest.as_xml_element().toprettyxml('    ').strip()
@@ -556,7 +553,7 @@ class TestGuide(unittest.TestCase):
         doc = minidom.parseString(xml_string)
         xml_element = doc.documentElement
 
-        guide = epub.opf._parse_xml_guide(xml_element)
+        guide = opf._parse_xml_guide(xml_element)
 
         self.assertEqual(guide.as_xml_element().toprettyxml('    ').strip(),
                          xml_element.toxml().strip())
@@ -565,21 +562,21 @@ class TestGuide(unittest.TestCase):
 class TestSpine(unittest.TestCase):
 
     def test_init(self):
-        sp = epub.opf.Spine()
+        sp = opf.Spine()
         self.assertIsNone(sp.toc)
         self.assertEquals(sp.itemrefs, [])
 
-        sp = epub.opf.Spine('ncx_file_id')
+        sp = opf.Spine('ncx_file_id')
         self.assertEquals(sp.toc, 'ncx_file_id')
         self.assertEquals(sp.itemrefs, [])
 
         itemrefs = [('text0001', True), ('text0002', False)]
-        sp = epub.opf.Spine('ncx_file_id', itemrefs)
+        sp = opf.Spine('ncx_file_id', itemrefs)
         self.assertEquals(sp.toc, 'ncx_file_id')
         self.assertEquals(sp.itemrefs, itemrefs)
 
     def test_add_itemref(self):
-        sp = epub.opf.Spine()
+        sp = opf.Spine()
         sp.add_itemref('text0001')
         self.assertEquals(sp.itemrefs, [('text0001', True)])
 
@@ -594,7 +591,7 @@ class TestSpine(unittest.TestCase):
                            ('text0003', False)])
 
     def test_append(self):
-        sp = epub.opf.Spine()
+        sp = opf.Spine()
         sp.append(('text0001', True))
         self.assertEquals(sp.itemrefs, [('text0001', True)])
 
@@ -618,7 +615,7 @@ class TestSpine(unittest.TestCase):
         doc = minidom.parseString(xml_string)
         xml_element = doc.documentElement
 
-        spine = epub.opf._parse_xml_spine(xml_element)
+        spine = opf._parse_xml_spine(xml_element)
 
         self.assertEqual(spine.as_xml_element().toprettyxml('    ').strip(),
                          xml_element.toxml().strip())
@@ -627,12 +624,12 @@ class TestSpine(unittest.TestCase):
 class TestOpf(unittest.TestCase):
 
     def test_init(self):
-        opf = epub.opf.Opf()
+        obj = opf.Opf()
 
-        self.assertIsInstance(opf.metadata, epub.opf.Metadata)
-        self.assertIsInstance(opf.manifest, epub.opf.Manifest)
-        self.assertIsInstance(opf.spine, epub.opf.Spine)
-        self.assertIsInstance(opf.guide, epub.opf.Guide)
+        self.assertIsInstance(obj.metadata, opf.Metadata)
+        self.assertIsInstance(obj.manifest, opf.Manifest)
+        self.assertIsInstance(obj.spine, opf.Spine)
+        self.assertIsInstance(obj.guide, opf.Guide)
 
     def test_as_xml_document(self):
         xml_string = """<?xml version="1.0" ?>
@@ -672,9 +669,9 @@ class TestOpf(unittest.TestCase):
 </package>
 """
         self.maxDiff = None
-        opf = epub.opf.parse_opf(xml_string)
+        parsed = opf.parse_opf(xml_string)
 
         xml_input = xml_string.strip()
-        xml_output = opf.as_xml_document().toprettyxml('    ').strip()
+        xml_output = parsed.as_xml_document().toprettyxml('    ').strip()
 
         self.assertEqual(xml_input, xml_output)

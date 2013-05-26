@@ -70,9 +70,9 @@ class EpubFile(zipfile.ZipFile):
 
         """
         # Write mimetype file: 'application/epub+zip'
-        self.writestr('mimetype', MIMETYPE_EPUB)
+        self.writestr('mimetype', const.MIMETYPE_EPUB)
         # Default path for opf
-        self.opf_path = DEFAULT_OPF_PATH
+        self.opf_path = const.DEFAULT_OPF_PATH
         # Uid & Uid's id
         uid_id = 'BookId'
         self.uid = '%s' % uuid.uuid4()
@@ -80,7 +80,7 @@ class EpubFile(zipfile.ZipFile):
         metadata = opf.Metadata()
         metadata.add_identifier(self.uid, uid_id, 'uid')
         manifest = opf.Manifest()
-        manifest.add_item('ncx', 'toc.ncx', MIMETYPE_NCX)
+        manifest.add_item('ncx', 'toc.ncx', const.MIMETYPE_NCX)
         spine = opf.Spine('ncx')
         # Create Opf object
         self.opf = opf.Opf(uid_id=uid_id,
@@ -95,7 +95,7 @@ class EpubFile(zipfile.ZipFile):
         container_xml = minidom.parseString(xmlstring).documentElement
 
         for e in container_xml.getElementsByTagName('rootfile'):
-            if e.getAttribute('media-type') == MIMETYPE_OPF:
+            if e.getAttribute('media-type') == const.MIMETYPE_OPF:
                 # Only take the first full-path available
                 self.opf_path = e.getAttribute('full-path')
                 break

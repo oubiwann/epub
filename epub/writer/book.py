@@ -6,12 +6,12 @@
 import itertools
 import mimetypes
 import os
-import progressbar
 import shutil
 import subprocess
 import uuid
 import zipfile
 
+import progressbar
 
 from lxml import etree
 
