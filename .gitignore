@@ -6,3 +6,4 @@ dist/
 test/_cover/
 docs/_build/
 _trial_temp
+.venv
