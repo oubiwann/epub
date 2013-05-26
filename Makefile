@@ -16,6 +16,7 @@ testing-deps:
 	. $(ACT) && $(INSTALL) twisted
 
 check: build-venv deps testing-deps
+	clear
 	. $(ACT) && trial ./test
 
 clean:
