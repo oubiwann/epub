@@ -188,13 +188,10 @@ class EPubBook(object):
         assert self.title_page
         if self.title_page.html:
             return
-        # XXX debug
-        #import os, sys
         from epub.writer import book
         path = book.__file__
         # XXX debug
         #import pdb;pdb.set_trace()
-        #tmpl = self.loader.load('../test/writer/_data/title-page.html')
         tmpl = self.loader.load('title-page.html')
         stream = tmpl.generate(book=self)
         self.title_page.html = stream.render('xhtml', doctype = 'xhtml11', drop_xml_decl = False)
@@ -337,7 +334,7 @@ class EPubBook(object):
     @staticmethod
     def check_epub(checkerPath, epubPath):
         cmd = ['java', '-jar', checkerPath, epubPath]
-        print cmd
+        #print cmd
         subprocess.call(cmd, shell=False)
 
     def create_book(self, rootDir, extension='.epub'):

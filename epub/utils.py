@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+import os
 
 
 def get_node_text(node):
@@ -36,3 +37,11 @@ def get_urlpath_part(urlpath):
     if urlpath.count('#'):
         href, fragment = urlpath.split('#')
     return (href, fragment)
+
+
+def get_module_path(module):
+    return os.path.dirname(module.__file__)
+
+
+def get_test_data_dir(module):
+    return os.path.join(get_module_path(module), "_data")

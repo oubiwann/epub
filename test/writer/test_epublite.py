@@ -1,7 +1,9 @@
 # -*- coding: utf-8
+import os
 import re
 import unittest
 
+from epub import utils
 from epub.writer import epublite
 
 
@@ -29,11 +31,14 @@ def segment_paragraph(paragraph):
     return segments
 
 
-def parse_book(path, startLineNum, endLineNum):
+# XXX this code seems to be bad and doesn't actually create the text for the
+# chapters; it only sets up the ToC and links for the chapters
+def parse_book(filename, startLineNum, endLineNum):
+    from test.writer import test_epublite as module
     PATTERN = re.compile(r'Chapter \d+$')
     sections = []
     paragraph = ''
-    fin = open(path)
+    fin = open(os.path.join(utils.get_test_data_dir(module), filename))
     lineNum = 0
     for line in fin:
         lineNum += 1
@@ -42,9 +47,9 @@ def parse_book(path, startLineNum, endLineNum):
         if endLineNum > 0 and lineNum > endLineNum:
             break
         line = line.strip()
+        section = epublite.Section()
         if PATTERN.match(line):
-            section = ez_epub.Section()
-            section.css = """.em { font-style: italic; }"""
+            section.css = ".em { font-style: italic; }"
             section.title = line
             sections.append(section)
         elif line == '':
@@ -71,8 +76,10 @@ class BookTestCase(unittest.TestCase):
     """
     """
     def test_book(self):
-        book = epublite.Book()
+        from test.writer import test_epublite as module
+        book = epublite.Book(template_dir=utils.get_test_data_dir(module))
         book.title = 'Pride and Prejudice'
         book.authors = ['Jane Austen']
-        book.sections = parse_book(r'D:\epub\1342.txt', 38, 13061)
-        book.make(r'D:\epub\%s' % book.title)
+        book.sections = parse_book('pg1342.txt', 30, 13061)
+        dir = '/tmp/%s' % book.title.replace(' ', '-')
+        book.make(dir, checker='../bin/epubcheck.jar')
