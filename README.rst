@@ -1,47 +1,61 @@
-===========
-Python Epub
-===========
+#######################
+EPub Library for Python
+#######################
 
-This directory contains the 0.5.1 version of epub python library.
+This project merges two efforts:
 
-Python Epub is free software. See the file LICENSE.txt for copying conditions.
+* Exirel's `epub`_.
+
+* `timtanbin`_'s original python-epub-builder as well as `JohannesBuchner`_'s
+  fork.
+
+The revision histories for all three sources are preservied in git.
 
 
 Downloading
------------
+===========
 
-Python Epub can be obtained in many different ways. You can both get it from
-pip install or pip site, or clone latest version from bitbucket repository.
+You can use ``pip`` to install the Epub library:
 
-::
+..code:: bash
 
-    # install from pip
-    pip install epub
+    $ pip install https://github.com/oubiwann/epub/archive/master.zip
 
-    # install latest version from repository (not recommended)
-    hg clone https://bitbucket.org/exirel/epub
-    cd epub
-    python setup.py install
+Or, you could clone the git repo:
+
+..code:: bash
+
+    $ git clone https://github.com/oubiwann/epub.git
+    $ cd epub
+    $ python setup.py install
 
 
 Documentation
--------------
+=============
 
-This library is documented with Sphinx, and all files can be found into "docs".
+EPub Reader
+-----------
 
-The documentation for version 0.5.1 is readable online at http://epub.exirel.me
-and can be downloaded from bitbucket.
+..code:: python
 
-The documentation for development version will be available
-as soon as possible. However still it can be downloaded from bitbucket in
-the development version.
+    import epub
+
+    book = epub.open_epub('path/to/my/book.epub')
+
+    for item in book.opf.manifest.values():
+        # read the content
+        data = book.read_item(item)
 
 
-Development and bug report
---------------------------
+Pub Writer
+----------
 
-The source code is hosted on bitbucket. You can see it here:
+TBD
 
-    https://bitbucket.org/exirel/epub
 
-Fork me if you want!
+.. Links
+.. =====
+
+.. _epub: https://bitbucket.org/exirel/epub
+.. _timtanbin: http://code.google.com/p/python-epub-builder/
+.. _JohannesBuchner: https://github.com/JohannesBuchner/python-epub-builder
