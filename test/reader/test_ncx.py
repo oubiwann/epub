@@ -144,7 +144,7 @@ class ParseTestCase(unittest.TestCase):
         self.assertEqual(nav_target.identifier, 'part1_target-fragment')
         self.assertEqual(nav_target.value, '5')
         self.assertEqual(nav_target.class_name, 'some_class')
-        self.assertEqual(nav_target.play_order, '5')
+        self.assertEqual(nav_target.playOrder, '5')
         self.assertEqual(nav_target.labels, [('Label de la Target', '', ''),])
         self.assertEqual(nav_target.src, 'Text/part1.xhtml#target-fragment')
 
@@ -198,7 +198,7 @@ class ParseTestCase(unittest.TestCase):
 
         for nav_target in nav_list.nav_target:
             self.assertIsInstance(nav_target, ncx.NavTarget)
-            test_label = 'Label de la Target %s' % nav_target.play_order
+            test_label = 'Label de la Target %s' % nav_target.playOrder
             self.assertEqual(nav_target.labels[0], (test_label, '', ''))
 
     def test_parse_xml_page_target(self):
@@ -221,7 +221,7 @@ class ParseTestCase(unittest.TestCase):
         self.assertEqual(page_target.value, 'Some Value')
         self.assertEqual(page_target.target_type, 'page_type')
         self.assertEqual(page_target.class_name, 'some_class')
-        self.assertEqual(page_target.play_order, '5')
+        self.assertEqual(page_target.playOrder, '5')
         self.assertEqual(page_target.labels,
                          [('Label de la Target', '', ''), ])
         self.assertEqual(page_target.src, 'Text/part1.xhtml#target-fragment')
@@ -279,7 +279,7 @@ class ParseTestCase(unittest.TestCase):
 
         for page_target in page_list.page_target:
             self.assertIsInstance(page_target, ncx.PageTarget)
-            test_label = 'Label français %s' % page_target.play_order
+            test_label = 'Label français %s' % page_target.playOrder
             self.assertEqual(page_target.labels,
                              [(test_label, 'fr', ''),])
 
@@ -314,7 +314,7 @@ class ParseTestCase(unittest.TestCase):
         self.assertEqual(len(nav_point.nav_point), 2)
         for child_nav_point in nav_point.nav_point:
             self.assertIsInstance(child_nav_point, ncx.NavPoint)
-            test_label = 'Sous-Label %s' % child_nav_point.play_order
+            test_label = 'Sous-Label %s' % child_nav_point.playOrder
             self.assertEqual(child_nav_point.labels,
                              [(test_label, 'fr', ''),])
 
