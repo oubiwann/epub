@@ -11,6 +11,8 @@ This project merges two efforts:
 
 The revision histories for all three sources are preservied in git.
 
+In all honesty, both project seem to be a bit of a mess; I'm just trying to
+put something together that suites my needs. This code needs a *lot* of work.
 
 Downloading
 ===========
