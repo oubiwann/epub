@@ -9,6 +9,7 @@ build-venv:
 deps:
 	. $(ACT) && $(INSTALL) genshi
 	. $(ACT) && $(INSTALL) progressbar
+	. $(ACT) && $(INSTALL) lxml
 
 testing-deps:
 	@# we use Twisted's trial as our test-runner
